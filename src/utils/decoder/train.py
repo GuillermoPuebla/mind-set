@@ -15,6 +15,8 @@ import torch.backends.cudnn as cudnn
 from src.utils.net_utils import load_pretraining
 from functools import partial
 
+
+
 def fix_dataset(dataset, name_ds=''):
     dataset.name_ds = name_ds
     dataset.stats = {'mean': [0.491, 0.482, 0.44], 'std': [0.247, 0.243, 0.262]}
@@ -70,15 +72,9 @@ config.weblogger = False
 if config.neptune_proj_name:
     try:
         neptune_run = neptune.init(f'valeriobiscione/{config.neptune_proj_name}')
-        # neptune_run["sys/tags"].add(list_tags)
-        neptune_run["parameters"] = config.dict.keys()
+        neptune_run["parameters"] = config.__dict__
         config.weblogger = neptune_run
-        def __setattr__(self, *args, **kwargs):
-            if isinstance(self.weblogger, neptune.Run):
-                self.weblogger[f"parameters/{args[0]}"] = str(args[1])
-            super().__setattr__(*args, **kwargs)
-        # In this way, everything added from now on to args will be automatically logged.
-        config.__setattr__ = __setattr__
+
 
     except:
         print("Initializing neptune didn't work, maybe you don't have the neptune client installed or you haven't set up the API token (https://docs.neptune.ai/getting-started/installation). Neptune logging won't be used :(")

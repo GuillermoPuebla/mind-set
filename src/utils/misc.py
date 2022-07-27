@@ -75,7 +75,7 @@ def weblog_dataset_info(dataloader, log_text='', dataset_name=None, weblogger=1,
         weblogger['Logs'] = f'{dataset_name} mean: {stats["mean"]}, std: {stats["std"]}'
 
     for idx, data in enumerate(dataloader):
-        simple_plotter(idx, data)
+        plotter(idx, data)
         if idx + 1 >= num_batches_to_log:
             break
 

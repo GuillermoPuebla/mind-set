@@ -313,6 +313,7 @@ def run(data_loader, use_cuda, net, callbacks: List[Callback] = None, optimizer=
             callbacks.on_batch_begin(batch_index, logs)
             iteration_step(data, net, loss_fn, optimizer, use_cuda, logs, logs_prefix, **kwargs)
             logs.update({'stop': False})
+            logs[f'{logs_prefix}tot_iter'] += 1
             # logs.update({
             #     'loss': loss.item(),
             #     'tot_iter': tot_iter,
