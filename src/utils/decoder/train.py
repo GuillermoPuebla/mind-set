@@ -202,3 +202,5 @@ all_cb.append(
 
 net, logs = call_run(train_loader, True, all_cb, config.method)
 config.weblogger.stop() if config.weblogger else None
+
+

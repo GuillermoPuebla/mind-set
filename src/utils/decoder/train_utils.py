@@ -86,3 +86,5 @@ class ResNet152decoders(nn.Module):
         x = torch.flatten(x, 1)
         out_dec.append(self.decoders[5](torch.flatten(x, 1)).squeeze())
         return out_dec
+
+
