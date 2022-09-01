@@ -31,19 +31,29 @@ std = cossim_ll.groupby('level').std()
 len(cossim_df['set'].unique())
 
 ## Plot All Together
+## Plot All Together
 import seaborn as sns
+
 plt.close('all')
 sns.set(style='white')
 levels = m.index.get_level_values('level')
+levels = levels.drop('base')
 for idx, l in enumerate(levels):
-    plt.plot(m.loc[l],  color=color_cycle[idx], marker='o', label=l)
+    plt.plot(m.loc[l], color=color_cycle[idx], marker='o', label=l)
     plt.fill_between(range(len(m.loc[l])), m.loc[l] - std.loc[l][idx], m.loc[l] + std.loc[l][idx], alpha=0.2, color=color_cycle[idx])
 
-plt.xticks(rotation=45)
+ll_name = list(m.loc[l].index)
+idx_lin = [idx for idx, i in enumerate(ll_name) if re.search('Linear', i) is not None][0]
+all_labels = [''] * len(ll_name)
+all_labels[0] = 'Conv. Layers'
+all_labels[idx_lin] = 'FC Layers'
+plt.axvline(idx_lin, color='r', ls='--')
+plt.xticks(range(0, len(ll_name)), all_labels)
 plt.grid(True)
+plt.ylabel('Cosine Similarity')
 plt.tight_layout()
 plt.legend()
-plt.savefig(args.result_folder + '/plot_layers.png')
+plt.savefig(config.result_folder + '/plot_layers.png')
 
 ## Perform One Way ANOVA
 import scipy.stats as stats
