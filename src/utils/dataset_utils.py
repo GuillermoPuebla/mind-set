@@ -7,6 +7,7 @@ from time import time
 import numpy as np
 import torch
 import torchvision
+import random
 from PIL import ImageStat
 from sty import fg, rs
 from torchvision import transforms as tf
@@ -94,42 +95,25 @@ class Stats(ImageStat.Stat):
 
 def compute_mean_and_std_from_dataset(dataset, dataset_path=None, max_iteration=100, data_loader=None, verbose=True):
     if max_iteration < 30:
-        print(f'Max Iteration in Compute Mean and Std for dataset is lower than 30! This could create unrepresentative stats!') if verbose else None
+        print(
+            "Max Iteration in Compute Mean and Std for dataset is lower than 30! This could create unrepresentative stats!"
+        ) if verbose else None
     start = time()
-    stats = {}
-    transform_save = dataset.transform
-    if data_loader is None:
-        data_loader = torch.utils.data.DataLoader(dataset, batch_size=64, num_workers=0)
+    idxs = random.choices(range(len(dataset)), k=np.min((max_iteration, len(dataset))))
+    imgs = [dataset[i][0] for i in idxs]  # item[0] and item[1] are image and its label
+    imgs = torch.stack(imgs, dim=0).numpy()
+    means = [imgs[:, i, :, :].mean() for i in range(3)]
+    stds = [imgs[:, i, :, :].std(ddof=0) for i in range(3)]
+    stats = {"mean": means, "std": stds, "time_one_iter": (time() - start) / max_iteration, "iter": max_iteration}
 
-    statistics = None
-    c = 0
-    stop = False
-    while stop is False:
-        for data, _, _ in data_loader:
-            for b in range(data.shape[0]):
-                if c % 10 == 9 and verbose:
-                    print(f'{c}/{max_iteration}, m: {np.around(np.array(statistics.mean) / 255, 4)}, std: {np.around(np.array(statistics.stddev) / 255, 4)}')
-                c += 1
-                if statistics is None:
-                    statistics = Stats(tf.ToPILImage()(data[b]))
-                else:
-                    statistics += Stats(tf.ToPILImage()(data[b]))
-                if c > max_iteration:
-                    stop = True
-                    break
-            if stop:
-                break
-
-    stats['time_one_iter'] = (time() - start) / max_iteration
-    stats['mean'] = np.array(statistics.mean) / 255
-    stats['std'] = np.array(statistics.stddev) / 255
-    stats['iter'] = max_iteration
-    print(fg.cyan + f'mean={np.around(stats["mean"], 4)}, std={np.around(stats["std"], 4)}, time1it: {np.around(stats["time_one_iter"], 4)}s' + rs.fg) if verbose else None
-
+    print(
+        fg.cyan
+        + f'mean={np.around(stats["mean"],4)}, std={np.around(stats["std"], 4)}, time1it: {np.around(stats["time_one_iter"], 4)}s'
+        + rs.fg
+    ) if verbose else None
     if dataset_path is not None:
-        print('Saving in {}'.format(dataset_path))
-        with open(dataset_path, 'wb') as f:
+        print("Saving in {}".format(dataset_path))
+        with open(dataset_path, "wb") as f:
             pickle.dump(stats, f)
 
-    dataset.transform = transform_save
     return stats
