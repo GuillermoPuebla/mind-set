@@ -16,11 +16,12 @@ class RegressionDataset:
         self.labels = []
         print(sty.fg.yellow + f"Loading dataset from {root} ...", end='' )
         for f in files:
-            self.images.append(Image.open(f).convert('RGB'))
-            self.labels.append(float(os.path.splitext(os.path.basename(f))[0]))
+            self.images.append(Image.open(f).convert("RGB"))
+            name = os.path.splitext(os.path.basename(f))[0]
+            name = float(name.split("_")[0])
+            self.labels.append(name)
 
         print("Done." + sty.rs.fg)
-
 
     def __len__(self):
         return len(self.images)
