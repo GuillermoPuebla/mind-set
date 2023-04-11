@@ -35,7 +35,7 @@ def fix_dataset(dataset, name_ds=''):
 
 
 parser =argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument('--use_residual_decoder', metavar='whether to use the deeper residual decoder', default=False)
+parser.add_argument('--use_residual_decoder', '-resdec', metavar='whether to use the deeper residual decoder', action='store_true')
 parser.add_argument('--test_results_folder', metavar='', default='./results/tmp/')
 parser.add_argument('--model_output_path', metavar='')
 parser.add_argument('--train_dataset', metavar='', help='Either a folder of folders (one for each class) for classification - or a single folder with all the images for regression (see README.md for more info)')
