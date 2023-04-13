@@ -76,7 +76,6 @@ parser.add_argument('--folder', default='./data/ebbinghaus/')
 args = parser.parse_known_args()[0]
 EbbinghausRandomFlankers(path=f'./{args.folder}/train_random_data_{args.num_training_data}', size_dataset=args.num_training_data, img_size=224, background='black')
 
-
 EbbinghausRandomFlankers(path=f'./{args.folder}/test_random_data_{args.num_testing_data}', size_dataset=args.num_testing_data, img_size=224, background='black')
 
 EbbinghausTestSmallFlankers(path=f'./{args.folder}/test_small_flankers_data_{args.num_testing_data}', size_dataset=args.num_testing_data, img_size=224, background='black')
