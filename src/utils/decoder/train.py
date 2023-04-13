@@ -14,6 +14,8 @@ import argparse
 import torch.backends.cudnn as cudnn
 from src.utils.net_utils import load_pretraining
 from functools import partial
+from torchvision.datasets import ImageFolder
+import neptune.new as neptune
 
 
 
@@ -33,6 +35,7 @@ def fix_dataset(dataset, name_ds=''):
 
 
 parser =argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser.add_argument('--use_residual_decoder', '-resdec', metavar='whether to use the deeper residual decoder', action='store_true')
 parser.add_argument('--test_results_folder', metavar='', default='./results/tmp/')
 parser.add_argument('--model_output_path', metavar='')
 parser.add_argument('--train_dataset', metavar='', help='Either a folder of folders (one for each class) for classification - or a single folder with all the images for regression (see README.md for more info)')
@@ -65,142 +68,217 @@ def assert_exists(path):
 
 [assert_exists(p) for p in [config.train_dataset, *config.test_datasets]]
 
-config.train_dataset = config.train_dataset.rstrip('/')
-config.test_datasets = [i.rstrip('/') for i in config.test_datasets]
+if __name__ == "__main__":
+    config.train_dataset = config.train_dataset.rstrip("/")
+    config.test_datasets = [i.rstrip("/") for i in config.test_datasets]
 
-config.weblogger = False
-if config.neptune_proj_name:
-    try:
-        neptune_run = neptune.init(f'valeriobiscione/{config.neptune_proj_name}')
-        neptune_run["parameters"] = config.__dict__
-        config.weblogger = neptune_run
+    config.weblogger = False
+    if config.neptune_proj_name:
+        try:
+            neptune_run = neptune.init_run(api_token=config.neptune_api_token, project=config.neptune_proj_name)
+            neptune_run["parameters"] = config.__dict__
+            config.weblogger = neptune_run
 
+        except:
+            print(
+                "Initializing neptune didn't work, maybe you don't have the neptune client installed or you haven't set up the API token (https://docs.neptune.ai/getting-started/installation). Neptune logging won't be used :("
+            )
 
-    except:
-        print("Initializing neptune didn't work, maybe you don't have the neptune client installed or you haven't set up the API token (https://docs.neptune.ai/getting-started/installation). Neptune logging won't be used :(")
+    config.use_cuda = torch.cuda.is_available()
+    config.is_pycharm = True if "PYCHARM_HOSTED" in os.environ else False
+    torch.cuda.set_device(config.gpu_num) if torch.cuda.is_available() else None
 
-config.use_cuda = torch.cuda.is_available()
-config.is_pycharm = True if 'PYCHARM_HOSTED' in os.environ else False
-torch.cuda.set_device(config.gpu_num) if torch.cuda.is_available() else None
-
-if not list(os.walk(config.train_dataset))[0][1]:
-    print(sty.fg.yellow + sty.ef.inverse + 'You pointed to a folder containin only images, which means that you are going to run a REGRESSION method' + sty.rs.ef)
-    config.method = 'regression'
-else:
-    print(sty.fg.yellow + sty.ef.inverse + 'You pointed to a dataset of folders, which means that you are going to run a CLASSIFICATION method' + sty.rs.ef)
-    config.method = 'classification'
-
-
-[print(fg.red + f'{i[0]}:' + fg.cyan + f' {i[1]}' + rs.fg) for i in config._get_kwargs()]
-
-from torchvision.datasets import ImageFolder
-ds = ImageFolder if config.method == 'classification' else RegressionDataset
-train_dataset = fix_dataset(ds(root=config.train_dataset), name_ds=os.path.basename(config.train_dataset))
-
-
-config.net = ResNet152decoders(imagenet_pt=True, num_outputs=1 if config.method == 'regression' else len(train_dataset.classes))
-num_decoders = len(config.net.decoders)
-
-if config.continue_train:
-    config.pretraining = config.continue_train
-    load_pretraining(config.net, config.pretraining, optimizer=None, use_cuda=config.use_cuda)
-
-print(sty.ef.inverse + "FREEZING CORE NETWORK" + sty.rs.ef)
-for param in config.net.parameters():
-    param.requires_grad = False
-for param in config.net.decoders.parameters():
-    param.requires_grad = True
-
-config.net.cuda() if config.use_cuda else None
-cudnn.benchmark = True
-config.net.train()
-
-config.loss_fn = torch.nn.MSELoss() if config.method == 'regression' else torch.nn.CrossEntropyLoss()
-config.optimizers = [torch.optim.Adam(config.net.decoders[i].parameters(),
-                                      lr=config.learning_rate,
-                                      weight_decay=config.weight_decay) for i in range(num_decoders)]
-
-
-train_loader = DataLoader(train_dataset,
-                          batch_size=config.batch_size,
-                          drop_last=False,
-                          shuffle=True,
-                          num_workers=8 if config.use_cuda and not config.is_pycharm else 0,
-                          timeout=0 if config.use_cuda and not config.is_pycharm else 0,
-                          pin_memory=True)
-
-weblog_dataset_info(train_loader, weblogger=config.weblogger, num_batches_to_log=1, log_text='train') if config.weblogger else None
-
-ds_type = RegressionDataset if config.method == 'regression' else ImageFolder
-test_datasets = [fix_dataset(ds_type(root=path), name_ds=os.path.splitext(os.path.basename(path))[0]) for path in config.test_datasets]
-
-test_loaders = [DataLoader(td,
-                           batch_size=config.batch_size,
-                           drop_last=False,
-                           num_workers=8 if config.use_cuda and not config.is_pycharm else 0,
-                           timeout=0 if config.use_cuda and not config.is_pycharm else 0,
-                           pin_memory=True) for td in test_datasets]
-
-[weblog_dataset_info(td, weblogger=config.weblogger, num_batches_to_log=1, log_text='test') for td in test_loaders]
-
-config.step = decoder_step
-
-
-def call_run(loader, train, callbacks, method, logs_prefix='', logs=None, **kwargs):
-    if logs is None:
-        logs = {}
-    logs.update({f'{logs_prefix}ema_loss': ExpMovingAverage(0.2)})
-
-    if train:
-        logs.update({f'{logs_prefix}ema_{log_type}_{i}': ExpMovingAverage(0.2) for i in range(6)})
+    if not list(os.walk(config.train_dataset))[0][1]:
+        print(
+            sty.fg.yellow
+            + sty.ef.inverse
+            + "You pointed to a folder containin only images, which means that you are going to run a REGRESSION method"
+            + sty.rs.ef
+        )
+        config.method = "regression"
     else:
-        logs.update({f'{logs_prefix}{log_type}': CumulativeAverage()})
-        logs.update({f'{logs_prefix}{log_type}_{i}': CumulativeAverage() for i in range(6)})
+        print(
+            sty.fg.yellow
+            + sty.ef.inverse
+            + "You pointed to a dataset of folders, which means that you are going to run a CLASSIFICATION method"
+            + sty.rs.ef
+        )
+        config.method = "classification"
 
-    return run(loader,
-               use_cuda=config.use_cuda,
-               net=config.net,
-               callbacks=callbacks,
-               loss_fn=config.loss_fn,
-               optimizer=config.optimizers,
-               iteration_step=config.step,
-               train=train,
-               logs=logs,
-               logs_prefix=logs_prefix,
-               collect_data=kwargs.pop('collect_data', False),
-               stats=train_dataset.stats,
-               method=method)
+    [print(fg.red + f"{i[0]}:" + fg.cyan + f" {i[1]}" + rs.fg) for i in config._get_kwargs()]
 
-def stop(logs, cb):
-    logs['stop'] = True
-    print('Early Stopping')
+    ds = ImageFolder if config.method == "classification" else RegressionDataset
+    train_dataset = fix_dataset(ds(root=config.train_dataset), name_ds=os.path.basename(config.train_dataset))
 
-log_type = 'acc' if config.method == 'classification' else 'rmse' # rmse: Root Mean Square Error : sqrt(MSE)
-all_cb = [
-    StopFromUserInput(),
-    ProgressBar(l=len(train_dataset), batch_size=config.batch_size, logs_keys=['ema_loss',
-                                                                               *[f'ema_{log_type}_{i}' for i in range(num_decoders)]]),
-    PrintNeptune(id='ema_loss', plot_every=10, weblogger=config.weblogger),
-    *[PrintNeptune(id=f'ema_{log_type}_{i}', plot_every=10, weblogger=config.weblogger) for i in range(num_decoders)],
-    # Either train for X epochs
-    TriggerActionWhenReachingValue(mode='max', patience=1, value_to_reach=config.stop_at_epoch, check_after_batch=False, metric_name='epoch', action=stop, action_name=f'{config.stop_at_epoch} epochs'),
+    config.net = ResNet152decoders(
+        imagenet_pt=True,
+        num_outputs=1 if config.method == "regression" else len(train_dataset.classes),
+        use_residual_decoder=config.use_residual_decoder,
+    )
+    num_decoders = len(config.net.decoders)
 
+    if config.continue_train:
+        config.pretraining = config.continue_train
+        load_pretraining(config.net, config.pretraining, optimizer=None, use_cuda=config.use_cuda)
 
-    *[DuringTrainingTest(testing_loaders=tl, eval_mode=False, every_x_epochs=1, auto_increase=False, weblogger=config.weblogger, log_text='test during train TRAINmode', use_cuda=config.use_cuda, logs_prefix=f'{tl.dataset.name_ds}/', call_run=partial(call_run, method=config.method), plot_samples_corr_incorr=False, callbacks=[
-        SaveInfoCsv(log_names=['epoch', *[f'{tl.dataset.name_ds}/{log_type}_{i}' for i in range(num_decoders)]], path=config.test_results_folder + f'/{tl.dataset.name_ds}.csv'),
-        # if you don't use neptune, this will be ignored
-        PrintNeptune(id=f'{tl.dataset.name_ds}/{log_type}', plot_every=np.inf, log_prefix='test_TRAIN', weblogger=config.weblogger),
-        PrintConsole(id=f'{tl.dataset.name_ds}/{log_type}', endln=" -- ", plot_every=np.inf, plot_at_end=True),
-        *[PrintConsole(id=f'{tl.dataset.name_ds}/{log_type}_{i}', endln=" "
-                                                       "/ ", plot_every=np.inf, plot_at_end=True) for i in range(num_decoders)],
-                         ]) for tl in test_loaders]
-]
+    print(sty.ef.inverse + "FREEZING CORE NETWORK" + sty.rs.ef)
 
-all_cb.append(SaveModel(config.net, config.model_output_path, loss_metric_name='ema_loss')) if config.model_output_path and not config.is_pycharm else None
-all_cb.append(
-    TriggerActionWhenReachingValue(mode='min', patience=20, value_to_reach=config.stop_at_loss, check_every=10, metric_name='ema_loss', action=stop, action_name=f'goal [{config.stop_at_loss}]')) if config.stop_at_loss else None
+    for param in config.net.parameters():
+        param.requires_grad = False
+    for param in config.net.decoders.parameters():
+        param.requires_grad = True
+    # for param in config.net.decoders_residual.parameters():
+    #     param.requires_grad = True
 
-net, logs = call_run(train_loader, True, all_cb, config.method)
-config.weblogger.stop() if config.weblogger else None
+    config.net.cuda() if config.use_cuda else None
 
+    # cudnn.benchmark is a property of the cudnn library that determines whether to use a cached version of the best convolution algorithm for the hardware or to re-evaluate the convolution algorithm for each forward pass.
+    cudnn.benchmark = False if config.use_cuda else False
 
+    config.net.train()
+    config.loss_fn = torch.nn.MSELoss() if config.method == "regression" else torch.nn.CrossEntropyLoss()
+    config.optimizers = [
+        torch.optim.Adam(config.net.decoders[i].parameters(), lr=config.learning_rate, weight_decay=config.weight_decay)
+        for i in range(num_decoders)
+    ]
+
+    train_loader = DataLoader(
+        train_dataset,
+        batch_size=config.batch_size,
+        drop_last=False,
+        shuffle=True,
+        num_workers=0 if config.use_cuda and not config.is_pycharm else 0,
+        timeout=0 if config.use_cuda and not config.is_pycharm else 0,
+        pin_memory=True,
+    )
+
+    weblog_dataset_info(
+        train_loader, weblogger=config.weblogger, num_batches_to_log=1, log_text="train"
+    ) if config.weblogger else None
+
+    ds_type = RegressionDataset if config.method == "regression" else ImageFolder
+    test_datasets = [
+        fix_dataset(ds_type(root=path), name_ds=os.path.splitext(os.path.basename(path))[0]) for path in config.test_datasets
+    ]
+
+    test_loaders = [
+        DataLoader(
+            td,
+            batch_size=config.batch_size,
+            drop_last=False,
+            num_workers=8 if config.use_cuda and not config.is_pycharm else 0,
+            timeout=0 if config.use_cuda and not config.is_pycharm else 0,
+            pin_memory=True,
+        )
+        for td in test_datasets
+    ]
+
+    [weblog_dataset_info(td, weblogger=config.weblogger, num_batches_to_log=1, log_text="test") for td in test_loaders]
+
+    config.step = decoder_step
+
+    def call_run(loader, train, callbacks, method, logs_prefix="", logs=None, **kwargs):
+        if logs is None:
+            logs = {}
+        logs.update({f"{logs_prefix}ema_loss": ExpMovingAverage(0.2)})
+
+        if train:
+            logs.update({f"{logs_prefix}ema_{log_type}_{i}": ExpMovingAverage(0.2) for i in range(6)})
+        else:
+            logs.update({f"{logs_prefix}{log_type}": CumulativeAverage()})
+            logs.update({f"{logs_prefix}{log_type}_{i}": CumulativeAverage() for i in range(6)})
+
+        return run(
+            loader,
+            use_cuda=config.use_cuda,
+            net=config.net,
+            callbacks=callbacks,
+            loss_fn=config.loss_fn,
+            optimizer=config.optimizers,
+            iteration_step=config.step,
+            train=train,
+            logs=logs,
+            logs_prefix=logs_prefix,
+            collect_data=kwargs.pop("collect_data", False),
+            stats=train_dataset.stats,
+            method=method,
+        )
+
+    def stop(logs, cb):
+        logs["stop"] = True
+        print("Early Stopping")
+
+    log_type = "acc" if config.method == "classification" else "rmse"  # rmse: Root Mean Square Error : sqrt(MSE)
+    all_cb = [
+        StopFromUserInput(),
+        ProgressBar(
+            l=len(train_dataset),
+            batch_size=config.batch_size,
+            logs_keys=["ema_loss", *[f"ema_{log_type}_{i}" for i in range(num_decoders)]],
+        ),
+        PrintNeptune(id="ema_loss", plot_every=10, weblogger=config.weblogger),
+        *[PrintNeptune(id=f"ema_{log_type}_{i}", plot_every=10, weblogger=config.weblogger) for i in range(num_decoders)],
+        # Either train for X epochs
+        TriggerActionWhenReachingValue(
+            mode="max",
+            patience=1,
+            value_to_reach=config.stop_at_epoch,
+            check_after_batch=False,
+            metric_name="epoch",
+            action=stop,
+            action_name=f"{config.stop_at_epoch} epochs",
+        ),
+        *[
+            DuringTrainingTest(
+                testing_loaders=tl,
+                eval_mode=False,
+                every_x_epochs=1,
+                auto_increase=False,
+                weblogger=config.weblogger,
+                log_text="test during train TRAINmode",
+                use_cuda=config.use_cuda,
+                logs_prefix=f"{tl.dataset.name_ds}/",
+                call_run=partial(call_run, method=config.method),
+                plot_samples_corr_incorr=False,
+                callbacks=[
+                    SaveInfoCsv(
+                        log_names=["epoch", *[f"{tl.dataset.name_ds}/{log_type}_{i}" for i in range(num_decoders)]],
+                        path=config.test_results_folder + f"/{tl.dataset.name_ds}.csv",
+                    ),
+                    # if you don't use neptune, this will be ignored
+                    PrintNeptune(
+                        id=f"{tl.dataset.name_ds}/{log_type}",
+                        plot_every=np.inf,
+                        log_prefix="test_TRAIN",
+                        weblogger=config.weblogger,
+                    ),
+                    PrintConsole(id=f"{tl.dataset.name_ds}/{log_type}", endln=" -- ", plot_every=np.inf, plot_at_end=True),
+                    *[
+                        PrintConsole(
+                            id=f"{tl.dataset.name_ds}/{log_type}_{i}", endln=" " "/ ", plot_every=np.inf, plot_at_end=True
+                        )
+                        for i in range(num_decoders)
+                    ],
+                ],
+            )
+            for tl in test_loaders
+        ],
+    ]
+
+    all_cb.append(
+        SaveModel(config.net, config.model_output_path, loss_metric_name="ema_loss")
+    ) if config.model_output_path and not config.is_pycharm else None
+    all_cb.append(
+        TriggerActionWhenReachingValue(
+            mode="min",
+            patience=20,
+            value_to_reach=config.stop_at_loss,
+            check_every=10,
+            metric_name="ema_loss",
+            action=stop,
+            action_name=f"goal [{config.stop_at_loss}]",
+        )
+    ) if config.stop_at_loss else None
+
+    net, logs = call_run(train_loader, True, all_cb, config.method)
+    config.weblogger.stop() if config.weblogger else None

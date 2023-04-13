@@ -9,6 +9,7 @@ You can use **the same** script for both regression or classification, with the 
 In both cases, you use the script in this way:
 ```
 python -m src.utils.decoder.train \
+            --use_residual_decoder \
             --test_results_folder results/name_dataset \
             --model_output_path models/name_dataset/model.pt \
             --train_dataset data/name_dataset/train_data \
@@ -18,6 +19,8 @@ python -m src.utils.decoder.train \
 
 The `decoder.train` script will automatically train all decoder on the `train__data`  dataset, and will test **each test dataset separately**, providing appropriate info about them. The output will be the trained network, and a `.csv` file for each test dataset.
 
+### Residual Decoder
+The ```use_residual_decoder``` flag in the command-line arguments is used to specify whether to use a deeper residual decoder or not. If used, the script will use a deeper residual decoder with 3 pre-activation residual blocks, each containing 2 convolutional layers, instead of a single linear decoder. This approach is inspired by the ResNet architecture proposed by He et al. (2017) and can potentially improve the performance of the decoder.
 
 ### Dataset for Classification
 

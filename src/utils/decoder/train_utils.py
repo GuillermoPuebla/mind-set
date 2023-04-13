@@ -3,6 +3,10 @@ import torchvision
 from torch import nn as nn
 from src.utils.net_utils import make_cuda
 from src.utils.misc import imshow_batch
+from copy import deepcopy
+import numpy as np
+from torch.nn import functional as F
+
 
 def decoder_step(data, model, loss_fn, optimizers, use_cuda, logs, logs_prefix, train, method, **kwargs):
     num_decoders = len(model.decoders)
@@ -45,23 +49,206 @@ def decoder_step(data, model, loss_fn, optimizers, use_cuda, logs, logs_prefix, 
         [optimizers[i].step() for i in range(num_decoders)]
 
 
-
 def config_to_path_train(config):
     return f"/ebbinghaus/decoder/{config.network_name}"
 
 
-class ResNet152decoders(nn.Module):
-    def __init__(self, imagenet_pt, num_outputs=1, **kwargs):
+def replace_layer(net, layer_class, new_layer_class):
+    """This function replaces a specific layer class in a given neural network with a new layer class. The input parameters are:
+    net: The neural network object in which the layer replacement is to be done
+    layer_class: The class of the layer to be replaced
+    new_layer_class: The class of the new layer to replace the old one
+    """
+
+    layers = deepcopy(list(net.named_modules()))  # copy to avoid RuntimeError: dictionary changed size during iteration
+    for name, layer in layers:
+        if isinstance(layer, layer_class):
+            names = name.split(".")
+            parent = net
+            for n in names[:-1]:
+                parent = getattr(parent, n)
+            setattr(parent, names[-1], new_layer_class())
+
+
+class ResidualBlockPreActivation(nn.Module):
+    """
+    Homemade implementation of residual block with pre-activation from He et al. (2016)
+    """
+
+    def __init__(self, channels1, channels2, res_stride=1):
         super().__init__()
-        self.net = torchvision.models.resnet152(pretrained=imagenet_pt, progress=True, **kwargs)
-        self.decoders = nn.ModuleList([nn.Linear(224*224*3, num_outputs),
-                                      nn.Linear(802816, num_outputs),
-                                      nn.Linear(401408, num_outputs),
-                                      nn.Linear(200704, num_outputs),
-                                      nn.Linear(100352, num_outputs),
-                                      nn.Linear(2048, num_outputs)])
+
+        self.bn1 = nn.BatchNorm2d(channels1)
+        self.conv1 = nn.Conv2d(channels1, channels2, kernel_size=3, stride=res_stride, padding=1, bias=False)
+        self.bn2 = nn.BatchNorm2d(channels2)
+        self.conv2 = nn.Conv2d(channels2, channels2, kernel_size=3, stride=1, padding=1, bias=False)
+
+        if res_stride != 1 or channels2 != channels1:
+            self.shortcut = nn.Sequential(
+                nn.Conv2d(channels1, channels2, kernel_size=1, stride=res_stride, bias=False), nn.BatchNorm2d(channels2)
+            )
+
+        else:
+            self.shortcut = nn.Sequential()
 
     def forward(self, x):
+        # original forward pass: Conv2d > BatchNorm2d > ReLU > Conv2D >  BatchNorm2d > ADD > ReLU
+        # pre-activation forward pass: BatchNorm2d > ReLU > Conv2d > BatchNorm2d > ReLU > Conv2d > ADD
+        out = self.bn1(x)
+        out = F.relu(out)
+        out = self.conv1(out)
+        out = self.bn2(out)
+        out = F.relu(out)
+        out = self.conv2(out)
+
+        out += self.shortcut(x)
+
+        return out
+
+
+def make_layer(block, in_channel, out_channel, num_blocks, stride):
+    """
+    Make a layer of residual blocks
+    """
+    layers = []
+    layers.append(block(channels1=in_channel, channels2=out_channel, res_stride=stride))
+    for _ in np.arange(num_blocks - 1):
+        layers.append(block(channels1=out_channel, channels2=out_channel))
+    return nn.Sequential(*layers)
+
+
+class ResNet152decoders(nn.Module):
+    """
+    ResNet152 with decoders
+    """
+
+    def __init__(self, imagenet_pt, num_outputs=1, disable_batch_norm=False, use_residual_decoder=False, **kwargs):
+        super().__init__()
+
+        self.net = torchvision.models.resnet152(pretrained=imagenet_pt, progress=True, **kwargs)
+
+        if disable_batch_norm:
+            replace_layer(self.net, nn.BatchNorm2d, nn.Identity)
+
+        self.use_residual_decoder = use_residual_decoder
+
+        if use_residual_decoder:
+            decoder_1 = nn.Sequential(  # input: 3, 224, 224
+                make_layer(block=ResidualBlockPreActivation, in_channel=3, out_channel=64, num_blocks=1, stride=2),
+                make_layer(block=ResidualBlockPreActivation, in_channel=64, out_channel=64, num_blocks=1, stride=2),
+                make_layer(block=ResidualBlockPreActivation, in_channel=64, out_channel=64, num_blocks=1, stride=2),
+                # here the input will be 64, 28, 28
+                nn.Flatten(),
+                nn.Linear(64 * 28 * 28, 1024),
+                nn.ReLU(),
+                nn.Linear(1024, 256),
+                nn.ReLU(),
+                nn.Linear(256, 64),
+                nn.ReLU(),
+                nn.Linear(64, num_outputs),
+            )
+            decoder_2 = nn.Sequential(  # input: 256, 56, 56
+                make_layer(block=ResidualBlockPreActivation, in_channel=256, out_channel=256, num_blocks=1, stride=2),
+                make_layer(block=ResidualBlockPreActivation, in_channel=256, out_channel=256, num_blocks=1, stride=2),
+                make_layer(block=ResidualBlockPreActivation, in_channel=256, out_channel=256, num_blocks=1, stride=2),
+                nn.Flatten(),
+                nn.Linear(256 * 7 * 7, 1024),
+                nn.ReLU(),
+                nn.Linear(1024, 256),
+                nn.ReLU(),
+                nn.Linear(256, 64),
+                nn.ReLU(),
+                nn.Linear(64, num_outputs),
+            )
+
+            decoder_3 = nn.Sequential(  # input: 512, 28, 28
+                make_layer(block=ResidualBlockPreActivation, in_channel=512, out_channel=512, num_blocks=2, stride=2),
+                make_layer(block=ResidualBlockPreActivation, in_channel=512, out_channel=512, num_blocks=1, stride=2),
+                nn.Flatten(),
+                nn.Linear(512 * 7 * 7, 1024),
+                nn.ReLU(),
+                nn.Linear(1024, 256),
+                nn.ReLU(),
+                nn.Linear(256, 64),
+                nn.ReLU(),
+                nn.Linear(64, num_outputs),
+            )
+
+            decoder_4 = nn.Sequential(  # input: 1024, 14, 14
+                make_layer(block=ResidualBlockPreActivation, in_channel=1024, out_channel=1024, num_blocks=3, stride=2),
+                nn.Flatten(),
+                nn.Linear(1024 * 7 * 7, 1024),
+                nn.ReLU(),
+                nn.Linear(1024, 256),
+                nn.ReLU(),
+                nn.Linear(256, 64),
+                nn.ReLU(),
+                nn.Linear(64, num_outputs),
+            )
+            decoder_5 = nn.Sequential(  # input: 2048, 7, 7
+                make_layer(block=ResidualBlockPreActivation, in_channel=2048, out_channel=2048, num_blocks=3, stride=1),
+                nn.Flatten(),
+                nn.Linear(2048 * 7 * 7, 1024),
+                nn.ReLU(),
+                nn.Linear(1024, 256),
+                nn.ReLU(),
+                nn.Linear(256, 64),
+                nn.ReLU(),
+                nn.Linear(64, num_outputs),
+            )
+            decoder_6 = nn.Sequential(  # input: 2048
+                nn.Linear(2048, 1024),
+                nn.ReLU(),
+                nn.Linear(1024, num_outputs),
+            )
+            self.decoders = nn.ModuleList([decoder_1, decoder_2, decoder_3, decoder_4, decoder_5, decoder_6])
+
+        else:
+            self.decoders = nn.ModuleList(
+                [
+                    nn.Linear(3 * 224 * 224, num_outputs),
+                    nn.Linear(802816, num_outputs),
+                    nn.Linear(401408, num_outputs),
+                    nn.Linear(200704, num_outputs),
+                    nn.Linear(100352, num_outputs),
+                    nn.Linear(2048, num_outputs),
+                ]
+            )
+
+    def forward(self, x):
+        if self.use_residual_decoder:
+            return self._forward_residual_decoder(x)
+        else:
+            return self._forward(x)
+
+    def _forward_residual_decoder(self, x):
+        out_dec_res = []
+        out_dec_res.append(self.decoders[0](x).squeeze())
+
+        x = self.net.conv1(x)
+        x = self.net.bn1(x)
+        x = self.net.relu(x)
+        x = self.net.maxpool(x)
+
+        x = self.net.layer1(x)
+        out_dec_res.append(self.decoders[1](x).squeeze())
+
+        x = self.net.layer2(x)
+        out_dec_res.append(self.decoders[2](x).squeeze())
+
+        x = self.net.layer3(x)
+        out_dec_res.append(self.decoders[3](x).squeeze())
+
+        x = self.net.layer4(x)
+        out_dec_res.append(self.decoders[4](x).squeeze())
+
+        x = self.net.avgpool(x)
+        x = torch.flatten(x, 1)
+        out_dec_res.append(self.decoders[5](x).squeeze())
+
+        return out_dec_res
+
+    def _forward(self, x):
         out_dec = []
         out_dec.append(self.decoders[0](torch.flatten(x, 1)).squeeze())
 
@@ -85,6 +272,11 @@ class ResNet152decoders(nn.Module):
         x = self.net.avgpool(x)
         x = torch.flatten(x, 1)
         out_dec.append(self.decoders[5](torch.flatten(x, 1)).squeeze())
+
         return out_dec
 
+
+if __name__ == "__main__":
+    net = ResNet152decoders(imagenet_pt=False, num_outputs=1)
+    print(net)
 
