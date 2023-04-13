@@ -22,7 +22,7 @@ def decoder_step(data, model, loss_fn, optimizers, use_cuda, logs, logs_prefix, 
     for idx, od in enumerate(out_dec):
         loss_decoder.append(loss_fn(od,
                 labels))
-        loss += loss_decoder[-1]
+        loss = loss + loss_decoder[-1]
 
     logs[f'{logs_prefix}ema_loss'].add(loss.item())
 
