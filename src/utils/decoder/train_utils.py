@@ -2,7 +2,7 @@ import torch
 import torchvision
 from torch import nn as nn
 from src.utils.net_utils import make_cuda
-from src.utils.misc import imshow_batch
+from src.utils.misc import imshow_batch, convert_lists_to_strings
 from copy import deepcopy
 import numpy as np
 from torch.nn import functional as F
@@ -60,6 +60,13 @@ def decoder_step(data, model, loss_fn, optimizers, use_cuda, logs, logs_prefix, 
     if train:
         loss.backward()
         [optimizers[i].step() for i in range(num_decoders)]
+
+def log_neptune_init_info(neptune_logger, toml_config, tags=None):
+    tags = [] if tags is None else tags
+    neptune_logger['sys/name'] = toml_config['train_info']['run_id']  # to be consistent with before
+    neptune_logger['toml_config'] = convert_lists_to_strings(toml_config)
+    neptune_logger['toml_config_file'].upload(toml_config['train_info']['save_folder'] + '/toml_config.txt')
+    neptune_logger["sys/tags"].add(tags)
 
 
 def config_to_path_train(config):
