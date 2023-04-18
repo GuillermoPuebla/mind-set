@@ -16,16 +16,16 @@ class RegressionDataset:
         self.labels = []
         print(sty.fg.yellow + f"Loading dataset from {root} ...", end='' )
         for f in files:
-            self.images.append(Image.open(f).convert("RGB"))
-            name = os.path.splitext(os.path.basename(f))[0]
-            name = float(name.split("_")[0])
-            self.labels.append(name)
+            self.images.append(f)
+            self.labels.append(float(os.path.splitext(os.path.basename(f))[0]))
 
         print("Done." + sty.rs.fg)
+
 
     def __len__(self):
         return len(self.images)
 
     def __getitem__(self, idx):
-        return ((self.transform(self.images[idx]) if self.transform else self.images[idx]),
+        img = Image.open(self.images[idx]).convert('RGB')
+        return ((self.transform(img) if self.transform else img),
                torch.tensor(self.labels[idx]))
