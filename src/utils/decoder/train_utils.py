@@ -7,6 +7,19 @@ from copy import deepcopy
 import numpy as np
 from torch.nn import functional as F
 
+def fix_dataset(dataset, name_ds=''):
+    dataset.name_ds = name_ds
+    dataset.stats = {'mean': [0.491, 0.482, 0.44], 'std': [0.247, 0.243, 0.262]}
+    add_resize = False
+    if next(iter(dataset))[0].size[0] != 244:
+        add_resize = True
+
+    dataset.transform = torchvision.transforms.Compose([torchvision.transforms.ToTensor(),
+                                                        torchvision.transforms.Normalize(mean=dataset.stats['mean'],
+                                                                                         std=dataset.stats['std'])])
+    if add_resize:
+        dataset.transform.transforms.insert(0, torchvision.transforms.Resize(224))
+    return dataset
 
 def decoder_step(data, model, loss_fn, optimizers, use_cuda, logs, logs_prefix, train, method, **kwargs):
     num_decoders = len(model.decoders)
