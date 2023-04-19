@@ -4,22 +4,22 @@
 [//]: # (All the relevant scripts are in `src/utils/compute_distance` and `src/utils`. Examples are in `src/utils/compute_distance/examples`.  )
 You can compute the distance between activation with `cosine similarity` or `euclideaen distance`. Use the command line argument `--distance_metric cossim` or `--distance_metric euclidean`. The latter is the default. 
 
-There are two ways to the activation distance. One is by comparing _one base image_ with a set of images contained in a folder (`compute_distance_base_vs_folder.py`). The other one is to compare a set of images in a base folder with corresponding images in other folders (`compute_distance_across_folders.py`). You will find an example for each one in the folder `src/utils/compute_distance/examples/`. 
+There are two ways to the activation distance. One is by comparing _one base image_ with a set of images contained in a folder (`base_vs_folder.py`). The other one is to compare a set of images in a base folder with corresponding images in other folders (`across_folders.py`). You will find an example for each one in the folder `src/utils/compute_distance/examples/`. 
 Next is how to organize the dataset to use the scripts:
 
 
 ### Dataset: Base image vs set of images
 
 * **Example dataset in `data/examples/closure`**
-* **Used in script `src/utils/compute_distance/compute_distance_base_vs_folder.py`** 
-* **Example usage in `src/utils/compute_distnace/examples/distance_base_vs_folder.sh`**
+* **Used in script `src/utils/compute_distance/base_vs_folder.py`** 
+* **Example usage in `src/utils/compute_distnace/examples/base_vs_folder.sh`**
 
-This is the simplest way of computing the distance. Simply specify the path of the base image and the folder containing images you want to compare the base image with. The `compute_distance_base_vs_folder.py` will take this type of dataset. An example of this dataset is `data/examples/closure/`, which contains the base image `square.png` and a folder with a bunch of other images (each image names here don't matter). 
+This is the simplest way of computing the distance. Simply specify the path of the base image and the folder containing images you want to compare the base image with. The `base_vs_folder.py` will take this type of dataset. An example of this dataset is `data/examples/closure/`, which contains the base image `square.png` and a folder with a bunch of other images (each image names here don't matter). 
 
 **Example usage:**
 
 ```
-python -m src.utils.compute_distance.compute_distance_base_vs_folder \
+python -m src.utils.compute_distance.base_vs_folder \
             --distance_metric euclidean \
             --base_image ./data/examples/closure/square.png \
             --folder ./data/examples/closure/angles_rnd \
@@ -38,14 +38,14 @@ The meaning of the `--affine_transf_code` optional args is explained below.
 
 * **Used in the script `src/utils/compute_distance/compute_distance_acros_folders.py`**
 
-* **Example usage `src/utils/compute_distance/examples/distance_across_folders.sh`**
+* **Example usage `src/utils/compute_distance/examples/across_folders.sh`**
 
 
 Here you compute distance between images in a base folder and corresponding images in other folders. An example is `/data/NAPvsMP/NAPvsMP_standard` folder. Here, we want to compare each image in the `base` folder with each images in the other two folder. The image name have to match across folders: `NAPvsMP_standard/base/1.png` will be compared with `NAPvsMP_standard/MP/1.png` and with `NAPvsMP_standard/NAP/1.png`. The image name doesn't need to be a number - but it needs to match across folders. You always need to indicate the name of the `base_folder` against which all other folders will be compared. The script `compute_cossim_across_folder` will compare the base folder with any number of folders.
 
 **Example Command Line usage**:
 ```
-python -m src.utils.compute_distance.compute_distance_across_folders \
+python -m src.utils.compute_distance.across_folders \
                             --base_folder_name NS \
                             --folder ./data/NAPvsMP/NAPvsMPlines/ \
                             --result_folder ./results/examples/NAPvsMPlines/ \
@@ -62,7 +62,7 @@ python -m src.utils.compute_distance.examples.analysis_across_folders \
 ```
 
 ### Optional Arguments
-We should aim to keep experiments consistent, so I advice to generally stick with the default arguments. However, for your own entertainment you can explore different setups. A full list of optional arguments can be seen by running `python -m src.utils.compute_distance.compute_distance_across_folders -h`. Here are some of them that deserve a longer explanation.
+We should aim to keep experiments consistent, so I advice to generally stick with the default arguments. However, for your own entertainment you can explore different setups. A full list of optional arguments can be seen by running `python -m src.utils.compute_distance.across_folders -h`. Here are some of them that deserve a longer explanation.
 
 ### Network_name
 `--network_name`: Choose between `alexnet`, `vgg11`, `vgg16`, `vgg11bn`, `vgg16bn`, `vgg19bn`, `resnet18`, `resnet50`, `resnet152`, `inception_v3` , `densenet121`, `densenet201`, `googlenet`. Default is `resnet152`. If you want to test a different network (from the defauls PyTorch nets) just ask me and I'll add it. If you want to test another network, you can ask me some guidelines on how to do so.
@@ -79,10 +79,10 @@ Another related optional argument is `--affine_transf_background`. The colour sp
 
 
 ## Output
-Both `compute_distance_across_folders` and `compute_distance_base_vs_folder` will return a pandas dataframe, and a list of all layers which activation has been used for computing the distance metric. 
+Both `across_folders` and `base_vs_folder` will return a pandas dataframe, and a list of all layers which activation has been used for computing the distance metric. 
 These scripts will save the dataframe as a pickle object in the `--result_folder`. They'll also write images in a `debug_img` folder (within the `--result_folder`)  showing samples of the pairs used for computing distance metric. Really useful to check that it all makes sense, expecially with respect to the affine transformations.
 
 ## Sample Analysis
 There is a sample analysis script for the comparison across folder: `analysis_across_folder.py`. It does some simple analysis that should mostly work as an example to show you how to get some data out of the pandas dataframe. The same analysis file is present in a `.ipynb` format in case you prefer that 
-The example file `src/utils/compute_distance/distance_across_folders.sh` show how to pipe with the script computing the distance metri. You are free to setup the analysis as you please. As usual, keep all contained within the same folder in `src`, and stick to the same folder structure for `src`, `data`, and   `results`.
+The example file `src/utils/compute_distance/across_folders.sh` show how to pipe with the script computing the distance metri. You are free to setup the analysis as you please. As usual, keep all contained within the same folder in `src`, and stick to the same folder structure for `src`, `data`, and   `results`.
 

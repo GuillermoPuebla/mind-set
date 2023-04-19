@@ -8,12 +8,12 @@ If you just wanna mess around and try stuff use these scripts as you like (clone
 
 
 
-**IMPORTANT: In all the examples, the working directory is ALWAYS the project root (`mind-set`), meaning that you need to run the scripts from the folder `mind-set`. Plus, to account for other modules dependencies, run it as a module. E.g. `python -m src.utils.compute_distance.compute_distance_across_folders`.**
+**IMPORTANT: In all the examples, the working directory is ALWAYS the project root (`mind-set`), meaning that you need to run the scripts from the folder `mind-set`. Plus, to account for other modules dependencies, run it as a module. E.g. `python -m src.utils.compute_distance.across_folders`.**
 
 ## Contribution Guidelines
 Put your dataset in `data/name_dataset`. If you have several variations of your dataset do something like `data/name_dataset/variation1`, `data/name_dataset/variation2`, etc.  If you use git, DO NOT ADD THE DATASET TO GIT. The dataset stays local on your machine. **We will decide later together how to share the datasets properly**. (The few datasets added currently are all currently for examples). 
 
-The scripts for generating the dataset, for the analysis, and for any other thing that might be useful, go in `src/name_dataset/` (within this folder, arrange files and subfolders to your liking). In `src/name_dataset`, you should also put a bash file containing the command line used for that specific dataset, with a name indicating the approach it is referring to. See as an example `src/ebbinghaus/decoder_train.sh` containing the command line for training the decoder, or `src/NAPvsMP/distance.sh` contains the loop for computing the euclidedan distance and run the analysis on all the four `NAPvsMP` datasets in `data/NAPvsMP`.
+The scripts for generating the dataset, for the analysis, and for any other thing that might be useful, go in `src/name_dataset/` (within this folder, arrange files and subfolders to your liking). In `src/name_dataset`, you should also put a bash file containing the command line used for that specific dataset, with a name indicating the approach it is referring to. See as an example `src/ebbinghaus/decoder_train.sh` containing the command line for training the decoder, or `src/NAPvsMP/distance.sh` contains the loop for computing the distance and run the analysis on all the four `NAPvsMP` datasets in `data/NAPvsMP`.
 When saving files, always save them in `results/name_dataset/`; when saving a model, save it in `models/name_dataset/`.
 
 Overall, the general rule is to aim to mimick a similar folder structure across `data`, `src`, `models`, and `results`. 

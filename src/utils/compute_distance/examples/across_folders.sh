@@ -1,6 +1,6 @@
 #!/bin/bash
 
-python -m src.utils.compute_distance.compute_distance_across_folders \
+python -m src.utils.compute_distance.across_folders \
                             --distance_metric euclidean \
                             --base_folder_name NS \
                             --folder ./data/NAPvsMP/NAPvsMPlines/ \

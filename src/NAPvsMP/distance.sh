@@ -7,7 +7,7 @@ basename=(base NS base base)
 for idx in ${!types[@]}
 do
   exp_folder=${folder}/${types[idx]}/
-  python -m src.utils.compute_distance.compute_distance_across_folders \
+  python -m src.utils.compute_distance.across_folders \
                               --base_folder_name ${basename[idx]} \
                               --folder ./data/${exp_folder} \
                               --result_folder ./results/${exp_folder} \

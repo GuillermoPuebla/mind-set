@@ -4,7 +4,7 @@ from matplotlib import pyplot as plt
 from torchvision.transforms import functional as F
 import torch
 
-def get_cossim_args(parser):
+def get_distance_args(parser):
     parser.add_argument('--distance_metric', '-dm', help='Either [euclidean] or [cossim], default=euclidean', default='euclidean')
     parser.add_argument('--network_name', metavar='', help='[alexnet], [vgg11/16], [vgg11bn/16n/19bn], [resnet18/50/152], [inception_v3], [densenet121/201], [googlenet]', default='resnet152')
     parser.add_argument('--affine_transf_code', metavar='', help='specify what transformation to apply. Use t/s/r for translation, scale and rotation, and square brackets with the transformation limits. E.g. t[-0.2, 0.2]r[-50, 50]s will translate from -0.2 to 0.2 (normalize to image size), rotate from -50 to +50 degrees, and s indicates that will scale using default values. Default values are t=[-0.2, 0.2], r=0.7, 1.3], r=[0, 360].', default='')
