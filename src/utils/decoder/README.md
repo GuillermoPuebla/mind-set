@@ -1,4 +1,5 @@
 # Decoder Approach
+-----THIS DOCUMENTATION IS NO LONGER VALID AND NEEDS TO BE REWRITTEN TO ACCOUNT FOR THE TOML CONFIG SETUP WE USE NOW. HOWEVER, TO GET STARTED, USE THE EXAMPLES iIN decoder/examples. THEY ARE UP TO DATE!  
 
 We attach 6 linear decoders at several stages of a `ResNet152` (including at the very input, and at the penultimate layer). 
 

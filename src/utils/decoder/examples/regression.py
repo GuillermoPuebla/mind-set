@@ -1,5 +1,5 @@
 """
-In this script we show a couple of other ways to run a training session.
+In this script we show a couple of other ways to run a REGRESSION training session.
 Before running this example, generate the ebbinghaus dataset in this way:
     python -m src.ebbinghaus.generate_datasets.py --num_training_data=100 --num_testing_data=20 --folder data/examples/ebbinghaus
 """
