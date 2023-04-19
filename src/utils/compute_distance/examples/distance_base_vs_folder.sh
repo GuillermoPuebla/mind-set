@@ -1,6 +1,7 @@
 #!/bin/bash
 
-python -m src.utils.cosine_similarity.compute_cossim_base_vs_folder \
+python -m src.utils.compute_distance.compute_cossim_base_vs_folder \
+            --distance_metric euclidean \
             --base_image ./data/examples/closure/square.png \
             --folder ./data/examples/closure/angles_rnd \
             --result_folder ./results/examples/closure/full_vs_segm \
