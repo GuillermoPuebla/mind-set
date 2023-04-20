@@ -3,12 +3,13 @@ import numpy as np
 from matplotlib import pyplot as plt
 from torchvision.transforms import functional as F
 import torch
+import ast
 
 def get_distance_args(parser):
     parser.add_argument('--distance_metric', '-dm', help='Either [euclidean] or [cossim], default=euclidean', default='euclidean')
     parser.add_argument('--network_name', metavar='', help='[alexnet], [vgg11/16], [vgg11bn/16n/19bn], [resnet18/50/152], [inception_v3], [densenet121/201], [googlenet]', default='resnet152')
     parser.add_argument('--affine_transf_code', metavar='', help='specify what transformation to apply. Use t/s/r for translation, scale and rotation, and square brackets with the transformation limits. E.g. t[-0.2, 0.2]r[-50, 50]s will translate from -0.2 to 0.2 (normalize to image size), rotate from -50 to +50 degrees, and s indicates that will scale using default values. Default values are t=[-0.2, 0.2], r=0.7, 1.3], r=[0, 360].', default='')
-    parser.add_argument('--affine_transf_background', metavar='', help='when rotating/scaling the image, a "fill in" background will be used. You can specify which one here: [black], [white], [random]<-for randomly pixellated, [cyan] etc.', default='black')
+    parser.add_argument('--affine_transf_background', metavar='', help='when rotating/scaling the image, a "fill in" background will be used. Specify it here with a tuple of ints from 0 to 255. Default is black: (0, 0, 0). [random] for randomly pixellated background is not supported yet.', default='(0, 0, 0)', type=lambda x: ast.literal_eval(x))
     parser.add_argument('--result_folder', metavar='', default='./results/tmp')
     parser.add_argument('--repetitions', metavar='', help='How many times do we need to repeat a sample', default=50, type=int)
     parser.add_argument('--save_layers', metavar='', help='Specify against what layer we want to compute the cosine similarity analysis', default=['Conv2d', 'Linear'], nargs="+", type=str)

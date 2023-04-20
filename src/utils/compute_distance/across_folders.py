@@ -83,7 +83,6 @@ def compute_distance(config):
 
     transform = torchvision.transforms.Compose(transf_list)
 
-    fill_bk = 'black' if config.affine_transf_background == 'black' or config.affine_transf_background == 'random' else config.affine_transf_background
     debug_image_path = config.result_folder + '/debug_img/'
     pathlib.Path(os.path.dirname(config.result_folder)).mkdir(parents=True, exist_ok=True)
     pathlib.Path(os.path.dirname(debug_image_path)).mkdir(parents=True, exist_ok=True)
@@ -116,7 +115,7 @@ if __name__ == '__main__':
 
     config = parser.parse_known_args()[0]
 
-    # config = parser.parse_known_args(['--folder', './data/NAPvsMP/NAPvsMPlines/', '--base_folder_name', 'NS', '--result_folder', './results/NAPvsMP/NAPvsMPlines/', '--affine_transf_code', 't[-0.2, 0.2]s[0.5,0.9]r', '--repetitions', '2'])[0]
+    # config = parser.parse_known_args(['--folder', './data/NAPvsMP/NAPvsMPlines/', '--base_folder_name', 'NS', '--result_folder', './results/NAPvsMP/NAPvsMPlines/', '--affine_transf_code', 't[-0.2, 0.2]s[0.5,0.9]r', '--repetitions', '2', '--affine_transf_background', '(255, 0, 0)'])[0]
 
     [print(fg.red + f'{i[0]}:' + fg.cyan + f' {i[1]}' + rs.fg) for i in config._get_kwargs()]
 

@@ -74,7 +74,6 @@ def compute_distance(config):
 
     transform = torchvision.transforms.Compose(transf_list)
 
-    fill_bk = 'black' if config.affine_transf_background == 'black' or config.affine_transf_background == 'random' else config.affine_transf_background
     debug_image_path = config.result_folder + '/debug_img/'
     pathlib.Path(os.path.dirname(config.result_folder)).mkdir(parents=True, exist_ok=True)
     pathlib.Path(os.path.dirname(debug_image_path)).mkdir(parents=True, exist_ok=True)
