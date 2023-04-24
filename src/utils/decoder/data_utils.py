@@ -4,6 +4,8 @@ import os
 import torch
 import glob
 import PIL.Image as Image
+
+
 class RegressionDataset:
     def __init__(self, root, transform=None):
         """
@@ -11,21 +13,23 @@ class RegressionDataset:
         :param transform:
         """
         self.transform = transform
-        files = glob.glob(root + '/*.png')
+        files = glob.glob(root + "/*.png")
         self.images = []
         self.labels = []
-        print(sty.fg.yellow + f"Loading dataset from {root} ...", end='' )
+        print(sty.fg.yellow + f"Loading dataset from {root} ...", end="")
         for f in files:
             self.images.append(f)
-            self.labels.append(float(os.path.splitext(os.path.basename(f))[0]))
-
+            name = os.path.splitext(os.path.basename(f))[0]
+            name = float(name.split("_")[0])
+            self.labels.append(name)
         print("Done." + sty.rs.fg)
-
 
     def __len__(self):
         return len(self.images)
 
     def __getitem__(self, idx):
-        img = Image.open(self.images[idx]).convert('RGB')
-        return ((self.transform(img) if self.transform else img),
-               torch.tensor(self.labels[idx]))
+        img = Image.open(self.images[idx]).convert("RGB")
+        return (
+            (self.transform(img) if self.transform else img),
+            torch.tensor(self.labels[idx]),
+        )
