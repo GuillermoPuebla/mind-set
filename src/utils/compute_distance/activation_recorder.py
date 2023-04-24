@@ -1,7 +1,19 @@
+import glob
+import os
+
+import pandas as pd
 import torch
 import sty
 import numpy as np
 from typing import List
+
+import PIL.Image as Image
+from matplotlib import pyplot as plt
+from torchvision.transforms import InterpolationMode, transforms
+from tqdm import tqdm
+
+from src.utils.compute_distance.misc import my_affine, get_new_affine_values, save_figs
+from src.utils.misc import conver_tensor_to_plot
 from src.utils.net_utils import make_cuda
 from copy import deepcopy
 
@@ -116,3 +128,160 @@ class RecordDistance(RecordActivations):
                         ).item()
                     )
         return distance
+
+
+class RecordDistanceAcrossFolders(RecordDistance):
+    def compute_random_set(
+        self,
+        folder,
+        transform,
+        matching_transform=False,
+        fill_bk=None,
+        affine_transf="",
+        N=5,
+        path_save_fig=None,
+        base_name="base",
+    ):
+        norm = [i for i in transform.transforms if isinstance(i, transforms.Normalize)][
+            0
+        ]
+        save_num_image_sets = 5
+        all_files = glob.glob(folder + "/**")
+        levels = [os.path.basename(i) for i in glob.glob(folder + "/**")]
+
+        sets = [
+            np.unique(
+                [
+                    os.path.splitext(os.path.basename(i))[0]
+                    for i in glob.glob(folder + f"/{l}/*")
+                ]
+            )
+            for l in levels
+        ]
+        assert np.all(
+            [len(sets[ix]) == len(sets[ix - 1]) for ix in range(1, len(sets))]
+        ), "Length for one of the folder doesn't match other folder in the dataset"
+        assert np.all(
+            [np.all(sets[ix] == sets[ix - 1]) for ix in range(1, len(sets))]
+        ), "All names in all folders in the dataset needs to match. Some name didn't match"
+        sets = sets[0]
+
+        df = pd.DataFrame([])
+        save_sets = []
+        for s in tqdm(sets):
+            plt.close("all")
+            for a in levels:
+                save_fig = True
+                save_sets = []
+                for n in range(N):
+                    im_0 = Image.open(f"{base_name}/{s}.png").convert("RGB")
+                    im_i = Image.open(folder + f"/{a}/{s}.png").convert("RGB")
+                    af = (
+                        [get_new_affine_values(affine_transf) for i in [im_0, im_i]]
+                        if not matching_transform
+                        else [get_new_affine_values(affine_transf)] * 2
+                    )
+                    images = [
+                        my_affine(
+                            im,
+                            translate=af[idx]["tr"],
+                            angle=af[idx]["rt"],
+                            scale=af[idx]["sc"],
+                            shear=af[idx]["sh"],
+                            interpolation=InterpolationMode.NEAREST,
+                            fill=fill_bk,
+                        )
+                        for idx, im in enumerate([im_0, im_i])
+                    ]
+
+                    images = [transform(i) for i in images]
+                    df_row = {"set": s, "level": a, "n": n}
+                    cs = self.compute_distance_pair(
+                        images[0], images[1]
+                    )  # , path_fig='')
+                    df_row.update(cs)
+                    df = pd.concat([df, pd.DataFrame.from_dict(df_row)])
+
+                    if save_fig:
+                        save_sets.append(
+                            [
+                                conver_tensor_to_plot(i, norm.mean, norm.std)
+                                for i in images
+                            ]
+                        )
+                        if len(save_sets) == min([save_num_image_sets, N]):
+                            save_figs(
+                                path_save_fig + f"{s}_{a}",
+                                save_sets,
+                                extra_info=affine_transf,
+                            )
+                            save_fig = False
+                            save_sets = []
+        all_layers = list(cs.keys())
+        return df, all_layers
+
+
+class RecordDistanceImgBaseVsFolder(RecordDistance):
+    def compute_random_set(
+        self,
+        folder,
+        transform,
+        matching_transform=False,
+        fill_bk=None,
+        affine_transf="",
+        N=5,
+        path_save_fig=None,
+        base_name="base.png",
+    ):
+        norm = [i for i in transform.transforms if isinstance(i, transforms.Normalize)][
+            0
+        ]
+        save_num_image_sets = 5
+        compare_images = glob.glob(folder + "/**")
+
+        df = pd.DataFrame([])
+        for s in tqdm(compare_images):
+            save_sets = []
+            plt.close("all")
+            save_fig = True
+            for n in range(N):
+                im_0 = Image.open(s).convert("RGB")
+                im_i = Image.open(base_name).convert("RGB")
+                af = (
+                    [get_new_affine_values(affine_transf) for i in [im_0, im_i]]
+                    if not matching_transform
+                    else [get_new_affine_values(affine_transf)] * 2
+                )
+                images = [
+                    my_affine(
+                        im,
+                        translate=af[idx]["tr"],
+                        angle=af[idx]["rt"],
+                        scale=af[idx]["sc"],
+                        shear=af[idx]["sh"],
+                        interpolation=InterpolationMode.NEAREST,
+                        fill=fill_bk,
+                    )
+                    for idx, im in enumerate([im_0, im_i])
+                ]
+
+                images = [transform(i) for i in images]
+                df_row = {"compare_img": os.path.basename(s), "n": n}
+                cs = self.compute_distance_pair(images[0], images[1])  # , path_fig='')
+                df_row.update(cs)
+                df = pd.concat([df, pd.DataFrame.from_dict(df_row)])
+
+                if save_fig:
+                    save_sets.append(
+                        [conver_tensor_to_plot(i, norm.mean, norm.std) for i in images]
+                    )
+                    if len(save_sets) == min([save_num_image_sets, N]):
+                        save_figs(
+                            path_save_fig + f"{os.path.basename(s)}",
+                            save_sets,
+                            extra_info=affine_transf,
+                        )
+                        save_fig = False
+                        save_sets = []
+        all_layers = list(cs.keys())
+        return df, all_layers
