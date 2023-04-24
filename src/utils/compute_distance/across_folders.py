@@ -1,5 +1,5 @@
 """
-This will compute the folder-to-folder version of cosine similarity.
+This will compute the folder-to-folder version of distance.
 Given a dataset folder `./data/xx/` and a base folder, it compares each sample in each folder with the base folder, e.g
     `./data/xx/base/0.png` vs `./data/xx/comp1/0.png`,
     `./data/xx/base/1.png` vs  `./data/xx/comp1/1.png`,
@@ -27,10 +27,10 @@ from tqdm import tqdm
 import torchvision.transforms as transforms
 import torchvision
 import PIL.Image as Image
-from src.utils.cosine_similarity.misc import get_new_affine_values, my_affine, save_figs, get_cossim_args
-from src.utils.cosine_similarity.activation_recorder import RecordCossim
+from src.utils.compute_distance.misc import get_new_affine_values, my_affine, save_figs, get_distance_args
+from src.utils.compute_distance.activation_recorder import RecordDistance
 
-class RecordCossimAcrossFolders(RecordCossim):
+class RecordDistanceAcrossFolders(RecordDistance):
     def compute_random_set(self, image_folder, transform, matching_transform=False, fill_bk=None, affine_transf='', N=5, path_save_fig=None, base_name='base'):
         norm = [i for i in transform.transforms if isinstance(i, transforms.Normalize)][0]
         save_num_image_sets = 5
@@ -57,7 +57,7 @@ class RecordCossimAcrossFolders(RecordCossim):
 
                     images = [transform(i) for i in images]
                     df_row = {'set': s, 'level': a, 'n': n}
-                    cs = self.compute_cosine_pair(images[0], images[1]) #, path_fig='')
+                    cs = self.compute_distance_pair(images[0], images[1]) #, path_fig='')
                     df_row.update(cs)
                     df = pd.concat([df, pd.DataFrame.from_dict(df_row)])
 
@@ -71,7 +71,7 @@ class RecordCossimAcrossFolders(RecordCossim):
         return df, all_layers
 
 
-def compute_cossim_from_img(config):
+def compute_distance(config):
     config.model, norm_values, resize_value = GrabNet.get_net(config.network_name,
                                                               imagenet_pt=True if config.pretraining == 'ImageNet' else False)
 
@@ -88,8 +88,8 @@ def compute_cossim_from_img(config):
     pathlib.Path(os.path.dirname(config.result_folder)).mkdir(parents=True, exist_ok=True)
     pathlib.Path(os.path.dirname(debug_image_path)).mkdir(parents=True, exist_ok=True)
 
-    recorder = RecordCossimAcrossFolders(net=config.model, use_cuda=False, only_save=config.save_layers)
-    cossim_df, layers_names = recorder.compute_random_set(image_folder=config.folder,
+    recorder = RecordDistanceAcrossFolders(distance_metric=config.distance_metric, net=config.model, use_cuda=False, only_save=config.save_layers)
+    distance_df, layers_names = recorder.compute_random_set(image_folder=config.folder,
                                                            transform=transform,
                                                            matching_transform=config.matching_transform,
                                                           fill_bk=fill_bk,
@@ -100,17 +100,17 @@ def compute_cossim_from_img(config):
                                                            )
 
 
-    save_path = config.result_folder + '/cossim_df.pickle'
+    save_path = config.result_folder + '/dataframe.pickle'
     print(fg.red + f'Saved in ' + fg.green + f'{save_path}' + rs.fg)
 
-    pickle.dump({'layers_names': layers_names, 'cossim_df': cossim_df}, open(save_path, 'wb'))
-    return cossim_df, layers_names
+    pickle.dump({'layers_names': layers_names, 'dataframe': distance_df}, open(save_path, 'wb'))
+    return distance_df, layers_names
 
 if __name__ == '__main__':
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser = get_cossim_args(parser)
+    parser = get_distance_args(parser)
     parser.add_argument('--folder')
     parser.add_argument('--base_folder_name')
 
@@ -120,6 +120,6 @@ if __name__ == '__main__':
 
     [print(fg.red + f'{i[0]}:' + fg.cyan + f' {i[1]}' + rs.fg) for i in config._get_kwargs()]
 
-    cossim_df, layers_names = compute_cossim_from_img(config)
+    dataframe, layers_names = compute_distance(config)
 
     pass

@@ -67,9 +67,14 @@ class RecordActivations:
             self.net.train()
 
 
-class RecordCossim(RecordActivations):
-    def compute_cosine_pair(self, image0, image1):# path_save_fig, stats):
-        cossim = {}
+class RecordDistance(RecordActivations):
+    def __init__(self, distance_metric, *args, **kwargs):
+        assert distance_metric in ['euclidean', 'cossim'], f"distance_metric must be one of ['euclidean', 'cossim'], instead is {distance_metric}"
+        self.distance_metric = distance_metric
+        super().__init__(*args, **kwargs)
+
+    def compute_distance_pair(self, image0, image1):# path_save_fig, stats):
+        distance = {}
 
         self.net(make_cuda(image0.unsqueeze(0), torch.cuda.is_available()))
         first_image_act = {}
@@ -87,9 +92,11 @@ class RecordCossim(RecordActivations):
             if not np.any([i in name for i in self.only_save]):
                 continue
             second_image_act[name] = features2.flatten()
-            if name not in cossim:
-                cossim[name] = []
-            cossim[name].append(torch.nn.CosineSimilarity(dim=0)(first_image_act[name], second_image_act[name]).item())
-
-        return cossim
+            if name not in distance:
+                distance[name] = []
+                if self.distance_metric == 'cossim':
+                    distance[name].append(torch.nn.CosineSimilarity(dim=0)(first_image_act[name], second_image_act[name]).item())
+                if self.distance_metric == 'euclidean':
+                    distance[name].append(torch.norm((first_image_act[name] - second_image_act[name])).item())
+        return distance
 
