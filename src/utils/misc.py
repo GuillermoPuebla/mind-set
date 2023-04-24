@@ -3,12 +3,14 @@ import sty
 import torch
 import matplotlib.pyplot as plt
 import cv2
+
 try:
     from neptune.new.types import File
     import neptune.new as neptune
 
 except:
     pass
+
 
 class ConfigSimple:
     def __init__(self, **kwargs):
@@ -18,8 +20,6 @@ class ConfigSimple:
 
     def __setattr__(self, *args, **kwargs):
         super().__setattr__(*args, **kwargs)
-
-
 
 
 def conver_tensor_to_plot(tensor, mean, std):
@@ -37,43 +37,78 @@ def convert_normalized_tensor_to_plottable_array(tensor, mean, std, text):
 
     canvas_size = np.shape(image)
 
-    font_scale = np.ceil(canvas_size[1])/150
+    font_scale = np.ceil(canvas_size[1]) / 150
     font = cv2.QT_FONT_NORMAL
     umat = cv2.UMat(image * 255)
-    umat = cv2.putText(img=cv2.UMat(umat), text=text, org=(0, int(canvas_size[1] - 3)), fontFace=font, fontScale=font_scale, color=[0, 0, 0], lineType=cv2.LINE_AA, thickness=6)
-    umat = cv2.putText(img=cv2.UMat(umat), text=text, org=(0, int(canvas_size[1] - 3)),
-                fontFace=font, fontScale=font_scale, color=[255, 255, 255], lineType=cv2.LINE_AA, thickness=1)
+    umat = cv2.putText(
+        img=cv2.UMat(umat),
+        text=text,
+        org=(0, int(canvas_size[1] - 3)),
+        fontFace=font,
+        fontScale=font_scale,
+        color=[0, 0, 0],
+        lineType=cv2.LINE_AA,
+        thickness=6,
+    )
+    umat = cv2.putText(
+        img=cv2.UMat(umat),
+        text=text,
+        org=(0, int(canvas_size[1] - 3)),
+        fontFace=font,
+        fontScale=font_scale,
+        color=[255, 255, 255],
+        lineType=cv2.LINE_AA,
+        thickness=1,
+    )
     image = cv2.UMat.get(umat)
     image = np.array(image, np.uint8)
     return image
 
 
-
-def weblog_dataset_info(dataloader, log_text='', dataset_name=None, weblogger=1, plotter=None, num_batches_to_log=2):
+def weblog_dataset_info(
+    dataloader,
+    log_text="",
+    dataset_name=None,
+    weblogger=1,
+    plotter=None,
+    num_batches_to_log=2,
+):
     stats = {}
+
     def simple_plotter(idx, data):
         images, labels, *more = data
-        plot_images = images[0:np.max((4, len(images)))]
-        metric_str = 'Debug/{} example images'.format(log_text)
-        lab = [f'{i.item():.3f}' for i in labels]
+        plot_images = images[0 : np.max((4, len(images)))]
+        metric_str = "Debug/{} example images".format(log_text)
+        lab = [f"{i.item():.3f}" for i in labels]
         if isinstance(weblogger, neptune.Run):
-            [weblogger[metric_str].log(File.as_image(convert_normalized_tensor_to_plottable_array(im, stats['mean'], stats['std'], text=lb) / 255))
-             for im, lb in zip(plot_images, lab)]
+            [
+                weblogger[metric_str].log(
+                    File.as_image(
+                        convert_normalized_tensor_to_plottable_array(
+                            im, stats["mean"], stats["std"], text=lb
+                        )
+                        / 255
+                    )
+                )
+                for im, lb in zip(plot_images, lab)
+            ]
 
     if plotter is None:
         plotter = simple_plotter
-    if 'stats' in dir(dataloader.dataset):
+    if "stats" in dir(dataloader.dataset):
         dataset = dataloader.dataset
         dataset_name = dataset.name_ds
         stats = dataloader.dataset.stats
     else:
-        dataset_name = 'no_name' if dataset_name is None else dataset_name
-        stats['mean'] = [0.5, 0.5, 0.5]
-        stats['std'] = [0.2, 0.2, 0.2]
-        Warning('MEAN, STD AND DATASET_NAME NOT SET FOR NEPTUNE LOGGING. This message is not referring to normalizing in PyTorch')
+        dataset_name = "no_name" if dataset_name is None else dataset_name
+        stats["mean"] = [0.5, 0.5, 0.5]
+        stats["std"] = [0.2, 0.2, 0.2]
+        Warning(
+            "MEAN, STD AND DATASET_NAME NOT SET FOR NEPTUNE LOGGING. This message is not referring to normalizing in PyTorch"
+        )
 
     if isinstance(weblogger, neptune.Run):
-        weblogger['Logs'] = f'{dataset_name} mean: {stats["mean"]}, std: {stats["std"]}'
+        weblogger["Logs"] = f'{dataset_name} mean: {stats["mean"]}, std: {stats["std"]}'
 
     for idx, data in enumerate(dataloader):
         plotter(idx, data)
@@ -83,16 +118,16 @@ def weblog_dataset_info(dataloader, log_text='', dataset_name=None, weblogger=1,
     # weblogger[weblogger_text].log(File.as_image(image))
 
 
-def imshow_batch(inp, stats=None, labels=None, title_more='', maximize=True, ax=None):
+def imshow_batch(inp, stats=None, labels=None, title_more="", maximize=True, ax=None):
     if stats is None:
         mean = np.array([0, 0, 0])
         std = np.array([1, 1, 1])
     else:
-        mean = stats['mean']
-        std = stats['std']
+        mean = stats["mean"]
+        std = stats["std"]
     """Imshow for Tensor."""
 
-    cols =  int(np.ceil(np.sqrt(len(inp))))
+    cols = int(np.ceil(np.sqrt(len(inp))))
     if ax is None:
         fig, ax = plt.subplots(cols, cols)
     if not isinstance(ax, np.ndarray):
@@ -106,9 +141,9 @@ def imshow_batch(inp, stats=None, labels=None, title_more='', maximize=True, ax=
     for idx, image in enumerate(inp):
         image = conver_tensor_to_plot(image, mean, std)
         ax[idx].clear()
-        ax[idx].axis('off')
+        ax[idx].axis("off")
         if len(np.shape(image)) == 2:
-            ax[idx].imshow(image, cmap='gray', vmin=0, vmax=1)
+            ax[idx].imshow(image, cmap="gray", vmin=0, vmax=1)
         else:
             ax[idx].imshow(image)
         if labels is not None and len(labels) > idx:
@@ -116,17 +151,21 @@ def imshow_batch(inp, stats=None, labels=None, title_more='', maximize=True, ax=
                 t = labels[idx].item()
             else:
                 t = labels[idx]
-            text = str(labels[idx]) + ' ' + (title_more[idx] if title_more != '' else '')
+            text = (
+                str(labels[idx]) + " " + (title_more[idx] if title_more != "" else "")
+            )
             # ax[idx].set_title(text, size=5)
-            ax[idx].text(0.5, 0.1, f'{labels[idx]:.3f}', horizontalalignment='center', transform=ax[idx].transAxes, bbox=dict(facecolor='white', alpha=0.5))
+            ax[idx].text(
+                0.5,
+                0.1,
+                f"{labels[idx]:.3f}",
+                horizontalalignment="center",
+                transform=ax[idx].transAxes,
+                bbox=dict(facecolor="white", alpha=0.5),
+            )
 
     plt.tight_layout()
-    plt.subplots_adjust(top=1,
-                        bottom=0.01,
-                        left=0,
-                        right=1,
-                        hspace=0.2,
-                        wspace=0.01)
+    plt.subplots_adjust(top=1, bottom=0.01, left=0, right=1, hspace=0.2, wspace=0.01)
     return ax
 
 
@@ -165,15 +204,23 @@ def pretty_print_dict(dictionary, indent=0):
 
 def update_dict(dictA, dictB, replace=True):
     for key in dictB:
-        if key in dictA and isinstance(dictA[key], dict) and isinstance(dictB[key], dict):
+        if (
+            key in dictA
+            and isinstance(dictA[key], dict)
+            and isinstance(dictB[key], dict)
+        ):
             # if the value in dictA is a dict and the value in dictB is a dict, recursively update the nested dict
             update_dict(dictA[key], dictB[key], replace)
         else:
             # otherwise, simply update the value in dictA with the value in dictB
             if replace or (not replace and key not in dictA):
-                old_value = dictA[key] if key in dictA else 'none'
+                old_value = dictA[key] if key in dictA else "none"
                 dictA[key] = dictB[key]
-                print(f"Updated {key} : {old_value} => {key}: {dictB[key]}") if old_value != dictB[key] else None
+                print(
+                    f"Updated {key} : {old_value} => {key}: {dictB[key]}"
+                ) if old_value != dictB[key] else None
             else:
-                print(f"Value {key} not replaced as already present ({dictA[key]}) and 'replace=False'")
+                print(
+                    f"Value {key} not replaced as already present ({dictA[key]}) and 'replace=False'"
+                )
     return dictA

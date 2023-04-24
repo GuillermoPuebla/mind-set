@@ -9,22 +9,22 @@ from src.utils.decoder.train import run_train
 
 ##
 # Firstly, we can use just few training options. The options in "default_train_config" will be used for all other options.
-data_folder = 'data/examples/miniMNIST'
-run_train(training={'train_dataset': f'{data_folder}/training',
-                         'test_datasets': [f'{data_folder}/testing1',
-                                           f'{data_folder}/testing2']},
-          saving_folders={'result_folder': 'results/miniMNIST'})
+data_folder = "data/examples/miniMNIST"
+run_train(
+    training={
+        "train_dataset": f"{data_folder}/training",
+        "test_datasets": [f"{data_folder}/testing1", f"{data_folder}/testing2"],
+    },
+    saving_folders={"result_folder": "results/miniMNIST"},
+)
 
 ##
 # Or alternatively use a toml_config file. Notice that you only need to specify the values that you wish to change from the default file.
 # You can load the toml file yourself and pass it like this:
-with open(os.path.dirname(__file__) + '/classification_train.toml', 'r') as f:
+with open(os.path.dirname(__file__) + "/classification_train.toml", "r") as f:
     toml_config = toml.load(f)
 run_train(**toml_config)
 
 # Or you can call the script as a module and pass the toml file as a command line arg.
 #       python -m src.utils.decoder.train --toml_config_filename src/utils/decoder/examples/classification_train.toml
 ##
-
-
-
