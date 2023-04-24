@@ -13,8 +13,7 @@ import torch
 from src.utils.callbacks import Callback, CallbackList
 
 
-class GrabNet():
-
+class GrabNet:
     @classmethod
     def get_net(cls, network_name, imagenet_pt=False, num_classes=None, **kwargs):
         """
@@ -27,68 +26,109 @@ class GrabNet():
             print(fg.red + "Loading ImageNet" + rs.fg)
         nc = 1000 if imagenet_pt else num_classes
         kwargs = dict(num_classes=nc) if nc is not None else dict()
-        if network_name == 'vgg11':
-            net = torchvision.models.vgg11(pretrained=imagenet_pt, progress=True, **kwargs)
+        if network_name == "vgg11":
+            net = torchvision.models.vgg11(
+                pretrained=imagenet_pt, progress=True, **kwargs
+            )
             if num_classes is not None:
-                net.classifier[-1] = nn.Linear(net.classifier[-1].in_features, num_classes)
-        elif network_name == 'vgg11bn':
-            net = torchvision.models.vgg11_bn(pretrained=imagenet_pt, progress=True, **kwargs)
+                net.classifier[-1] = nn.Linear(
+                    net.classifier[-1].in_features, num_classes
+                )
+        elif network_name == "vgg11bn":
+            net = torchvision.models.vgg11_bn(
+                pretrained=imagenet_pt, progress=True, **kwargs
+            )
             if num_classes is not None:
-                net.classifier[-1] = nn.Linear(net.classifier[-1].in_features, num_classes)
-        elif network_name == 'vgg16':
-            net = torchvision.models.vgg16(pretrained=imagenet_pt, progress=True, **kwargs)
+                net.classifier[-1] = nn.Linear(
+                    net.classifier[-1].in_features, num_classes
+                )
+        elif network_name == "vgg16":
+            net = torchvision.models.vgg16(
+                pretrained=imagenet_pt, progress=True, **kwargs
+            )
             if num_classes is not None:
-                net.classifier[-1] = nn.Linear(net.classifier[-1].in_features, num_classes)
-        elif network_name == 'vgg16bn':
-            net = torchvision.models.vgg16_bn(pretrained=imagenet_pt, progress=True, **kwargs)
+                net.classifier[-1] = nn.Linear(
+                    net.classifier[-1].in_features, num_classes
+                )
+        elif network_name == "vgg16bn":
+            net = torchvision.models.vgg16_bn(
+                pretrained=imagenet_pt, progress=True, **kwargs
+            )
             if num_classes is not None:
-                net.classifier[-1] = nn.Linear(net.classifier[-1].in_features, num_classes)
-        elif network_name == 'vgg19bn':
-            net = torchvision.models.vgg19_bn(pretrained=imagenet_pt, progress=True, **kwargs)
+                net.classifier[-1] = nn.Linear(
+                    net.classifier[-1].in_features, num_classes
+                )
+        elif network_name == "vgg19bn":
+            net = torchvision.models.vgg19_bn(
+                pretrained=imagenet_pt, progress=True, **kwargs
+            )
             if num_classes is not None:
-                net.classifier[-1] = nn.Linear(net.classifier[-1].in_features, num_classes)
-        elif network_name == 'resnet18':
-            net = torchvision.models.resnet18(pretrained=imagenet_pt, progress=True, **kwargs)
+                net.classifier[-1] = nn.Linear(
+                    net.classifier[-1].in_features, num_classes
+                )
+        elif network_name == "resnet18":
+            net = torchvision.models.resnet18(
+                pretrained=imagenet_pt, progress=True, **kwargs
+            )
             if num_classes is not None:
                 net.fc = nn.Linear(net.fc.in_features, num_classes)
-        elif network_name == 'resnet50':
-            net = torchvision.models.resnet50(pretrained=imagenet_pt, progress=True, **kwargs)
+        elif network_name == "resnet50":
+            net = torchvision.models.resnet50(
+                pretrained=imagenet_pt, progress=True, **kwargs
+            )
             if num_classes is not None:
                 net.fc = nn.Linear(net.fc.in_features, num_classes)
-        elif network_name == 'resnet152':
-            net = torchvision.models.resnet152(pretrained=imagenet_pt, progress=True, **kwargs)
+        elif network_name == "resnet152":
+            net = torchvision.models.resnet152(
+                pretrained=imagenet_pt, progress=True, **kwargs
+            )
             if num_classes is not None:
                 net.fc = nn.Linear(net.fc.in_features, num_classes)
-        elif network_name == 'alexnet':
-            net = torchvision.models.alexnet(pretrained=imagenet_pt, progress=True, **kwargs)
+        elif network_name == "alexnet":
+            net = torchvision.models.alexnet(
+                pretrained=imagenet_pt, progress=True, **kwargs
+            )
             if num_classes is not None:
-                net.classifier[-1] = nn.Linear(net.classifier[-1].in_features, num_classes)
-        elif network_name == 'inception_v3':  # nope
-            net = torchvision.models.inception_v3(pretrained=imagenet_pt, progress=True, **kwargs)
+                net.classifier[-1] = nn.Linear(
+                    net.classifier[-1].in_features, num_classes
+                )
+        elif network_name == "inception_v3":  # nope
+            net = torchvision.models.inception_v3(
+                pretrained=imagenet_pt, progress=True, **kwargs
+            )
             resize_value = 299
             if num_classes is not None:
                 net.fc = nn.Linear(net.fc.in_features, num_classes)
-        elif network_name == 'densenet121':
-            net = torchvision.models.densenet121(pretrained=imagenet_pt, progress=True, **kwargs)
+        elif network_name == "densenet121":
+            net = torchvision.models.densenet121(
+                pretrained=imagenet_pt, progress=True, **kwargs
+            )
             if num_classes is not None:
                 net.classifier = nn.Linear(net.classifier.in_features, num_classes)
-        elif network_name == 'densenet201':
-            net = torchvision.models.densenet201(pretrained=imagenet_pt, progress=True, **kwargs)
+        elif network_name == "densenet201":
+            net = torchvision.models.densenet201(
+                pretrained=imagenet_pt, progress=True, **kwargs
+            )
             if num_classes is not None:
                 net.classifier = nn.Linear(net.classifier.in_features, num_classes)
-        elif network_name == 'googlenet':
-            net = torchvision.models.googlenet(pretrained=imagenet_pt, progress=True, **kwargs)
+        elif network_name == "googlenet":
+            net = torchvision.models.googlenet(
+                pretrained=imagenet_pt, progress=True, **kwargs
+            )
             if num_classes is not None:
                 net.fc = nn.Linear(net.fc.in_features, num_classes)
         else:
             net = cls.get_other_nets(network_name, imagenet_pt, **kwargs)
-            assert False if net is False else True, f"Network name {network_name} not recognized"
+            assert (
+                False if net is False else True
+            ), f"Network name {network_name} not recognized"
 
         return net, norm_values, resize_value
 
     @staticmethod
     def get_other_nets(network_name, num_classes, imagenet_pt, **kwargs):
         pass
+
 
 class RandomPixels(torch.nn.Module):
     def __init__(self, background_color=(0, 0, 0), line_color=(255, 255, 255)):
@@ -100,7 +140,9 @@ class RandomPixels(torch.nn.Module):
         i = np.array(input)
         i = i.astype(np.int16)
         s_line = len(i[i == self.line_color])
-        i[i == self.line_color] = np.repeat([1000, 1000, 1000], s_line/3, axis=0).flatten()
+        i[i == self.line_color] = np.repeat(
+            [1000, 1000, 1000], s_line / 3, axis=0
+        ).flatten()
 
         s = len(i[i == self.background_color])
         i[i == self.background_color] = np.random.randint(0, 255, s)
@@ -121,12 +163,16 @@ class RandomBackground(torch.nn.Module):
         i = np.array(input)
         s = len(i[i == self.color_to_randomize])
 
-        i[i == self.color_to_randomize] = np.repeat([np.random.randint(0, 255, 3)], s/3, axis=0).flatten()
+        i[i == self.color_to_randomize] = np.repeat(
+            [np.random.randint(0, 255, 3)], s / 3, axis=0
+        ).flatten()
         return transforms.ToPILImage()(i)
 
 
 def prepare_network(net, config, optimizer=None, train=True):
-    pretraining_file = 'vanilla' if config.pretraining == 'ImageNet' else config.pretraining
+    pretraining_file = (
+        "vanilla" if config.pretraining == "ImageNet" else config.pretraining
+    )
     load_pretraining(net, pretraining_file, optimizer, config.use_cuda)
     net.cuda() if config.use_cuda else None
 
@@ -138,16 +184,22 @@ def prepare_network(net, config, optimizer=None, train=True):
 def load_pretraining(net, pretraining, optimizer=None, use_cuda=None):
     if use_cuda is None:
         use_cuda = torch.cuda.is_available()
-    if pretraining != 'vanilla':
+    if pretraining != "vanilla":
         if os.path.isfile(pretraining):
             print(fg.red + f"Loading full model from {pretraining}..." + rs.fg, end="")
-            ww = torch.load(pretraining, map_location=torch.device('cuda') if use_cuda else torch.device('cpu'))
-            net.load_state_dict(ww['model'])
+            ww = torch.load(
+                pretraining,
+                map_location=torch.device("cuda") if use_cuda else torch.device("cpu"),
+            )
+            net.load_state_dict(ww["model"])
             print(fg.red + " Done." + rs.fg)
 
-            if ww['optimizer'] and optimizer:
-                print(fg.red + f"Loading optimizer state from {pretraining}..." + rs.fg, end="")
-                optimizer.load_state_dict(ww['optimizer'])
+            if ww["optimizer"] and optimizer:
+                print(
+                    fg.red + f"Loading optimizer state from {pretraining}..." + rs.fg,
+                    end="",
+                )
+                optimizer.load_state_dict(ww["optimizer"])
                 if use_cuda:
                     for state in optimizer.state.values():
                         for k, v in state.items():
@@ -161,7 +213,7 @@ def load_pretraining(net, pretraining, optimizer=None, use_cuda=None):
 
 def print_net_info(net):
     num_trainable_params = 0
-    tmp = ''
+    tmp = ""
     print(fg.yellow)
     print("Params to learn:")
     for name, param in net.named_parameters():
@@ -171,9 +223,13 @@ def print_net_info(net):
             num_trainable_params += len(param.flatten())
     print(f"Trainable Params: {num_trainable_params}")
 
-    print('***Network***')
+    print("***Network***")
     print(net)
-    print(ef.inverse + f"Network is in {('~train~' if net.training else '~eval~')} mode." + rs.inverse)
+    print(
+        ef.inverse
+        + f"Network is in {('~train~' if net.training else '~eval~')} mode."
+        + rs.inverse
+    )
     print(rs.fg)
     print()
 
@@ -181,12 +237,13 @@ def print_net_info(net):
 def make_cuda(fun, is_cuda):
     return fun.cuda() if is_cuda else fun
 
+
 ##
-class Logs():
+class Logs:
     value = None
 
     def __repr__(self):
-        return f'{self.value}'
+        return f"{self.value}"
 
     def __repl__(self):
         return str(self.value)
@@ -252,10 +309,11 @@ class Logs():
         return float(self.value)
 
     def __pow__(self, power, modulo=None):
-        return self.value ** power
+        return self.value**power
 
     def __format__(self, format_spec):
         return format(self.value, format_spec)
+
 
 class CumulativeAverage(Logs):
     value = None
@@ -266,9 +324,10 @@ class CumulativeAverage(Logs):
             self.value = args[0]
 
         else:
-            self.value = (args[0] + self.n * self.value) / (self.n+1)
+            self.value = (args[0] + self.n * self.value) / (self.n + 1)
         self.n += 1
         return self
+
 
 class ExpMovingAverage(Logs):
     value = None
@@ -283,6 +342,7 @@ class ExpMovingAverage(Logs):
             self.value = self.alpha * args[0] + (1 - self.alpha) * self.value
         return self
 
+
 class CumulativeAverage(Logs):
     value = None
     n = 0
@@ -292,12 +352,23 @@ class CumulativeAverage(Logs):
             self.value = args[0]
 
         else:
-            self.value = (args[0] + self.n * self.value) / (self.n+1)
+            self.value = (args[0] + self.n * self.value) / (self.n + 1)
         self.n += 1
         return self
 
 
-def run(data_loader, use_cuda, net, callbacks: List[Callback] = None, optimizer=None, loss_fn=None, iteration_step=None, logs=None, logs_prefix='', **kwargs):
+def run(
+    data_loader,
+    use_cuda,
+    net,
+    callbacks: List[Callback] = None,
+    optimizer=None,
+    loss_fn=None,
+    iteration_step=None,
+    logs=None,
+    logs_prefix="",
+    **kwargs,
+):
     if logs is None:
         logs = {}
     torch.cuda.empty_cache()
@@ -312,15 +383,23 @@ def run(data_loader, use_cuda, net, callbacks: List[Callback] = None, optimizer=
 
     tot_iter = 0
     epoch = 0
-    logs.update({f'{logs_prefix}tot_iter': 0, f'{logs_prefix}stop': False, f'{logs_prefix}epoch': 0})
+    logs.update(
+        {
+            f"{logs_prefix}tot_iter": 0,
+            f"{logs_prefix}stop": False,
+            f"{logs_prefix}epoch": 0,
+        }
+    )
     while True:
         callbacks.on_epoch_begin(epoch, logs)
-        logs[f'{logs_prefix}epoch'] = epoch
+        logs[f"{logs_prefix}epoch"] = epoch
         for batch_index, data in enumerate(data_loader, 0):
             callbacks.on_batch_begin(batch_index, logs)
-            iteration_step(data, net, loss_fn, optimizer, use_cuda, logs, logs_prefix, **kwargs)
-            logs.update({'stop': False})
-            logs[f'{logs_prefix}tot_iter'] += 1
+            iteration_step(
+                data, net, loss_fn, optimizer, use_cuda, logs, logs_prefix, **kwargs
+            )
+            logs.update({"stop": False})
+            logs[f"{logs_prefix}tot_iter"] += 1
             # logs.update({
             #     'loss': loss.item(),
             #     'tot_iter': tot_iter,
@@ -328,13 +407,13 @@ def run(data_loader, use_cuda, net, callbacks: List[Callback] = None, optimizer=
 
             callbacks.on_training_step_end(batch_index, logs)
             callbacks.on_batch_end(batch_index, logs)
-            if logs[f'stop']:
+            if logs[f"stop"]:
                 break
             tot_iter += 1
 
         callbacks.on_epoch_end(epoch, logs)
         epoch += 1
-        if logs[f'stop']:
+        if logs[f"stop"]:
             break
 
     callbacks.on_train_end(logs)

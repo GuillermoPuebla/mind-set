@@ -7,9 +7,11 @@ from copy import deepcopy
 
 
 class RecordActivations:
-    def __init__(self, net, use_cuda=None, only_save: List[str] = None, detach_tensors=True):
+    def __init__(
+        self, net, use_cuda=None, only_save: List[str] = None, detach_tensors=True
+    ):
         if only_save is None:
-            self.only_save = ['Conv2d', 'Linear']
+            self.only_save = ["Conv2d", "Linear"]
         else:
             self.only_save = only_save
         self.cuda = False
@@ -23,28 +25,32 @@ class RecordActivations:
         self.net = net
         self.detach_tensors = detach_tensors
         self.activation = {}
-        self.last_linear_layer = ''
+        self.last_linear_layer = ""
         self.all_layers_names = []
         self.setup_network()
-
 
     def setup_network(self):
         self.was_train = self.net.training
         self.net.eval()  # a bit dangerous
-        print(sty.fg.yellow + "Network put in eval mode in Record Activation" + sty.rs.fg)
+        print(
+            sty.fg.yellow + "Network put in eval mode in Record Activation" + sty.rs.fg
+        )
         all_layers = self.group_all_layers()
         self.hook_lists = []
         for idx, i in enumerate(all_layers):
-            name = '{}: {}'.format(idx, str.split(str(i), '(')[0])
+            name = "{}: {}".format(idx, str.split(str(i), "(")[0])
             if np.any([ii in name for ii in self.only_save]):
                 ## Watch out: not all of these layers will be used. Some networks have conditional layers depending on training/eval mode. The best way to get the right layers is to check those that are returned in "activation"
                 self.all_layers_names.append(name)
-                self.hook_lists.append(i.register_forward_hook(self.get_activation(name)))
+                self.hook_lists.append(
+                    i.register_forward_hook(self.get_activation(name))
+                )
         self.last_linear_layer = self.all_layers_names[-1]
 
     def get_activation(self, name):
         def hook(model, input, output):
-                self.activation[name] = (output.detach() if self.detach_tensors else output)
+            self.activation[name] = output.detach() if self.detach_tensors else output
+
         return hook
 
     def group_all_layers(self):
@@ -69,11 +75,14 @@ class RecordActivations:
 
 class RecordDistance(RecordActivations):
     def __init__(self, distance_metric, *args, **kwargs):
-        assert distance_metric in ['euclidean', 'cossim'], f"distance_metric must be one of ['euclidean', 'cossim'], instead is {distance_metric}"
+        assert distance_metric in [
+            "euclidean",
+            "cossim",
+        ], f"distance_metric must be one of ['euclidean', 'cossim'], instead is {distance_metric}"
         self.distance_metric = distance_metric
         super().__init__(*args, **kwargs)
 
-    def compute_distance_pair(self, image0, image1):# path_save_fig, stats):
+    def compute_distance_pair(self, image0, image1):  # path_save_fig, stats):
         distance = {}
 
         self.net(make_cuda(image0.unsqueeze(0), torch.cuda.is_available()))
@@ -94,9 +103,16 @@ class RecordDistance(RecordActivations):
             second_image_act[name] = features2.flatten()
             if name not in distance:
                 distance[name] = []
-                if self.distance_metric == 'cossim':
-                    distance[name].append(torch.nn.CosineSimilarity(dim=0)(first_image_act[name], second_image_act[name]).item())
-                if self.distance_metric == 'euclidean':
-                    distance[name].append(torch.norm((first_image_act[name] - second_image_act[name])).item())
+                if self.distance_metric == "cossim":
+                    distance[name].append(
+                        torch.nn.CosineSimilarity(dim=0)(
+                            first_image_act[name], second_image_act[name]
+                        ).item()
+                    )
+                if self.distance_metric == "euclidean":
+                    distance[name].append(
+                        torch.norm(
+                            (first_image_act[name] - second_image_act[name])
+                        ).item()
+                    )
         return distance
-

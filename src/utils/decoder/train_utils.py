@@ -7,21 +7,39 @@ from copy import deepcopy
 import numpy as np
 from torch.nn import functional as F
 
-def fix_dataset(dataset, name_ds=''):
+
+def fix_dataset(dataset, name_ds=""):
     dataset.name_ds = name_ds
-    dataset.stats = {'mean': [0.491, 0.482, 0.44], 'std': [0.247, 0.243, 0.262]}
+    dataset.stats = {"mean": [0.491, 0.482, 0.44], "std": [0.247, 0.243, 0.262]}
     add_resize = False
     if next(iter(dataset))[0].size[0] != 244:
         add_resize = True
 
-    dataset.transform = torchvision.transforms.Compose([torchvision.transforms.ToTensor(),
-                                                        torchvision.transforms.Normalize(mean=dataset.stats['mean'],
-                                                                                         std=dataset.stats['std'])])
+    dataset.transform = torchvision.transforms.Compose(
+        [
+            torchvision.transforms.ToTensor(),
+            torchvision.transforms.Normalize(
+                mean=dataset.stats["mean"], std=dataset.stats["std"]
+            ),
+        ]
+    )
     if add_resize:
         dataset.transform.transforms.insert(0, torchvision.transforms.Resize(224))
     return dataset
 
-def decoder_step(data, model, loss_fn, optimizers, use_cuda, logs, logs_prefix, train, method, **kwargs):
+
+def decoder_step(
+    data,
+    model,
+    loss_fn,
+    optimizers,
+    use_cuda,
+    logs,
+    logs_prefix,
+    train,
+    method,
+    **kwargs,
+):
     num_decoders = len(model.decoders)
 
     images, labels = data
@@ -30,42 +48,72 @@ def decoder_step(data, model, loss_fn, optimizers, use_cuda, logs, logs_prefix, 
     if train:
         [optimizers[i].zero_grad() for i in range(num_decoders)]
     out_dec = model(images)
-    loss = make_cuda(torch.tensor([0.], requires_grad=True), use_cuda)
+    loss = make_cuda(torch.tensor([0.0], requires_grad=True), use_cuda)
     loss_decoder = []
     for idx, od in enumerate(out_dec):
-        loss_decoder.append(loss_fn(od,
-                labels))
+        loss_decoder.append(loss_fn(od, labels))
         loss = loss + loss_decoder[-1]
 
-    logs[f'{logs_prefix}ema_loss'].add(loss.item())
+    logs[f"{logs_prefix}ema_loss"].add(loss.item())
 
-    if method == 'regression':
+    if method == "regression":
         if train:
-            [logs[f'{logs_prefix}ema_rmse_{idx}'].add(torch.sqrt(ms).item()) for idx, ms in enumerate(loss_decoder)]
+            [
+                logs[f"{logs_prefix}ema_rmse_{idx}"].add(torch.sqrt(ms).item())
+                for idx, ms in enumerate(loss_decoder)
+            ]
         else:
-            [logs[f'{logs_prefix}rmse_{idx}'].add(torch.sqrt(ms).item()) for idx, ms in enumerate(loss_decoder)]
+            [
+                logs[f"{logs_prefix}rmse_{idx}"].add(torch.sqrt(ms).item())
+                for idx, ms in enumerate(loss_decoder)
+            ]
 
-            logs[f'{logs_prefix}rmse'].add(torch.sqrt(loss / num_decoders).item())
+            logs[f"{logs_prefix}rmse"].add(torch.sqrt(loss / num_decoders).item())
 
-    elif method == 'classification':
+    elif method == "classification":
         if train:
-            [logs[f'{logs_prefix}ema_acc_{idx}'].add(torch.mean((torch.argmax(out_dec[idx], 1) == labels).float()).item()) for idx in range(len(loss_decoder))]
+            [
+                logs[f"{logs_prefix}ema_acc_{idx}"].add(
+                    torch.mean((torch.argmax(out_dec[idx], 1) == labels).float()).item()
+                )
+                for idx in range(len(loss_decoder))
+            ]
         else:
-            [logs[f'{logs_prefix}acc_{idx}'].add(torch.mean((torch.argmax(out_dec[idx], 1) == labels).float()).item()) for idx in range(len(loss_decoder))]
-            logs[f'{logs_prefix}acc'].add(torch.mean(torch.tensor([torch.mean((torch.argmax(out_dec[idx], 1) == labels).float()).item() for idx in range(len(loss_decoder))])).item())
+            [
+                logs[f"{logs_prefix}acc_{idx}"].add(
+                    torch.mean((torch.argmax(out_dec[idx], 1) == labels).float()).item()
+                )
+                for idx in range(len(loss_decoder))
+            ]
+            logs[f"{logs_prefix}acc"].add(
+                torch.mean(
+                    torch.tensor(
+                        [
+                            torch.mean(
+                                (torch.argmax(out_dec[idx], 1) == labels).float()
+                            ).item()
+                            for idx in range(len(loss_decoder))
+                        ]
+                    )
+                ).item()
+            )
 
-
-    if 'collect_data' in kwargs and kwargs['collect_data']:
-        logs['data'] = data
+    if "collect_data" in kwargs and kwargs["collect_data"]:
+        logs["data"] = data
     if train:
         loss.backward()
         [optimizers[i].step() for i in range(num_decoders)]
 
+
 def log_neptune_init_info(neptune_logger, toml_config, tags=None):
     tags = [] if tags is None else tags
-    neptune_logger['sys/name'] = toml_config['train_info']['run_id']  # to be consistent with before
-    neptune_logger['toml_config'] = convert_lists_to_strings(toml_config)
-    neptune_logger['toml_config_file'].upload(toml_config['train_info']['save_folder'] + '/toml_config.txt')
+    neptune_logger["sys/name"] = toml_config["train_info"][
+        "run_id"
+    ]  # to be consistent with before
+    neptune_logger["toml_config"] = convert_lists_to_strings(toml_config)
+    neptune_logger["toml_config_file"].upload(
+        toml_config["train_info"]["save_folder"] + "/toml_config.txt"
+    )
     neptune_logger["sys/tags"].add(tags)
 
 
@@ -80,7 +128,9 @@ def replace_layer(net, layer_class, new_layer_class):
     new_layer_class: The class of the new layer to replace the old one
     """
 
-    layers = deepcopy(list(net.named_modules()))  # copy to avoid RuntimeError: dictionary changed size during iteration
+    layers = deepcopy(
+        list(net.named_modules())
+    )  # copy to avoid RuntimeError: dictionary changed size during iteration
     for name, layer in layers:
         if isinstance(layer, layer_class):
             names = name.split(".")
@@ -99,13 +149,25 @@ class ResidualBlockPreActivation(nn.Module):
         super().__init__()
 
         self.bn1 = nn.BatchNorm2d(channels1)
-        self.conv1 = nn.Conv2d(channels1, channels2, kernel_size=3, stride=res_stride, padding=1, bias=False)
+        self.conv1 = nn.Conv2d(
+            channels1,
+            channels2,
+            kernel_size=3,
+            stride=res_stride,
+            padding=1,
+            bias=False,
+        )
         self.bn2 = nn.BatchNorm2d(channels2)
-        self.conv2 = nn.Conv2d(channels2, channels2, kernel_size=3, stride=1, padding=1, bias=False)
+        self.conv2 = nn.Conv2d(
+            channels2, channels2, kernel_size=3, stride=1, padding=1, bias=False
+        )
 
         if res_stride != 1 or channels2 != channels1:
             self.shortcut = nn.Sequential(
-                nn.Conv2d(channels1, channels2, kernel_size=1, stride=res_stride, bias=False), nn.BatchNorm2d(channels2)
+                nn.Conv2d(
+                    channels1, channels2, kernel_size=1, stride=res_stride, bias=False
+                ),
+                nn.BatchNorm2d(channels2),
             )
 
         else:
@@ -142,10 +204,19 @@ class ResNet152decoders(nn.Module):
     ResNet152 with decoders
     """
 
-    def __init__(self, imagenet_pt, num_outputs=1, disable_batch_norm=False, use_residual_decoder=False, **kwargs):
+    def __init__(
+        self,
+        imagenet_pt,
+        num_outputs=1,
+        disable_batch_norm=False,
+        use_residual_decoder=False,
+        **kwargs,
+    ):
         super().__init__()
 
-        self.net = torchvision.models.resnet152(pretrained=imagenet_pt, progress=True, **kwargs)
+        self.net = torchvision.models.resnet152(
+            pretrained=imagenet_pt, progress=True, **kwargs
+        )
 
         if disable_batch_norm:
             replace_layer(self.net, nn.BatchNorm2d, nn.Identity)
@@ -154,9 +225,27 @@ class ResNet152decoders(nn.Module):
 
         if use_residual_decoder:
             decoder_1 = nn.Sequential(  # input: 3, 224, 224
-                make_layer(block=ResidualBlockPreActivation, in_channel=3, out_channel=64, num_blocks=1, stride=2),
-                make_layer(block=ResidualBlockPreActivation, in_channel=64, out_channel=64, num_blocks=1, stride=2),
-                make_layer(block=ResidualBlockPreActivation, in_channel=64, out_channel=64, num_blocks=1, stride=2),
+                make_layer(
+                    block=ResidualBlockPreActivation,
+                    in_channel=3,
+                    out_channel=64,
+                    num_blocks=1,
+                    stride=2,
+                ),
+                make_layer(
+                    block=ResidualBlockPreActivation,
+                    in_channel=64,
+                    out_channel=64,
+                    num_blocks=1,
+                    stride=2,
+                ),
+                make_layer(
+                    block=ResidualBlockPreActivation,
+                    in_channel=64,
+                    out_channel=64,
+                    num_blocks=1,
+                    stride=2,
+                ),
                 # here the input will be 64, 28, 28
                 nn.Flatten(),
                 nn.Linear(64 * 28 * 28, 1024),
@@ -168,9 +257,27 @@ class ResNet152decoders(nn.Module):
                 nn.Linear(64, num_outputs),
             )
             decoder_2 = nn.Sequential(  # input: 256, 56, 56
-                make_layer(block=ResidualBlockPreActivation, in_channel=256, out_channel=256, num_blocks=1, stride=2),
-                make_layer(block=ResidualBlockPreActivation, in_channel=256, out_channel=256, num_blocks=1, stride=2),
-                make_layer(block=ResidualBlockPreActivation, in_channel=256, out_channel=256, num_blocks=1, stride=2),
+                make_layer(
+                    block=ResidualBlockPreActivation,
+                    in_channel=256,
+                    out_channel=256,
+                    num_blocks=1,
+                    stride=2,
+                ),
+                make_layer(
+                    block=ResidualBlockPreActivation,
+                    in_channel=256,
+                    out_channel=256,
+                    num_blocks=1,
+                    stride=2,
+                ),
+                make_layer(
+                    block=ResidualBlockPreActivation,
+                    in_channel=256,
+                    out_channel=256,
+                    num_blocks=1,
+                    stride=2,
+                ),
                 nn.Flatten(),
                 nn.Linear(256 * 7 * 7, 1024),
                 nn.ReLU(),
@@ -182,8 +289,20 @@ class ResNet152decoders(nn.Module):
             )
 
             decoder_3 = nn.Sequential(  # input: 512, 28, 28
-                make_layer(block=ResidualBlockPreActivation, in_channel=512, out_channel=512, num_blocks=2, stride=2),
-                make_layer(block=ResidualBlockPreActivation, in_channel=512, out_channel=512, num_blocks=1, stride=2),
+                make_layer(
+                    block=ResidualBlockPreActivation,
+                    in_channel=512,
+                    out_channel=512,
+                    num_blocks=2,
+                    stride=2,
+                ),
+                make_layer(
+                    block=ResidualBlockPreActivation,
+                    in_channel=512,
+                    out_channel=512,
+                    num_blocks=1,
+                    stride=2,
+                ),
                 nn.Flatten(),
                 nn.Linear(512 * 7 * 7, 1024),
                 nn.ReLU(),
@@ -195,7 +314,13 @@ class ResNet152decoders(nn.Module):
             )
 
             decoder_4 = nn.Sequential(  # input: 1024, 14, 14
-                make_layer(block=ResidualBlockPreActivation, in_channel=1024, out_channel=1024, num_blocks=3, stride=2),
+                make_layer(
+                    block=ResidualBlockPreActivation,
+                    in_channel=1024,
+                    out_channel=1024,
+                    num_blocks=3,
+                    stride=2,
+                ),
                 nn.Flatten(),
                 nn.Linear(1024 * 7 * 7, 1024),
                 nn.ReLU(),
@@ -206,7 +331,13 @@ class ResNet152decoders(nn.Module):
                 nn.Linear(64, num_outputs),
             )
             decoder_5 = nn.Sequential(  # input: 2048, 7, 7
-                make_layer(block=ResidualBlockPreActivation, in_channel=2048, out_channel=2048, num_blocks=3, stride=1),
+                make_layer(
+                    block=ResidualBlockPreActivation,
+                    in_channel=2048,
+                    out_channel=2048,
+                    num_blocks=3,
+                    stride=1,
+                ),
                 nn.Flatten(),
                 nn.Linear(2048 * 7 * 7, 1024),
                 nn.ReLU(),
@@ -221,7 +352,9 @@ class ResNet152decoders(nn.Module):
                 nn.ReLU(),
                 nn.Linear(1024, num_outputs),
             )
-            self.decoders = nn.ModuleList([decoder_1, decoder_2, decoder_3, decoder_4, decoder_5, decoder_6])
+            self.decoders = nn.ModuleList(
+                [decoder_1, decoder_2, decoder_3, decoder_4, decoder_5, decoder_6]
+            )
 
         else:
             self.decoders = nn.ModuleList(
@@ -299,4 +432,3 @@ class ResNet152decoders(nn.Module):
 if __name__ == "__main__":
     net = ResNet152decoders(imagenet_pt=False, num_outputs=1)
     print(net)
-

@@ -11,12 +11,14 @@ import src.utils.misc as utils
 import signal, os
 import time
 import math
+
 try:
     from neptune.new.types import File
     import neptune.new as neptune
 
 except:
     pass
+
 
 class CallbackList(object):
     """Container abstracting a list of callbacks.
@@ -76,10 +78,10 @@ class CallbackList(object):
 
     def on_training_step_end(self, batch, logs=None):
         """Called after training is finished, but before the batch is ended.
-                # Arguments
-                    batch: integer, index of batch within the current epoch.
-                    logs: dictionary of logs.
-                """
+        # Arguments
+            batch: integer, index of batch within the current epoch.
+            logs: dictionary of logs.
+        """
         logs = logs or {}
         for callback in self.callbacks:
             callback.on_training_step_end(batch, logs)
@@ -165,12 +167,23 @@ class StopFromUserInput(Callback):
 
     def on_batch_end(self, batch, logs=None):
         if self.stop_next_iter:
-            logs['stop'] = True
-            print('Stopping from user input')
+            logs["stop"] = True
+            print("Stopping from user input")
             # raise Exception
 
+
 class TriggerActionWhenReachingValue(Callback):
-    def __init__(self, value_to_reach, metric_name, mode='max', patience=1, check_after_batch=True, action=None, action_name='', check_every=1):
+    def __init__(
+        self,
+        value_to_reach,
+        metric_name,
+        mode="max",
+        patience=1,
+        check_after_batch=True,
+        action=None,
+        action_name="",
+        check_every=1,
+    ):
         self.patience = patience
         self.check_every = check_every
         self.action = action
@@ -181,13 +194,17 @@ class TriggerActionWhenReachingValue(Callback):
         self.metric_name = metric_name
         self.check_after_batch = check_after_batch
         self.check_idx = 0
-        print(fg.green + f"Action [{self.action_name}] when [{self.metric_name}] has reached value {'higher' if self.mode == 'max' else 'lower'} than [{self.value_to_reach}] for {self.patience} checks (checked every {self.check_every} {'batches' if self.check_after_batch else 'epoches'})" + rs.fg)
+        print(
+            fg.green
+            + f"Action [{self.action_name}] when [{self.metric_name}] has reached value {'higher' if self.mode == 'max' else 'lower'} than [{self.value_to_reach}] for {self.patience} checks (checked every {self.check_every} {'batches' if self.check_after_batch else 'epoches'})"
+            + rs.fg
+        )
         super().__init__()
 
     def compare(self, metric, value):
-        if self.mode == 'max':
+        if self.mode == "max":
             return metric >= value
-        if self.mode == 'min':
+        if self.mode == "min":
             return metric <= value
 
     def check_and_stop(self, logs=None):
@@ -198,8 +215,12 @@ class TriggerActionWhenReachingValue(Callback):
                 self.count_patience += 1
                 # print(f'PATIENCE +1 : {self.count_patience}/{self.patience}')
                 if self.count_patience >= self.patience:
-                    logs['stop'] = True
-                    print(fg.green + f"\nMetric [{self.metric_name}] has reached value {'higher' if self.mode == 'max' else 'lower'} than [{self.value_to_reach}]. Action [{self.action_name}] triggered" + rs.fg)
+                    logs["stop"] = True
+                    print(
+                        fg.green
+                        + f"\nMetric [{self.metric_name}] has reached value {'higher' if self.mode == 'max' else 'lower'} than [{self.value_to_reach}]. Action [{self.action_name}] triggered"
+                        + rs.fg
+                    )
             else:
                 self.count_patience = 0
 
@@ -213,7 +234,19 @@ class TriggerActionWhenReachingValue(Callback):
 
 
 class TriggerActionWithPatience(Callback):
-    def __init__(self, mode='min', min_delta=0, patience=10, min_delta_is_percentage=False, metric_name='nept/mean_acc', check_every=100, triggered_action=None, action_name='', weblogger=False, verbose=False):
+    def __init__(
+        self,
+        mode="min",
+        min_delta=0,
+        patience=10,
+        min_delta_is_percentage=False,
+        metric_name="nept/mean_acc",
+        check_every=100,
+        triggered_action=None,
+        action_name="",
+        weblogger=False,
+        verbose=False,
+    ):
         super().__init__()
         self.verbose = verbose
         self.triggered_action = triggered_action
@@ -234,17 +267,18 @@ class TriggerActionWithPatience(Callback):
         if patience == 0:
             self.is_better = lambda a, b: True
             self.step = lambda a: False
-        self.string = f'Action {self.action_name} for metric [{self.metric_name}] <> {self.mode}, checking every [{self.check_every} batch iters], patience: {self.patience} [corresponding to [{patience}] batch iters]]'
-        print(f'Set up action: {self.string}')
+        self.string = f"Action {self.action_name} for metric [{self.metric_name}] <> {self.mode}, checking every [{self.check_every} batch iters], patience: {self.patience} [corresponding to [{patience}] batch iters]]"
+        print(f"Set up action: {self.string}")
 
     def on_batch_end(self, batch, logs=None):
         if self.metric_name not in logs:
             return True
 
-
-        if logs['tot_iter'] % self.check_every == 0:
+        if logs["tot_iter"] % self.check_every == 0:
             metrics = logs[self.metric_name].value
-            print(f"Iter: {logs['tot_iter']}, Metric: {logs[self.metric_name]}") if self.verbose else None
+            print(
+                f"Iter: {logs['tot_iter']}, Metric: {logs[self.metric_name]}"
+            ) if self.verbose else None
 
             if self.best is None:
                 self.best = metrics
@@ -256,7 +290,9 @@ class TriggerActionWithPatience(Callback):
             else:
                 self.num_bad_iters += 1
             print(f"Num Bad Iter: {self.num_bad_iters}") if self.verbose else None
-            print(f"Patience: {self.num_bad_iters}/{self.patience}") if (self.verbose or self.patience - self.num_bad_iters < 20) else None
+            print(f"Patience: {self.num_bad_iters}/{self.patience}") if (
+                self.verbose or self.patience - self.num_bad_iters < 20
+            ) else None
 
             if self.num_bad_iters >= self.patience:
                 print(f"Action triggered: {self.string}")
@@ -264,49 +300,53 @@ class TriggerActionWithPatience(Callback):
                 # needs to reset itself
                 self.num_bad_iters = 0
         else:
-            print(f"Not updating now {self.check_every - (logs['tot_iter'] % self.check_every)}") if self.verbose else None
+            print(
+                f"Not updating now {self.check_every - (logs['tot_iter'] % self.check_every)}"
+            ) if self.verbose else None
 
     def _init_is_better(self, mode, min_delta, percentage):
-        if mode not in {'min', 'max'}:
-            raise ValueError('mode ' + mode + ' is unknown!')
+        if mode not in {"min", "max"}:
+            raise ValueError("mode " + mode + " is unknown!")
         if not percentage:
-            if mode == 'min':
+            if mode == "min":
                 self.is_better = lambda a, best: a < best - min_delta
-            if mode == 'max':
+            if mode == "max":
                 self.is_better = lambda a, best: a > best + min_delta
         else:
-            if mode == 'min':
-                self.is_better = lambda a, best: a < best - (
-                        best * min_delta / 100)
-            if mode == 'max':
-                self.is_better = lambda a, best: a > best + (
-                        best * min_delta / 100)
-
+            if mode == "min":
+                self.is_better = lambda a, best: a < best - (best * min_delta / 100)
+            if mode == "max":
+                self.is_better = lambda a, best: a > best + (best * min_delta / 100)
 
 
 from torch.optim.lr_scheduler import ReduceLROnPlateau
+
+
 class PlateauLossLrScheduler(Callback):
-    def __init__(self, optimizer, check_batch=False, patience=2, loss_metric='loss'):
+    def __init__(self, optimizer, check_batch=False, patience=2, loss_metric="loss"):
         self.loss_metric = loss_metric
         self.scheduler = ReduceLROnPlateau(optimizer, patience=patience)
-        self.last_lr = [i['lr'] for i in self.scheduler.optimizer.param_groups]
+        self.last_lr = [i["lr"] for i in self.scheduler.optimizer.param_groups]
         self.check_batch = check_batch
 
     def on_epoch_end(self, epoch, logs=None):
         if not self.check_batch:
             self.check_and_update(logs)
 
-
     def check_and_update(self, logs):
         self.scheduler.step(logs[self.loss_metric])
-        if self.last_lr != [i['lr'] for i in self.scheduler.optimizer.param_groups]:
-            print((fg.blue + "learning rate: {} => {}" + rs.fg).format(self.last_lr, [i['lr'] for i in self.scheduler.optimizer.param_groups]))
-            self.last_lr = [i['lr'] for i in self.scheduler.optimizer.param_groups]
+        if self.last_lr != [i["lr"] for i in self.scheduler.optimizer.param_groups]:
+            print(
+                (fg.blue + "learning rate: {} => {}" + rs.fg).format(
+                    self.last_lr,
+                    [i["lr"] for i in self.scheduler.optimizer.param_groups],
+                )
+            )
+            self.last_lr = [i["lr"] for i in self.scheduler.optimizer.param_groups]
 
     def on_batch_end(self, batch, logs):
         if self.check_batch:
             self.check_and_update(logs)
-
 
 
 class StopWhenMetricIs(Callback):
@@ -314,13 +354,19 @@ class StopWhenMetricIs(Callback):
         self.value_to_reach = value_to_reach
         self.metric_name = metric_name
         self.check_after_batch = check_after_batch
-        print(fg.cyan + f"This session will stop when metric [{self.metric_name}] has reached the value  [{self.value_to_reach}]" + rs.fg)
+        print(
+            fg.cyan
+            + f"This session will stop when metric [{self.metric_name}] has reached the value  [{self.value_to_reach}]"
+            + rs.fg
+        )
         super().__init__()
 
     def check_and_stop(self, logs=None):
         if logs[self.metric_name] >= self.value_to_reach:
-            logs['stop'] = True
-            print(f'Metric [{self.metric_name}] has reached the value [{self.value_to_reach}]. Stopping')
+            logs["stop"] = True
+            print(
+                f"Metric [{self.metric_name}] has reached the value [{self.value_to_reach}]. Stopping"
+            )
 
     def on_batch_end(self, batch, logs=None):
         if self.check_after_batch:
@@ -330,8 +376,20 @@ class StopWhenMetricIs(Callback):
         if not self.check_after_batch:
             self.check_and_stop(logs)
 
+
 class SaveModel(Callback):
-    def __init__(self, net, output_path, loss_metric_name='loss', print_save=False, optimizer=None, epsilon_loss=0.1, min_iter=np.inf, max_iter=np.inf, epoch_end=True):
+    def __init__(
+        self,
+        net,
+        output_path,
+        loss_metric_name="loss",
+        print_save=False,
+        optimizer=None,
+        epsilon_loss=0.1,
+        min_iter=np.inf,
+        max_iter=np.inf,
+        epoch_end=True,
+    ):
         self.print_save = print_save
         self.epoch_end = epoch_end
         self.output_path = output_path
@@ -347,26 +405,54 @@ class SaveModel(Callback):
 
     def save_model(self, path, print_it=True):
         pathlib.Path(os.path.dirname(path)).mkdir(parents=True, exist_ok=True)
-        print(fg.yellow + ef.inverse + 'Saving model in {}'.format(path) + rs.fg + rs.inverse) if print_it else None
-        torch.save({'model': self.net.state_dict(),
-                   'optimizer': self.optimizer.state_dict() if self.optimizer else None}, path)
+        print(
+            fg.yellow
+            + ef.inverse
+            + "Saving model in {}".format(path)
+            + rs.fg
+            + rs.inverse
+        ) if print_it else None
+        torch.save(
+            {
+                "model": self.net.state_dict(),
+                "optimizer": self.optimizer.state_dict() if self.optimizer else None,
+            },
+            path,
+        )
 
     def on_epoch_begin(self, epoch, logs=None):
         if self.epoch_end:
-            self.save_model(os.path.splitext(self.output_path)[0] + f'_checkpoint' + os.path.splitext(self.output_path)[1])
+            self.save_model(
+                os.path.splitext(self.output_path)[0]
+                + f"_checkpoint"
+                + os.path.splitext(self.output_path)[1]
+            )
 
     def on_batch_end(self, batch, logs=None):
         if self.output_path is not None:
-            if ((logs['tot_iter'] - self.last_iter) > self.max_iter) or \
-                    ((self.last_loss - logs[self.loss_metric_name]) > self.epsilone_loss) and\
-                    ((logs['tot_iter'] - self.last_iter) > self.min_iter):
-                self.last_iter = logs['tot_iter']
-                self.last_loss = logs[self.loss_metric_name] # .value  ## ouch! You cannot overload assignment operator :( ! Nope!
-                self.save_model(os.path.splitext(self.output_path)[0] + f'_checkpoint' + os.path.splitext(self.output_path)[1], print_it=self.print_save)
+            if (
+                ((logs["tot_iter"] - self.last_iter) > self.max_iter)
+                or ((self.last_loss - logs[self.loss_metric_name]) > self.epsilone_loss)
+                and ((logs["tot_iter"] - self.last_iter) > self.min_iter)
+            ):
+                self.last_iter = logs["tot_iter"]
+                self.last_loss = logs[
+                    self.loss_metric_name
+                ]  # .value  ## ouch! You cannot overload assignment operator :( ! Nope!
+                self.save_model(
+                    os.path.splitext(self.output_path)[0]
+                    + f"_checkpoint"
+                    + os.path.splitext(self.output_path)[1],
+                    print_it=self.print_save,
+                )
 
     def on_train_end(self, logs=None):
         if self.output_path is not None:
-            self.save_model(os.path.splitext(self.output_path)[0] + f'_checkpoint' + os.path.splitext(self.output_path)[1])
+            self.save_model(
+                os.path.splitext(self.output_path)[0]
+                + f"_checkpoint"
+                + os.path.splitext(self.output_path)[1]
+            )
             self.save_model(self.output_path, print_it=True)
 
 
@@ -378,11 +464,11 @@ class PrintLogs(Callback, ABC):
         self.plot_at_end = plot_at_end
 
     def on_training_step_end(self, batch, logs=None):
-        if logs['tot_iter'] - self.last_iter > self.plot_every:
+        if logs["tot_iter"] - self.last_iter > self.plot_every:
             # self.print_logs(self.get_value(self.running_logs[self.id]), logs)
             self.print_logs(logs[self.id], logs)
             # self.running_logs[self.id] = []
-            self.last_iter = logs['tot_iter']
+            self.last_iter = logs["tot_iter"]
 
     def on_train_end(self, logs=None):
         if self.plot_at_end:
@@ -398,10 +484,10 @@ class PrintConsole(PrintLogs):
         if isinstance(values, str):
             value_format = values
         elif isinstance(values, int):
-            value_format = f'{values}'
+            value_format = f"{values}"
         else:
-            value_format = f'{values:.3}'
-        print(fg.cyan + f'{self.id}: {value_format}' + rs.fg, end=self.endln)
+            value_format = f"{values:.3}"
+        print(fg.cyan + f"{self.id}: {value_format}" + rs.fg, end=self.endln)
 
 
 class ClipGradNorm(Callback):
@@ -427,8 +513,17 @@ class ProgressBar(Callback):
 
     def on_training_step_end(self, batch_index, batch_logs=None):
         # framework_utils.progress_bar(batch_index, self.length_bar)
-        self.pbar.set_postfix_str(" / ".join([sty.fg.cyan + f'{lk}:{batch_logs[lk]:.5f}' + sty.rs.fg for lk in self.logs_keys]))
-        self.pbar.set_description(sty.fg.red + f'Epoch {batch_logs["epoch"]}' + sty.rs.fg)
+        self.pbar.set_postfix_str(
+            " / ".join(
+                [
+                    sty.fg.cyan + f"{lk}:{batch_logs[lk]:.5f}" + sty.rs.fg
+                    for lk in self.logs_keys
+                ]
+            )
+        )
+        self.pbar.set_description(
+            sty.fg.red + f'Epoch {batch_logs["epoch"]}' + sty.rs.fg
+        )
         self.pbar.update(self.batch_size)
 
     def on_epoch_end(self, epoch, logs=None):
@@ -437,9 +532,19 @@ class ProgressBar(Callback):
     def on_train_end(self, logs=None):
         self.pbar.close()
 
+
 from csv import writer
+
+
 class SaveInfoCsv(Callback):
-    def __init__(self, log_names, path, update_on_batch_end=False, update_on_epoch_end=True, update_on_train_end=False):
+    def __init__(
+        self,
+        log_names,
+        path,
+        update_on_batch_end=False,
+        update_on_epoch_end=True,
+        update_on_train_end=False,
+    ):
         self.log_names = log_names
         self.path = path
         self.rows = []
@@ -448,13 +553,13 @@ class SaveInfoCsv(Callback):
         self.update_on_epoch_end = update_on_epoch_end
         pathlib.Path(os.path.dirname(path)).mkdir(parents=True, exist_ok=True)
 
-        f = open(self.path, 'w')
+        f = open(self.path, "w")
         csv_writer = writer(f)
         csv_writer.writerow(log_names)
 
     def append_list_as_row(self, file_name, list_of_elem):
         # Open file in append mode
-        with open(file_name, 'a+', newline='') as write_obj:
+        with open(file_name, "a+", newline="") as write_obj:
             # Create a writer object from csv module
             csv_writer = writer(write_obj)
             # Add contents of list as last row in the csv file
@@ -462,8 +567,6 @@ class SaveInfoCsv(Callback):
 
     def update(self, logs):
         self.append_list_as_row(self.path, [logs[l] for l in self.log_names])
-
-
 
     def on_epoch_end(self, epoch, logs=None):
         if self.update_on_epoch_end:
@@ -478,17 +581,15 @@ class SaveInfoCsv(Callback):
             self.update(logs)
 
 
-
-
 class PrintNeptune(PrintLogs):
-    def __init__(self,  weblogger, convert_str=False, log_prefix='', **kwargs):
+    def __init__(self, weblogger, convert_str=False, log_prefix="", **kwargs):
         self.convert_str = convert_str
         self.weblogger = weblogger
         self.log_prefix = log_prefix
         super().__init__(**kwargs)
 
     def print_logs(self, values, logs):
-        if isinstance(self.weblogger,  neptune.Run):
+        if isinstance(self.weblogger, neptune.Run):
             if self.convert_str:
                 self.weblogger[self.log_prefix + self.id].log(str(values))
             else:
@@ -499,7 +600,25 @@ class DuringTrainingTest(Callback):
     test_time = 0
     num_tests = 0
 
-    def __init__(self, testing_loaders, every_x_epochs=None, eval_mode=True, every_x_iter=None, every_x_sec=None, weblogger=False, logs_prefix='rndtxt', multiple_sec_of_test_time=None, auto_increase=False, log_text='', use_cuda=None, call_run=None, callbacks=None, compute_conf_mat=True, plot_samples_corr_incorr=False, first_epoch_test=True):
+    def __init__(
+        self,
+        testing_loaders,
+        every_x_epochs=None,
+        eval_mode=True,
+        every_x_iter=None,
+        every_x_sec=None,
+        weblogger=False,
+        logs_prefix="rndtxt",
+        multiple_sec_of_test_time=None,
+        auto_increase=False,
+        log_text="",
+        use_cuda=None,
+        call_run=None,
+        callbacks=None,
+        compute_conf_mat=True,
+        plot_samples_corr_incorr=False,
+        first_epoch_test=True,
+    ):
         self.first_epoch_test = first_epoch_test
         self.eval_mode = eval_mode
         self.callbacks = [] if callbacks is None else callbacks
@@ -524,68 +643,122 @@ class DuringTrainingTest(Callback):
         self.time_from_last_test = time.time()
 
     def get_callbacks(self, log, testing_loader):
-        cb = self.callbacks + [StopWhenMetricIs(value_to_reach=0, metric_name=f'{self.logs_prefix}epoch', check_after_batch=False)]
+        cb = self.callbacks + [
+            StopWhenMetricIs(
+                value_to_reach=0,
+                metric_name=f"{self.logs_prefix}epoch",
+                check_after_batch=False,
+            )
+        ]
         # cb.append(PlotImagesEveryOnceInAWhile(self.weblogger, testing_loader.dataset, plot_every=1, plot_only_n_times=1, plot_at_the_end=False, max_images=20, text=f"Test no. {self.num_tests}")) if self.plot_samples_corr_incorr else None
         return cb
 
     def run_tests(self, logs, last_test=False):
         start_test_time = time.time()
         print(fg.green, end="")
-        print(f"\n## Testing " + fg.green + f"[{self.testing_loader.dataset.name_ds}]" + ((' in ~EVAL~ mode') if self.eval_mode else (' in ~TRAIN~ mode')) + " ##")
+        print(
+            f"\n## Testing "
+            + fg.green
+            + f"[{self.testing_loader.dataset.name_ds}]"
+            + ((" in ~EVAL~ mode") if self.eval_mode else (" in ~TRAIN~ mode"))
+            + " ##"
+        )
         print(rs.fg, end="")
 
-        def test(testing_loader, log='', last_test=False):
+        def test(testing_loader, log="", last_test=False):
             mid_test_cb = self.get_callbacks(log, testing_loader)
 
             with torch.no_grad():
-                _, logs_test = self.call_run(testing_loader,
-                                             train=False,
-                                             callbacks=mid_test_cb,
-                                             logs=logs,
-                                             logs_prefix=self.logs_prefix,
-                                             collect_data=True if self.plot_samples_corr_incorr else False)
+                _, logs_test = self.call_run(
+                    testing_loader,
+                    train=False,
+                    callbacks=mid_test_cb,
+                    logs=logs,
+                    logs_prefix=self.logs_prefix,
+                    collect_data=True if self.plot_samples_corr_incorr else False,
+                )
 
         if self.eval_mode:
             self.model.eval()
-            test(self.testing_loader, log=f' EVALmode [{self.testing_loader.dataset.name_ds}]', last_test=last_test)
+            test(
+                self.testing_loader,
+                log=f" EVALmode [{self.testing_loader.dataset.name_ds}]",
+                last_test=last_test,
+            )
 
         if not self.eval_mode:
             self.model.train()
-            test(self.testing_loader, log=f' TRAINmode [{self.testing_loader.dataset.name_ds}]', last_test=last_test)
+            test(
+                self.testing_loader,
+                log=f" TRAINmode [{self.testing_loader.dataset.name_ds}]",
+                last_test=last_test,
+            )
 
         self.model.train()
         self.num_tests += 1
 
         self.time_from_last_test = time.time()
         self.test_time = time.time() - start_test_time
-        if self.auto_increase and 'tot_iter' in logs:
-            self.every_x_sec = self.auto_increase * (self.test_time + 0.5 * self.test_time * math.log(logs['tot_iter']+1, 1.2))
-            print("Test time is {:.4f}s, next test is gonna happen in {:.4f}s".format(self.test_time, self.every_x_sec))
+        if self.auto_increase and "tot_iter" in logs:
+            self.every_x_sec = self.auto_increase * (
+                self.test_time
+                + 0.5 * self.test_time * math.log(logs["tot_iter"] + 1, 1.2)
+            )
+            print(
+                "Test time is {:.4f}s, next test is gonna happen in {:.4f}s".format(
+                    self.test_time, self.every_x_sec
+                )
+            )
 
         if self.multiple_sec_of_test_time:
-            print("Test time is {:.4f}s, next test is gonna happen in {:.4f}s".format(self.test_time, self.test_time*self.multiple_sec_of_test_time))
+            print(
+                "Test time is {:.4f}s, next test is gonna happen in {:.4f}s".format(
+                    self.test_time, self.test_time * self.multiple_sec_of_test_time
+                )
+            )
         print(fg.green + "\n#############################################" + rs.fg)
 
     def on_epoch_begin(self, epoch, logs=None):
-        if (self.every_x_epochs is not None and epoch % self.every_x_epochs == 0) or (epoch==0 and self.first_epoch_test):
-            print(f"\nTest every {self.every_x_epochs} epochs") if self.every_x_epochs is not None else None
+        if (self.every_x_epochs is not None and epoch % self.every_x_epochs == 0) or (
+            epoch == 0 and self.first_epoch_test
+        ):
+            print(
+                f"\nTest every {self.every_x_epochs} epochs"
+            ) if self.every_x_epochs is not None else None
             self.run_tests(logs)
 
     def on_batch_end(self, batch, logs=None):
-        if (self.every_x_iter is not None and logs['tot_iter'] % self.every_x_iter) or \
-                (self.every_x_sec is not None and self.every_x_sec < time.time() - self.time_from_last_test) or \
-                (self.multiple_sec_of_test_time is not None and time.time() - self.time_from_last_test > self.multiple_sec_of_test_time * self.test_time):
-            if (self.every_x_iter is not None and logs['tot_iter'] % self.every_x_iter):
+        if (
+            (self.every_x_iter is not None and logs["tot_iter"] % self.every_x_iter)
+            or (
+                self.every_x_sec is not None
+                and self.every_x_sec < time.time() - self.time_from_last_test
+            )
+            or (
+                self.multiple_sec_of_test_time is not None
+                and time.time() - self.time_from_last_test
+                > self.multiple_sec_of_test_time * self.test_time
+            )
+        ):
+            if self.every_x_iter is not None and logs["tot_iter"] % self.every_x_iter:
                 print(f"\nTest every {self.every_x_iter} iterations")
-            if (self.every_x_sec is not None and self.every_x_sec < time.time() - self.time_from_last_test):
-                print(f"\nTest every {self.every_x_sec} seconds ({(time.time() -self.time_from_last_test):.3f} secs passed from last test)")
-            if (self.multiple_sec_of_test_time is not None and time.time() - self.time_from_last_test > self.multiple_sec_of_test_time * self.test_time):
-                print(f"\nTest every {self.multiple_sec_of_test_time * self.test_time} seconds ({time.time() - self.time_from_last_test} secs passed from last test)")
+            if (
+                self.every_x_sec is not None
+                and self.every_x_sec < time.time() - self.time_from_last_test
+            ):
+                print(
+                    f"\nTest every {self.every_x_sec} seconds ({(time.time() -self.time_from_last_test):.3f} secs passed from last test)"
+                )
+            if (
+                self.multiple_sec_of_test_time is not None
+                and time.time() - self.time_from_last_test
+                > self.multiple_sec_of_test_time * self.test_time
+            ):
+                print(
+                    f"\nTest every {self.multiple_sec_of_test_time * self.test_time} seconds ({time.time() - self.time_from_last_test} secs passed from last test)"
+                )
 
             self.run_tests(logs)
 
     def on_train_end(self, logs=None):
         self.run_tests(logs, last_test=True)
-
-
-
