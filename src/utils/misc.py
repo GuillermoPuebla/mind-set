@@ -1,4 +1,5 @@
 import numpy as np
+import sty
 import torch
 import matplotlib.pyplot as plt
 import cv2
@@ -137,3 +138,42 @@ def conver_tensor_to_plot(tensor, mean, std):
     if np.shape(image)[2] == 1:
         image = np.squeeze(image)
     return image
+
+
+def convert_lists_to_strings(obj):
+    if isinstance(obj, list):
+        return str(obj)
+    elif isinstance(obj, dict):
+        return {k: convert_lists_to_strings(v) for k, v in obj.items()}
+    else:
+        return obj
+
+
+def pretty_print_dict(dictionary, indent=0):
+    key_color = sty.fg.blue
+    value_color = sty.fg.green
+    reset_color = sty.rs.fg
+
+    for key, value in sorted(dictionary.items()):
+        print(" " * indent + key_color + key + reset_color, end=": ")
+        if isinstance(value, dict):
+            print()
+            pretty_print_dict(value, indent + 4)
+        else:
+            print(value_color + str(value) + reset_color)
+
+
+def update_dict(dictA, dictB, replace=True):
+    for key in dictB:
+        if key in dictA and isinstance(dictA[key], dict) and isinstance(dictB[key], dict):
+            # if the value in dictA is a dict and the value in dictB is a dict, recursively update the nested dict
+            update_dict(dictA[key], dictB[key], replace)
+        else:
+            # otherwise, simply update the value in dictA with the value in dictB
+            if replace or (not replace and key not in dictA):
+                old_value = dictA[key] if key in dictA else 'none'
+                dictA[key] = dictB[key]
+                print(f"Updated {key} : {old_value} => {key}: {dictB[key]}") if old_value != dictB[key] else None
+            else:
+                print(f"Value {key} not replaced as already present ({dictA[key]}) and 'replace=False'")
+    return dictA

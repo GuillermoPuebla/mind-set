@@ -257,7 +257,18 @@ class Logs():
     def __format__(self, format_spec):
         return format(self.value, format_spec)
 
+class CumulativeAverage(Logs):
+    value = None
+    n = 0
 
+    def add(self, *args):
+        if self.value is None:
+            self.value = args[0]
+
+        else:
+            self.value = (args[0] + self.n * self.value) / (self.n+1)
+        self.n += 1
+        return self
 
 class ExpMovingAverage(Logs):
     value = None
@@ -272,10 +283,6 @@ class ExpMovingAverage(Logs):
             self.value = self.alpha * args[0] + (1 - self.alpha) * self.value
         return self
 
-a= ExpMovingAverage(0.2).add(3)
-a = a +1
-
-##
 class CumulativeAverage(Logs):
     value = None
     n = 0

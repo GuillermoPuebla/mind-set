@@ -2,11 +2,24 @@ import torch
 import torchvision
 from torch import nn as nn
 from src.utils.net_utils import make_cuda
-from src.utils.misc import imshow_batch
+from src.utils.misc import imshow_batch, convert_lists_to_strings
 from copy import deepcopy
 import numpy as np
 from torch.nn import functional as F
 
+def fix_dataset(dataset, name_ds=''):
+    dataset.name_ds = name_ds
+    dataset.stats = {'mean': [0.491, 0.482, 0.44], 'std': [0.247, 0.243, 0.262]}
+    add_resize = False
+    if next(iter(dataset))[0].size[0] != 244:
+        add_resize = True
+
+    dataset.transform = torchvision.transforms.Compose([torchvision.transforms.ToTensor(),
+                                                        torchvision.transforms.Normalize(mean=dataset.stats['mean'],
+                                                                                         std=dataset.stats['std'])])
+    if add_resize:
+        dataset.transform.transforms.insert(0, torchvision.transforms.Resize(224))
+    return dataset
 
 def decoder_step(data, model, loss_fn, optimizers, use_cuda, logs, logs_prefix, train, method, **kwargs):
     num_decoders = len(model.decoders)
@@ -22,7 +35,7 @@ def decoder_step(data, model, loss_fn, optimizers, use_cuda, logs, logs_prefix, 
     for idx, od in enumerate(out_dec):
         loss_decoder.append(loss_fn(od,
                 labels))
-        loss += loss_decoder[-1]
+        loss = loss + loss_decoder[-1]
 
     logs[f'{logs_prefix}ema_loss'].add(loss.item())
 
@@ -47,6 +60,13 @@ def decoder_step(data, model, loss_fn, optimizers, use_cuda, logs, logs_prefix, 
     if train:
         loss.backward()
         [optimizers[i].step() for i in range(num_decoders)]
+
+def log_neptune_init_info(neptune_logger, toml_config, tags=None):
+    tags = [] if tags is None else tags
+    neptune_logger['sys/name'] = toml_config['train_info']['run_id']  # to be consistent with before
+    neptune_logger['toml_config'] = convert_lists_to_strings(toml_config)
+    neptune_logger['toml_config_file'].upload(toml_config['train_info']['save_folder'] + '/toml_config.txt')
+    neptune_logger["sys/tags"].add(tags)
 
 
 def config_to_path_train(config):
