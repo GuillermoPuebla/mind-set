@@ -169,12 +169,10 @@ class RandomBackground(torch.nn.Module):
         return transforms.ToPILImage()(i)
 
 
-def prepare_network(net, config, optimizer=None, train=True):
-    pretraining_file = (
-        "vanilla" if config.pretraining == "ImageNet" else config.pretraining
-    )
-    load_pretraining(net, pretraining_file, optimizer, config.use_cuda)
-    net.cuda() if config.use_cuda else None
+def prepare_network(net, pretraining, optimizer=None, train=True):
+    pretraining_file = "vanilla" if pretraining == "ImageNet" else pretraining
+    load_pretraining(net, pretraining_file, optimizer, torch.cuda.is_available())
+    net.cuda() if torch.cuda.is_available() else None
 
     cudnn.benchmark = True
     net.train() if train else net.eval()
