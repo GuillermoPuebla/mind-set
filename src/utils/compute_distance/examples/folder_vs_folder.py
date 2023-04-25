@@ -26,9 +26,9 @@ for p in pretraining:
 
 # Or alternatively use a toml_config file. Notice that you only need to specify the values that you wish to change from the default file.
 # You can load the toml file yourself and pass it like this:
-# with open(os.path.dirname(__file__) + "/image_vs_folder.toml", "r") as f:
-#     toml_config = toml.load(f)
-# compute_distance(**toml_config)
+with open(os.path.dirname(__file__) + "/image_vs_folder.toml", "r") as f:
+    toml_config = toml.load(f)
+compute_distance(**toml_config)
 
 
 # Or you can call the script as a module and pass the toml file as a command line arg.

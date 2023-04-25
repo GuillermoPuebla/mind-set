@@ -1,5 +1,5 @@
 """
-In this script we show a couple of other ways to run a REGRESSION training session.
+In this script we show 3 ways to run a REGRESSION training session.
 Before running this example, generate the ebbinghaus dataset in this way:
     python -m src.ebbinghaus.generate_datasets.py --num_training_data=100 --num_testing_data=20 --folder data/examples/ebbinghaus
 """
@@ -11,15 +11,15 @@ from src.utils.decoder.train import run_train
 # Firstly, we can use just few training options. The options in "default_train_config" will be used for all other options.
 data_folder = "data/examples/ebbinghaus"
 run_train(
-    training={
-        "train_dataset": f"{data_folder}/random_data_n100/train",
-        "test_datasets": [
+    training=dict(
+        train_dataset=f"{data_folder}/random_data_n100/train",
+        test_datasets=[
             f"{data_folder}/random_data_n20/test",
             f"{data_folder}/big_flankers_data_n20/test",
             f"{data_folder}/small_flankers_data_n20/test",
         ],
-    },
-    saving_folders={"result_folder": "results/examples/ebbinghaus"},
+    ),
+    saving_folders=dict(result_folder="results/examples/decoder/ebbinghaus"),
 )
 
 ##
