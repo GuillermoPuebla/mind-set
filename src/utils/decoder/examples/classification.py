@@ -11,11 +11,11 @@ from src.utils.decoder.train import run_train
 # Firstly, we can use just few training options. The options in "default_train_config" will be used for all other options.
 data_folder = "data/examples/miniMNIST"
 run_train(
-    training={
-        "train_dataset": f"{data_folder}/training",
-        "test_datasets": [f"{data_folder}/testing1", f"{data_folder}/testing2"],
-    },
-    saving_folders={"result_folder": "results/miniMNIST"},
+    training=dict(
+        train_dataset=f"{data_folder}/training",
+        test_datasets=[f"{data_folder}/testing1", f"{data_folder}/testing2"],
+    ),
+    saving_folders=dict(result_folder="results/examples/decoder/miniMNIST"),
 )
 
 ##

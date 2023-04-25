@@ -1,17 +1,3 @@
-"""
-This will compute the folder-to-folder version of distance.
-Given a dataset folder `./data/xx/` and a base folder, it compares each sample in each folder with the base folder, e.g
-    `./data/xx/base/0.png` vs `./data/xx/comp1/0.png`,
-    `./data/xx/base/1.png` vs  `./data/xx/comp1/1.png`,
-    .
-    .
-    .
-    `./data/xx/base/0.png` vs `./data/xx/comp2/0.png`,
-    .
-    .
-The number of samples in each folder must match.
-Each comparison is done multiple time at different transformations
-"""
 import argparse
 
 import toml
@@ -56,7 +42,7 @@ def compute_distance(input_paths, options, saving_folders, transformation):
         else False,
     )
     torch.cuda.set_device(
-        toml_config["training"]["gpu_num"]
+        toml_config["options"]["gpu_num"]
     ) if torch.cuda.is_available() else None
 
     if has_subfolders(toml_config["input_paths"]["folder"]):
