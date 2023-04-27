@@ -12,6 +12,7 @@ import torchvision.transforms as transforms
 import torchvision
 from src.utils.compute_distance.misc import (
     has_subfolders,
+    PasteOnCanvas,
 )
 from src.utils.compute_distance.activation_recorder import (
     RecordDistanceAcrossFolders,
@@ -83,9 +84,21 @@ def compute_distance(input_paths, options, saving_folders, transformation):
     )
 
     transf_list = [
-        transforms.Resize(resize_value),
-        torchvision.transforms.ToTensor(),
-        torchvision.transforms.Normalize(norm_values["mean"], norm_values["std"]),
+        x
+        for x in [
+            (
+                PasteOnCanvas(
+                    toml_config["transformation"]["canvas_to_image_ratio"],
+                    toml_config["transformation"]["affine_transf_background"],
+                )
+                if toml_config["transformation"]["copy_on_bigger_canvas"]
+                else None
+            ),
+            transforms.Resize(resize_value),
+            torchvision.transforms.ToTensor(),
+            torchvision.transforms.Normalize(norm_values["mean"], norm_values["std"]),
+        ]
+        if x is not None
     ]
 
     transform = torchvision.transforms.Compose(transf_list)

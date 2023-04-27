@@ -1,8 +1,29 @@
 import os
 import re
+import PIL.Image as Image
 import numpy as np
+import torch
 from matplotlib import pyplot as plt
 from torchvision.transforms import functional as F
+
+
+class PasteOnCanvas(torch.nn.Module):
+    def __init__(self, canvas_to_image_ratio, background):
+        super().__init__()
+        self.canvas_to_image_ratio = canvas_to_image_ratio
+        self.background = background
+
+    def forward(self, pil_image):
+        canvas = Image.new(
+            "RGBA",
+            (
+                int(np.max(pil_image.size) * self.canvas_to_image_ratio),
+                int(np.max(pil_image.size) * self.canvas_to_image_ratio),
+            ),
+            self.background,
+        )
+        canvas = paste_at_center(canvas, pil_image).convert("RGB")
+        return canvas
 
 
 def get_new_affine_values(transf_code):
@@ -64,3 +85,20 @@ def has_subfolders(folder_path):
         if os.path.isdir(os.path.join(folder_path, item)):
             return True
     return False
+
+
+def paste_at_center(canvas, image_to_paste):
+    # Calculate the center of the canvas
+    canvas_width, canvas_height = canvas.size
+    canvas_center_x = canvas_width // 2
+    canvas_center_y = canvas_height // 2
+
+    # Calculate the position to paste the image so its center aligns with the canvas center
+    image_width, image_height = image_to_paste.size
+    position_x = canvas_center_x - (image_width // 2)
+    position_y = canvas_center_y - (image_height // 2)
+    position = (position_x, position_y)
+
+    # Paste the image onto the canvas
+    canvas.paste(image_to_paste, position)
+    return canvas
