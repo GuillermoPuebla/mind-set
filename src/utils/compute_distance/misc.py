@@ -1,5 +1,7 @@
 import os
 import re
+from copy import deepcopy
+
 import PIL.Image as Image
 import numpy as np
 import torch
@@ -88,6 +90,7 @@ def has_subfolders(folder_path):
 
 
 def paste_at_center(canvas, image_to_paste):
+    canvas = deepcopy(canvas)
     # Calculate the center of the canvas
     canvas_width, canvas_height = canvas.size
     canvas_center_x = canvas_width // 2
