@@ -99,14 +99,14 @@ class RecordDistance(RecordActivations):
 
         self.net(make_cuda(image0.unsqueeze(0), torch.cuda.is_available()))
         first_image_act = {}
-        activation_image1 = deepcopy(self.activation)
+        # activation_image1 = deepcopy(self.activation)
         for name, features1 in self.activation.items():
             if not np.any([i in name for i in self.only_save]):
                 continue
             first_image_act[name] = features1.flatten()
 
         self.net(make_cuda(image1.unsqueeze(0), torch.cuda.is_available()))
-        activation_image2 = deepcopy(self.activation)
+        # activation_image2 = deepcopy(self.activation)
 
         second_image_act = {}
         for name, features2 in self.activation.items():
@@ -147,7 +147,10 @@ class RecordDistanceAcrossFolders(RecordDistance):
         ]
         save_num_image_sets = 5
         all_files = glob.glob(folder + "/**")
-        levels = [os.path.basename(i) for i in glob.glob(folder + "/**")]
+        levels = [
+            os.path.basename(i) for i in glob.glob(folder + "/**") if os.path.isdir(i)
+        ]
+
 
         sets = [
             np.unique(

@@ -30,3 +30,9 @@ affine_transf_background = [0, 0, 0]
 matching_transform = true
 # How many times do we need to repeat a transformed sample. Only applies when you use some type of transformation. If no transformation specified, this is set to 1.
 repetitions = 50
+
+# Whether we want to copy the images found in the folders onto a bigger canvas. The canvas background will be `affine_transf_background`. The canvas will be `canvas_to_obj_ratio` along the horizontal dimension, and it will be a square.
+copy_on_bigger_canvas = false
+# Only used if `copy_on_bigger_canvas` is true.
+canvas_to_image_ratio = 3
+
