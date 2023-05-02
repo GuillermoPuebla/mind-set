@@ -35,3 +35,4 @@ repetitions = 50
 copy_on_bigger_canvas = false
 # Only used if `copy_on_bigger_canvas` is true.
 canvas_to_image_ratio = 3
+
