@@ -14,8 +14,6 @@ for g in sizes:
             saving_folders=dict(
                 result_folder=f"results/distance_similarity/{folder}/gsize{g}/{p}/"
             ),
-            transformation=dict(
-                repetitions=50,
-                matching_transform=False,
-            ),
+            transformation=dict(repetitions=50, matching_transform=False),
+            folder_vs_folder=dict(match_mode="all"),
         )

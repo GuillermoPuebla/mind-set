@@ -74,12 +74,11 @@ def apply_grid_mask(
     return masked_image, complement_image, mask
 
 
-path = "data/obj_representation/baker_2018/outline_images_fix"
-all_files = glob.glob(path + "/**")
-
-
 # Example usage:
 def create_dataset(grid_degree, grid_size, grid_thickness):
+    path = "data/obj_representation/baker_2018/outline_images_fix"
+    all_files = glob.glob(path + "/**")
+
     result_folder = (
         f"data/obj_representation/baker_2018/grid_degree{grid_degree}/gsize{grid_size}/"
     )
@@ -135,6 +134,7 @@ def create_dataset(grid_degree, grid_size, grid_thickness):
             )
 
 
-image_size = 100
-create_dataset(grid_size=8, grid_thickness=4, grid_degree=45)
-create_dataset(grid_size=16, grid_thickness=9, grid_degree=45)
+if __name__ == "__main__":
+    image_size = 100
+    create_dataset(grid_size=8, grid_thickness=4, grid_degree=45)
+    create_dataset(grid_size=16, grid_thickness=9, grid_degree=45)
