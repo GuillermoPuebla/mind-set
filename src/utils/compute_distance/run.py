@@ -114,6 +114,7 @@ def compute_distance(input_paths, options, saving_folders, transformation):
             net=network,
             use_cuda=False,
             only_save=toml_config["options"]["save_layers"],
+            match_mode=toml_config["folder_vs_folder"]["match_mode"],
         )
     elif toml_config["run_info"]["type"] == "image_vs_folder":
         recorder = RecordDistanceImgBaseVsFolder(

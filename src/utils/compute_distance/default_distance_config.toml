@@ -35,3 +35,8 @@ repetitions = 50
 copy_on_bigger_canvas = false
 # Only used if `copy_on_bigger_canvas` is true.
 canvas_to_image_ratio = 3
+
+# options that are related only to the folder_vs_folder mode
+[folder_vs_folder]
+# When comparing a base image with images in the other folder, "same_name" will only compare with images with the same name, "all" will compare each base image with ALL images in the other folders (will take much longer).
+match_mode = "same_name"
