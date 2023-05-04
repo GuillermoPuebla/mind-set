@@ -23,6 +23,7 @@ from src.utils.net_utils import load_pretraining
 from functools import partial
 from torchvision.datasets import ImageFolder
 import neptune.new as neptune
+import inspect
 
 
 def run_train(
@@ -35,18 +36,16 @@ def run_train(
 ):
     with open(os.path.dirname(__file__) + "/default_train_config.toml", "r") as f:
         toml_config = toml.load(f)
+
+    # update the toml_config file based on the input args to this function
+    local_vars = locals()
     update_dict(
         toml_config,
         {
-            "run_info": run_info if run_info else {},
-            "network": network if network else {},
-            "training": training if training else {},
-            "stopping_conditions": stopping_conditions if stopping_conditions else {},
-            "saving_folders": saving_folders if saving_folders else {},
-            "monitoring": monitoring if monitoring else {},
+            i: local_vars[i] if local_vars[i] else {}
+            for i in inspect.getfullargspec(run_train)[0]
         },
     )
-
     toml_config["run_info"] = {
         "run_id": datetime.now().strftime("%d%m%Y_%H%M%S")
         if toml_config["run_info"]["run_id"] is None

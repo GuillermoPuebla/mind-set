@@ -26,7 +26,11 @@ The meaning of the `--affine_transf_code` optional args is explained below.
 This method is more complex but allows for more interesting comparisons. 
 Here you compute distance between images in a base folder (`base_name` argument) and corresponding images in other folders, all contained in a parent folder specified in the `folder` argument. An example is in `data/examples/NAPvsMPlines` folder. In the example, `data/examples/NAPvsMPlines/NS` is the base folder, and `data/examples/NAPvsMPlines` is the parent folder containing folders against which `NS` images will be compared (notice that the `base_folder` does not need to be a subfolder of `folder`).  
 
-Images names are important in this mode: the names need to match across folders: `NAPvsMPlines/NS/1.png` will be compared with `NAPvsMP_standard/S/1.png` and with `NAPvsMP_standard/NSmore/1.png`. The image name doesn't need to be a number - but it needs to match across folders.
+Images names are important in this mode: the names need to match across folders: `NAPvsMPlines/NS/1.png` will be compared with `NAPvsMPlines/S/1.png` and with `NAPvsMPlines/NSmore/1.png`. The image name doesn't need to be a number - but the name needs to match across folders.
+
+However, there are cases in which you want to compare each image in the base folder with each other image in all the other folders. For example, you want to compare `NAPvsMPlines/NS/1.png` with `NAPvsMPlines/S/1.png` but also with `NAPvsMPlines/NS/2.png` and so on. To do that, set the option `match_mode` in the TOML file to `all` (default is `same_name`). In this mode, having matchin name doesn't matter and is not checked for.
+
+(Note: by carefully arranging the folders and setting `match_more` to `all`, you could perfectly recreate the `base image vs set of images` mode. Thus, `base image vs set of images` mode is a special case of `folder vs folder` mode. We decide to keep them separated for simplicity). 
 
 
 ## Optional Arguments

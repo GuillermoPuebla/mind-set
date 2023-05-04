@@ -64,20 +64,35 @@ def my_affine(img, translate, **kwargs):
 
 
 def save_figs(path, set, extra_info="", n=None):
-    fig, ax = plt.subplots(len(set) if n is None else n, 2)
+    num_rows = len(set) if n is None else n
+    fig, ax = plt.subplots(num_rows, 2)
+
     if np.ndim(ax) == 1:
         ax = np.array([ax])
+
     for idx, axx in enumerate(ax):
         axx[0].imshow(set[idx][0])
         axx[1].imshow(set[idx][1])
-    # [x.axis('off') for x in ax.flatten()]
-    plt.gcf().set_size_inches([2.4, 5])
+
+    # Calculate DPI based on image dimensions to avoid downscaling
+    img_width, img_height = set[0][0].shape[1], set[0][0].shape[0]
+    total_width = img_width * 2
+    total_height = img_height * num_rows
+
+    dpi = img_width
+    figsize = total_width / float(dpi), total_height / float(dpi)
+
+    plt.gcf().set_size_inches(figsize)
+    plt.gcf().set_dpi(dpi)
+
     plt.suptitle(f"Size: f{set[0][0].shape}\n{extra_info}")
 
     [x.set_xticks([]) for x in ax.flatten()]
     [x.set_yticks([]) for x in ax.flatten()]
 
-    plt.savefig(path)
+    plt.subplots_adjust(left=0, right=1, top=0.9, bottom=0, wspace=0, hspace=0.1)
+
+    plt.savefig(path, dpi=dpi, bbox_inches="tight", pad_inches=0)
 
 
 def has_subfolders(folder_path):

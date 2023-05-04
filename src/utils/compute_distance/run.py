@@ -18,21 +18,28 @@ from src.utils.compute_distance.activation_recorder import (
     RecordDistanceAcrossFolders,
     RecordDistanceImgBaseVsFolder,
 )
+import inspect
 
 
-def compute_distance(input_paths, options, saving_folders, transformation):
+def compute_distance(
+    input_paths=None,
+    options=None,
+    saving_folders=None,
+    transformation=None,
+    folder_vs_folder=None,
+):
     with open(os.path.dirname(__file__) + "/default_distance_config.toml", "r") as f:
         toml_config = toml.load(f)
         toml_config["transformation"]["affine_transf_background"] = tuple(
             toml_config["transformation"]["affine_transf_background"]
         )
+    # update the toml_config file based on the input args to this function
+    local_vars = locals()
     update_dict(
         toml_config,
         {
-            "input_paths": input_paths if input_paths else {},
-            "options": options if options else {},
-            "saving_folders": saving_folders if saving_folders else {},
-            "transformation": transformation if transformation else {},
+            i: local_vars[i] if local_vars[i] else {}
+            for i in inspect.getfullargspec(compute_distance)[0]
         },
     )
 
@@ -114,6 +121,7 @@ def compute_distance(input_paths, options, saving_folders, transformation):
             net=network,
             use_cuda=False,
             only_save=toml_config["options"]["save_layers"],
+            match_mode=toml_config["folder_vs_folder"]["match_mode"],
         )
     elif toml_config["run_info"]["type"] == "image_vs_folder":
         recorder = RecordDistanceImgBaseVsFolder(
