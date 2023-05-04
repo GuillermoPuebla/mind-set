@@ -201,7 +201,7 @@ class RecordDistanceAcrossFolders(RecordDistance):
                         ]
 
                         images = [transform(i) for i in images]
-                        df_row = {"set": s, "level": a, "n": n}
+                        df_row = {"base_obj": s, "obj": s2, "level": a, "n": n}
                         cs = self.compute_distance_pair(
                             images[0], images[1]
                         )  # , path_fig='')
