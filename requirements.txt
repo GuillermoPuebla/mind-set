@@ -13,3 +13,4 @@ scikit-image~=0.19.2
 scikit-learn~=1.1.0
 noise~=1.2.2
 perlin-noise~=1.12
+opencv-python-headless~=4.7.0.72
