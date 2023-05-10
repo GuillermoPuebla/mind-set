@@ -85,7 +85,7 @@ def center_image_on_canvas(opencv_img, canvas_size=224):
 
 
 def create_dataset(dot_distance, dot_size):
-    folder = "data/obj_representation/baker_2018/outline_images_fix/"
+    folder = "data/high_level_vision/baker_2018/outline_images_fix/"
     output_folder = (
         f"data/gestalt/good_continuation/dot_dist{dot_distance}_size{dot_size}/"
     )

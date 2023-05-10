@@ -2,14 +2,15 @@
 Generate directories for doing distance similarity analysis with the Leek Dataset in
 The Structure of Three-Dimensional Object Representations in Human Vision: Evidence From Whole–Part Matching
 by Leek, reppa, Arguin, 2005
-You need to files "data/obj_representation/imgs_upscaled_mod.png" and "data/obj_representation/additional_mask.png".
+You need to files "data/high_level_vision/imgs_upscaled_mod.png" and "data/high_level_vision/additional_mask.png".
 To generate these files starting fomr the pdf we followed these steps:
     1. Convert the PDF page 3 to an image
     2. Upscale the PNG. We use this online service https://www.upscale.media/upload, AI upscaling 2X with enhance quality: ON
     3. Convert the upscaled image to SVG through this online service https://convertio.co/png-svg/
     4. Convert the SVG image into PNG https://convertio.co/png-svg/ select DPI=200. This should give a high resolution version of the original image.
     5. Now we use paint.net to fix few little things: few "spots" that seem to not belong to any objects. We move the "Samll" objects on the right by around 3500 pixels. This is the imgs_upscaled_mod.png
-    6. Copy imgs_upscaled_mod.png -> additional_mask.png. In this file, every object that has parts that are too far away from one another needs to be covered with a black "mask". Almost all of them are from the "open contour" for small objects.
+    6. Copy imgs_upscaled_mod.png in additional_mask.png. In this file, every object that has parts that are too far away from one another needs to be covered with a black "mask". Almost all of them are from the "open contour" for small objects.
+    Now you can run this script.
 """
 
 import os
@@ -21,8 +22,10 @@ from skimage import measure
 from tqdm import tqdm
 import PIL.Image as Image
 
+from src.utils.compute_distance.misc import paste_at_center
 
-def get_objects_from_image(path_to_image, additional_mask_path):
+
+def get_objects_from_image(path_to_image, additional_mask_path, canvas_to_object_ratio):
     image = cv2.imread(path_to_image, cv2.IMREAD_GRAYSCALE)
     additional_mask = cv2.imread(additional_mask_path, cv2.IMREAD_GRAYSCALE)
 
@@ -44,7 +47,7 @@ def get_objects_from_image(path_to_image, additional_mask_path):
     np.unique(labels)
     cc = 0
     for label in tqdm(np.unique(labels)):
-        print(cc)
+        # print(cc)
         if label == 0:  # Skip the background
             continue
 
@@ -88,14 +91,24 @@ def get_objects_from_image(path_to_image, additional_mask_path):
             min_row : max_row + 1, min_col : max_col + 1
         ]
 
-        path = f"data/obj_representation/{name[type]}/{main_obj_type}.png"
+        path = f"{output}/{name[type]}/{main_obj_type}.png"
         pathlib.Path(os.path.dirname(path)).mkdir(parents=True, exist_ok=True)
 
-        Image.fromarray(cropped_image).save(path)
+        pil_image = Image.fromarray(cropped_image)
+        canvas = Image.new(
+            "RGB",
+            (int(200 * canvas_to_object_ratio), int(200 * canvas_to_object_ratio)),
+            "black",
+        )
+        paste_at_center(canvas, pil_image).save(path)
         cc += 1
 
 
 if __name__ == "__main__":
-    image_path = "data/obj_representation/imgs_upscaled_mod.png"
-    mask = "data/obj_representation/additional_mask.png"
-    get_objects_from_image(image_path, mask)
+    image_path = (
+        "data/high_level_vision/leek_reppa_arguin_2005_dataset/imgs_upscaled_mod.png"
+    )
+    mask = "data/high_level_vision/leek_reppa_arguin_2005_dataset/additional_mask.png"
+    output = f"data/high_level_vision/leek_reppa_arguin_2005_dataset"
+    canvas_to_object_ratio = 3
+    get_objects_from_image(image_path, mask, canvas_to_object_ratio)

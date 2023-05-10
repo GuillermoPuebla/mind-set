@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
-folder = "results/distance_similarity/obj_representation/baker_2018/grid_degree45/gsize16/ImageNet/dataframe.pickle"
+folder = "results/distance_similarity/high_level_vision/baker_2018/grid_degree45/gsize16/ImageNet/dataframe.pickle"
 color_cycle = np.array(plt.rcParams["axes.prop_cycle"].by_key()["color"] * 3)
 
 d = pickle.load(open(folder, "rb"))
