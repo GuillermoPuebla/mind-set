@@ -1,7 +1,9 @@
 *.pdf
 *.pt
 *.bat
-
+*.png
+*.jpg
+*.svg 
 **/__pycache__/**
 **/.neptune/**
 **/.pytest_cache/**
