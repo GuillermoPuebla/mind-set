@@ -7,9 +7,9 @@ that can be performed on shapes, such as cutting, rotating, moving, and changing
 Additional operations can be added by extending the ShapeCoreFunctions or Shapes classes.
 """
 
-from src.stimuli.src.modules.parent import ParentStimuli
-from src.stimuli.src.modules.shapes import Shapes
-from src.stimuli.src.utils.parallel import parallel
+from src.utils.stimuli.src.modules.parent import ParentStimuli
+from src.utils.stimuli.src.modules.shapes import Shapes
+from src.utils.stimuli.src.utils.parallel import parallel
 
 # The `ShapeCoreFunctions` class in the provided code defines a set of methods for working with shapes on a canvas. It is capable of performing various operations like:
 
