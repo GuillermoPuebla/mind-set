@@ -1,8 +1,8 @@
 import math
-from src.stimuli.src.utils.shapes import chaikins_corner_cutting
+from src.utils.stimuli.utils.shapes import chaikins_corner_cutting
 from perlin_noise import PerlinNoise
 import random
-from src.stimuli.src.modules.core import ShapeCoreFunctions
+from src.utils.stimuli.modules.core import ShapeCoreFunctions
 from PIL.Image import new
 from PIL.ImageDraw import Draw
 import numpy as np

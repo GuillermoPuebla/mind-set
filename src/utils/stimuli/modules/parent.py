@@ -1,7 +1,7 @@
 from PIL import Image
 from PIL.Image import new
 from PIL.ImageDraw import Draw
-from src.stimuli.src.utils.general import get_area_size
+from src.utils.stimuli.utils.general import get_area_size
 
 
 class ParentStimuli:

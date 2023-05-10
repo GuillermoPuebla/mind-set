@@ -1,12 +1,12 @@
 from PIL.Image import new
 from PIL.ImageDraw import Draw
-from src.stimuli.src.utils.color import get_rgba_color
+from src.utils.stimuli.utils.color import get_rgba_color
 from PIL import Image
 import numpy as np
 import pprint
-from src.stimuli.src.utils.general import get_area_size
+from src.utils.stimuli.utils.general import get_area_size
+from src.utils.stimuli.utils.shapes import SizeMonitor
 from matplotlib import colors
-from src.stimuli.src.utils.shapes import SizeMonitor
 import math
 
 
