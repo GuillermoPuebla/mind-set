@@ -1,6 +1,6 @@
 from src.utils.compute_distance.run import compute_distance
 
-folder = "obj_representation/baker_2018/grid_degree45/"
+folder = "high_level_vision/baker_2018/grid_degree45/"
 sizes = [8, 16]
 pretraining = ["ImageNet", "vanilla"]
 for g in sizes:

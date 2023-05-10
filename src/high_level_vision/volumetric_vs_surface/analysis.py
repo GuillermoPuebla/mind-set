@@ -7,7 +7,7 @@ import seaborn as sns
 
 sns.set(style="white")
 
-folder = "results/distance_similarity/obj_representation/"
+folder = "results/distance_similarity/high_level_vision/"
 folder_leek = folder + "leek_reppa_arguin_2005_dataset"
 
 pk = pickle.load(open(folder_leek + "/ImageNet/dataframe.pickle", "rb"))

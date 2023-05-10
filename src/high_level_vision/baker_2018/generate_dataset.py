@@ -76,11 +76,11 @@ def apply_grid_mask(
 
 # Example usage:
 def create_dataset(grid_degree, grid_size, grid_thickness):
-    path = "data/obj_representation/baker_2018/outline_images_fix"
+    path = "data/high_level_vision/baker_2018/outline_images_fix"
     all_files = glob.glob(path + "/**")
 
     result_folder = (
-        f"data/obj_representation/baker_2018/grid_degree{grid_degree}/gsize{grid_size}/"
+        f"data/high_level_vision/baker_2018/grid_degree{grid_degree}/gsize{grid_size}/"
     )
     [
         pathlib.Path(result_folder + f"{ff}").mkdir(parents=True, exist_ok=True)

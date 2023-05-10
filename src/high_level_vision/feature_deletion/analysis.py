@@ -7,8 +7,8 @@ import seaborn as sns
 
 sns.set(style="white")
 
-folder = "results/distance_similarity/obj_representation/"
-folder_leek = folder + "biedermann_1985_1987"
+folder = "results/distance_similarity/high_level_vision/"
+folder_leek = folder + "feature_deletion"
 
 pk = pickle.load(open(folder_leek + "/ImageNet/dataframe.pickle", "rb"))
 
