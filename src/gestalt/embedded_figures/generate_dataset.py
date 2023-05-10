@@ -1,38 +1,26 @@
 from PIL import Image, ImageDraw
 
-# Triangle (Equilateral)
-triangle = [(150, 50), (250, 250), (50, 250), (150, 50)]
+# Every polygon is first describe by a list of points in a canvas that is 100x100. The points will be then translated and rescaled depending on the canvas size and on the "obj_to_canvas" parameter.
 
 # Square
-square = [(100, 100), (200, 100), (200, 200), (100, 200), (100, 100)]
+square = ((0, 0), (100, 0), (100, 100), (0, 100), (0, 0))
 
-# Rectangle
-rectangle = [(80, 100), (220, 100), (220, 200), (80, 200), (80, 100)]
 
-# Hexagon (Regular)
-hexagon = [
-    (150, 50),
-    (250, 100),
-    (250, 200),
-    (150, 250),
-    (50, 200),
-    (50, 100),
-    (150, 50),
-]
+def calculate_centroid(points):
+    x_coords = [p[0] for p in points]
+    y_coords = [p[1] for p in points]
+    centroid_x = (max(x_coords) + min(x_coords)) / 2
+    centroid_y = (max(y_coords) + min(y_coords)) / 2
+    return centroid_x, centroid_y
 
-# Octagon (Regular)
-octagon = [
-    (150, 70),
-    (210, 110),
-    (210, 190),
-    (150, 230),
-    (90, 190),
-    (90, 110),
-    (150, 70),
-]
 
-# Pentagon (Regular)
-pentagon = [(150, 50), (230, 120), (190, 230), (110, 230), (70, 120), (150, 50)]
+def translate_to_center(points, canvas_width, canvas_height):
+    centroid = calculate_centroid(points)
+    translation_x = canvas_width / 2 - centroid[0]
+    translation_y = canvas_height / 2 - centroid[1]
+
+    translated_points = [(p[0] + translation_x, p[1] + translation_y) for p in points]
+    return translated_points
 
 
 def extend_line(line, factor):
@@ -44,17 +32,7 @@ def extend_line(line, factor):
 
 
 # Define canvas dimensions
-canvas_width, canvas_height = 300, 300
-
-# Define the line coordinates
-# pps = [(100, 50), (250, 80), (50, 250)]
-
-# Create the original canvas and draw the line
-# canvas_original = Image.new("RGB", (canvas_width, canvas_height), "black")
-# draw_original = ImageDraw.Draw(canvas_original)
-# draw_original.line(pps, fill="white", width=2)
-# canvas_original.save("original_line.png")
-
+canvas_width, canvas_height = 200, 200
 # Create the extended canvas and draw the extended line
 canvas_extended = Image.new("RGB", (canvas_width, canvas_height), "black")
 draw = ImageDraw.Draw(canvas_extended)
@@ -67,11 +45,12 @@ def draw_shape(points):
             line = extend_line(points[i] + points[i + 1], 10)
         else:
             line = points[i] + points[i + 1]
-        draw.line(points, fill="white", width=2)
+        draw.line(line, fill="white", width=2)
     canvas_extended.show()
 
 
-draw_shape(hexagon)
+square_centered = translate_to_center(square, canvas_width, canvas_height)
+draw_shape(square_centered)
 # Extend the line
 
 # Draw the extended line
