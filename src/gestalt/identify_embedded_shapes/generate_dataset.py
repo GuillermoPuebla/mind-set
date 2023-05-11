@@ -7,17 +7,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def dotted_image(image_path, dot_distance=10, dot_size=1):
+def dotted_image(image_path, dot_distance=10, dot_size=1, max_side_length=224):
     # Load the image
-    img = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
-    img = resize_image(img)
+    img = cv2.imread(str(image_path), cv2.IMREAD_GRAYSCALE)
+    img = resize_image(img, max_side_length)
     # Threshold the image to create a binary image
+
     _, binary_img = cv2.threshold(img, 240, 255, cv2.THRESH_BINARY_INV)
-
-    # Find contours of the lines in the image
-    contours, b = cv2.findContours(binary_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-
-    # Create an empty canvas with the same size as the original image
+    contours, b = cv2.findContours(binary_img, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
     dotted_img = np.zeros_like(img)
 
     # Helper function to draw a dot centered at (x, y) with the specified size
@@ -33,7 +30,7 @@ def dotted_image(image_path, dot_distance=10, dot_size=1):
 
     # Iterate through each contour (line)
     for contour in contours:
-        contour_length = len(contour)
+        # contour_length = len(contour)
         # print(contour_length)
         # [len(con) for con in contours]
         # for con in contours:
@@ -49,7 +46,7 @@ def dotted_image(image_path, dot_distance=10, dot_size=1):
     return dotted_img
 
 
-def resize_image(opencv_img, canvas_size=224, max_side_length=200):
+def resize_image(opencv_img, max_side_length=224):
     # Calculate new dimensions while keeping the aspect ratio
     height, width = opencv_img.shape
     aspect_ratio = float(width) / float(height)
