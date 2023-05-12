@@ -1,0 +1,35 @@
+[run_info]
+# If run_id == false, then run_id will be set equal to current date and time.
+run_id = false
+# Other key value pairs will be added in `run_info` by the train script.
+
+
+[network]
+use_residual_decoder = false
+
+[training]
+train_dataset = "E:\\mindset_data\\jastrow_train_normalized"
+test_datasets = []
+gpu_num = 0
+batch_size = 64
+learning_rate = 1e-5
+weight_decay = 0
+# If you want to continue training, set this flag to the path containing the pretraining file (the one generated in the model_output_path from this script).
+# continue_train = false
+continue_train = "./models/linear_decoder_jastrow_final_checkpoint.pt"
+
+[stopping_conditions]
+stop_at_epoch = 1
+stop_at_loss = false
+stop_at_accuracy = false
+
+-
+[saving_folders]
+# If result_folder == false, results/{run_id} willbe used. If you want to save the results in a different folder, specify the path here.
+result_folder = false
+model_output_path = "./models/jastrow/"
+
+[monitoring]
+# If you want to log in neptune.ai, specify the project name. You need an account there + you need to have created a project with the correct name through their UI + You need to set up your API token: \nhttps://docs.neptune.ai/getting-started/installation. The API should be in an environmental variable called NEPTUNE_API_TOKEN.
+# If everything is setup correctly, put your project name here, and you should get a lot of good logging for your training session'
+neptune_proj_name = false
