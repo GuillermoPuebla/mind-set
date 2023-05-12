@@ -23,20 +23,20 @@ class ParentStimuli:
     def count_pixels(self, color):
         return get_area_size(self.canvas, color)
 
-    def _add_background(self):
+    def add_background(self):
         new_canvas = new("RGBA", (self.initial_image_width,) * 2, color=(0, 0, 0, 255))
         new_canvas.paste(self.canvas, (0, 0), self.canvas)
         self.canvas = new_canvas
         return self
 
-    def _shrink(self):
+    def shrink(self):
         self.canvas = self.canvas.resize(
             (self.target_image_width, self.target_image_width),
             resample=Image.Resampling.LANCZOS,
         )
         return self
 
-    def _center_shapes(self):
+    def center_shapes(self):
         cropped_canvas = self.canvas.crop(self.canvas.getbbox())
 
         new_canvas = new("RGBA", (self.initial_image_width,) * 2, color=(0, 0, 0, 255))
@@ -51,7 +51,7 @@ class ParentStimuli:
         self.canvas = new_canvas
         return self
 
-    def _binary_filter(self):
+    def binary_filter(self):
         # make all the non 0 pixels 255
         self.canvas = self.canvas.point(lambda p: p > 0 and 255)
         return self
