@@ -15,8 +15,7 @@ batch_size = 64
 learning_rate = 1e-5
 weight_decay = 0
 # If you want to continue training, set this flag to the path containing the pretraining file (the one generated in the model_output_path from this script).
-# continue_train = false
-continue_train = "./models/linear_decoder_jastrow_final_checkpoint.pt"
+continue_train = false
 
 [stopping_conditions]
 stop_at_epoch = 1
