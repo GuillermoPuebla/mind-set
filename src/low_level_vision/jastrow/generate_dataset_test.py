@@ -48,9 +48,9 @@ def make_one(params_dict):
             arc_2.set_color({"red": "blue", "blue": "red"}[on_top]).register()
 
             # finalise ------------------------------------------------
-            parent._center_shapes()
-            parent._add_background()
-            parent._shrink()
+            parent.center_shapes()
+            parent.add_background()
+            parent.shrink()
 
             try:
                 assert parent.count_pixels("red") > 0, "red pixels not found"
@@ -59,7 +59,6 @@ def make_one(params_dict):
                 return
 
             label = f"{arc.round(3)}_{width.round(3)}_{size.round(3)}"
-            # label = f"{arc.round(3)}"
 
             save_path = Path(
                 "data",
@@ -67,11 +66,7 @@ def make_one(params_dict):
                 "jastrow_test",
                 f"{on_top}_on_top_{smaller}_smaller",
             )
-            # save_path = (
-            #     Path("E:\\")
-            #     / "mindset_data"
-            #     / f"jastrow_test_{on_top}_on_top_{smaller}_smaller"
-            # )
+
             save_path.mkdir(parents=True, exist_ok=True)
             parent.canvas.save(save_path / f"{label}_{uuid.uuid4().hex[:8]}.png")
 

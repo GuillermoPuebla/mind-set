@@ -21,7 +21,7 @@ class JastrowParent(ParentStimuli):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def _compute_jastrow_factor(self):
+    def compute_jastrow_factor(self):
         """
         Since we need a way to approximate how much an image will trigger the Jastrow illusion without having to
         actually show the image to a human, I propose the following method - we use a "Jastrow" factor, which is a
@@ -91,22 +91,21 @@ def make_one(*args):
     arc_2.set_color("blue").register()
 
     # finalise ------------------------------------------------
-    jastrow_factor = parent._compute_jastrow_factor().round(3)
+    jastrow_factor = parent.compute_jastrow_factor().round(3)
 
     # filter out images with a jastrow factor greater than 0.7
     # This is an arbitrary threshold, but it seems to work well
     if jastrow_factor > 0.7:
         return
 
-    parent._add_background()
-    parent._shrink()
+    parent.add_background()
+    parent.shrink()
 
     # label the image based on the size of the shapes
     label = parent.count_pixels(color="red") - parent.count_pixels(color="blue")
 
     # name the file using the size of the shapes and the jastrow factor
     save_path = Path("data", "low_level_vision", "jastrow_train")
-    # save_path = Path("E:\\") / "mindset_data" / "jastrow_train"
     save_path.mkdir(parents=True, exist_ok=True)
     parent.canvas.save(save_path / f"{label}_{uuid.uuid4().hex[:8]}.png")
 

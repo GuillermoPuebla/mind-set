@@ -52,7 +52,7 @@ def main(*args):
 
     # finalize all the optional operations, e.g. shrink, center, etc.
     # if you want to amend / add more operations, you can do so in the parent class
-    canvas._binary_filter()._add_background()._shrink()
+    canvas.binary_filter().add_background().shrink()
     canvas.canvas.show()  # or canvas.canvas.save("test.png")
 
 
