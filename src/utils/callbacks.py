@@ -404,7 +404,8 @@ class SaveModel(Callback):
         super().__init__()
 
     def save_model(self, path, print_it=True):
-        pathlib.Path(os.path.dirname(path)).mkdir(parents=True, exist_ok=True)
+        # pathlib.Path(os.path.dirname(path)).mkdir(parents=True, exist_ok=True)
+        pathlib.Path(path).parent.mkdir(parents=True, exist_ok=True)
         print(
             fg.yellow
             + ef.inverse
@@ -424,7 +425,7 @@ class SaveModel(Callback):
         if self.epoch_end:
             self.save_model(
                 os.path.splitext(self.output_path)[0]
-                + f"_checkpoint"
+                + "_checkpoint"
                 + os.path.splitext(self.output_path)[1]
             )
 
@@ -441,7 +442,7 @@ class SaveModel(Callback):
                 ]  # .value  ## ouch! You cannot overload assignment operator :( ! Nope!
                 self.save_model(
                     os.path.splitext(self.output_path)[0]
-                    + f"_checkpoint"
+                    + "_checkpoint"
                     + os.path.splitext(self.output_path)[1],
                     print_it=self.print_save,
                 )
@@ -450,7 +451,7 @@ class SaveModel(Callback):
         if self.output_path is not None:
             self.save_model(
                 os.path.splitext(self.output_path)[0]
-                + f"_checkpoint"
+                + "_checkpoint"
                 + os.path.splitext(self.output_path)[1]
             )
             self.save_model(self.output_path, print_it=True)
@@ -551,7 +552,8 @@ class SaveInfoCsv(Callback):
         self.update_on_batch_end = update_on_batch_end
         self.update_on_train_end = update_on_train_end
         self.update_on_epoch_end = update_on_epoch_end
-        pathlib.Path(os.path.dirname(path)).mkdir(parents=True, exist_ok=True)
+        # pathlib.Path(os.path.dirname(path)).mkdir(parents=True, exist_ok=True)
+        pathlib.Path(path).parent.mkdir(parents=True, exist_ok=True)
 
         f = open(self.path, "w")
         csv_writer = writer(f)
