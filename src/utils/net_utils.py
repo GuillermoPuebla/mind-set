@@ -24,11 +24,14 @@ class GrabNet:
 
         if imagenet_pt:
             print(fg.red + "Loading ImageNet" + rs.fg)
+
+        pretrained_weights = "IMAGENET1K_V1" if imagenet_pt else None
         nc = 1000 if imagenet_pt else num_classes
+
         kwargs = dict(num_classes=nc) if nc is not None else dict()
         if network_name == "vgg11":
             net = torchvision.models.vgg11(
-                pretrained=imagenet_pt, progress=True, **kwargs
+                weights=pretrained_weights, progress=True, **kwargs
             )
             if num_classes is not None:
                 net.classifier[-1] = nn.Linear(
@@ -36,7 +39,7 @@ class GrabNet:
                 )
         elif network_name == "vgg11bn":
             net = torchvision.models.vgg11_bn(
-                pretrained=imagenet_pt, progress=True, **kwargs
+                weights=pretrained_weights, progress=True, **kwargs
             )
             if num_classes is not None:
                 net.classifier[-1] = nn.Linear(
@@ -44,15 +47,16 @@ class GrabNet:
                 )
         elif network_name == "vgg16":
             net = torchvision.models.vgg16(
-                pretrained=imagenet_pt, progress=True, **kwargs
+                weights=pretrained_weights, progress=True, **kwargs
             )
             if num_classes is not None:
                 net.classifier[-1] = nn.Linear(
-                    net.classifier[-1].in_features, num_classes
+                    net.classifier[-1].in_features,
+                    num_classes,
                 )
         elif network_name == "vgg16bn":
             net = torchvision.models.vgg16_bn(
-                pretrained=imagenet_pt, progress=True, **kwargs
+                weights=pretrained_weights, progress=True, **kwargs
             )
             if num_classes is not None:
                 net.classifier[-1] = nn.Linear(
@@ -60,33 +64,34 @@ class GrabNet:
                 )
         elif network_name == "vgg19bn":
             net = torchvision.models.vgg19_bn(
-                pretrained=imagenet_pt, progress=True, **kwargs
+                weights=pretrained_weights, progress=True, **kwargs
             )
             if num_classes is not None:
                 net.classifier[-1] = nn.Linear(
-                    net.classifier[-1].in_features, num_classes
+                    net.classifier[-1].in_features,
+                    num_classes,
                 )
         elif network_name == "resnet18":
             net = torchvision.models.resnet18(
-                pretrained=imagenet_pt, progress=True, **kwargs
+                weights=pretrained_weights, progress=True, **kwargs
             )
             if num_classes is not None:
                 net.fc = nn.Linear(net.fc.in_features, num_classes)
         elif network_name == "resnet50":
             net = torchvision.models.resnet50(
-                pretrained=imagenet_pt, progress=True, **kwargs
+                weights=pretrained_weights, progress=True, **kwargs
             )
             if num_classes is not None:
                 net.fc = nn.Linear(net.fc.in_features, num_classes)
         elif network_name == "resnet152":
             net = torchvision.models.resnet152(
-                pretrained=imagenet_pt, progress=True, **kwargs
+                weights=pretrained_weights, progress=True, **kwargs
             )
             if num_classes is not None:
                 net.fc = nn.Linear(net.fc.in_features, num_classes)
         elif network_name == "alexnet":
             net = torchvision.models.alexnet(
-                pretrained=imagenet_pt, progress=True, **kwargs
+                weights=pretrained_weights, progress=True, **kwargs
             )
             if num_classes is not None:
                 net.classifier[-1] = nn.Linear(
@@ -94,26 +99,26 @@ class GrabNet:
                 )
         elif network_name == "inception_v3":  # nope
             net = torchvision.models.inception_v3(
-                pretrained=imagenet_pt, progress=True, **kwargs
+                weights=pretrained_weights, progress=True, **kwargs
             )
             resize_value = 299
             if num_classes is not None:
                 net.fc = nn.Linear(net.fc.in_features, num_classes)
         elif network_name == "densenet121":
             net = torchvision.models.densenet121(
-                pretrained=imagenet_pt, progress=True, **kwargs
+                weights=pretrained_weights, progress=True, **kwargs
             )
             if num_classes is not None:
                 net.classifier = nn.Linear(net.classifier.in_features, num_classes)
         elif network_name == "densenet201":
             net = torchvision.models.densenet201(
-                pretrained=imagenet_pt, progress=True, **kwargs
+                weights=pretrained_weights, progress=True, **kwargs
             )
             if num_classes is not None:
                 net.classifier = nn.Linear(net.classifier.in_features, num_classes)
         elif network_name == "googlenet":
             net = torchvision.models.googlenet(
-                pretrained=imagenet_pt, progress=True, **kwargs
+                weights=pretrained_weights, progress=True, **kwargs
             )
             if num_classes is not None:
                 net.fc = nn.Linear(net.fc.in_features, num_classes)
