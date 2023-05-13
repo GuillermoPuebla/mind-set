@@ -177,7 +177,7 @@ if __name__ == "__main__":
 
     # for dataset_folder in tqdm(dataset_folders):
     #     decoder_evaluate(
-    #         save_name=dataset_folder + ".json",
+    #         save_name=dataset_folder,
     #         results_folder="./results/jastrow/",
     #         dataset_folder=path_jastrow_test_data / dataset_folder,
     #         pretraining="private/checkpoints/residual_decoder_color_picker.pt",
