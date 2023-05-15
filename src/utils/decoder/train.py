@@ -78,7 +78,7 @@ def run_train(
 
     log_neptune_init_info(weblogger, toml_config, tags=None) if weblogger else None
     [
-        pathlib.Path(path).mkdir(parents=True, exist_ok=True)
+        pathlib.Path(path).parent.mkdir(parents=True, exist_ok=True)
         for path in list(toml_config["saving_folders"].values())
     ]
 
@@ -104,6 +104,7 @@ def run_train(
             + sty.rs.ef
         )
         method = "regression"
+        ds = RegressionDataset
     else:
         print(
             sty.fg.yellow
@@ -112,8 +113,8 @@ def run_train(
             + sty.rs.ef
         )
         method = "classification"
+        ds = ImageFolder
 
-    ds = ImageFolder if method == "classification" else RegressionDataset
     train_dataset = fix_dataset(
         ds(root=train_dataset), name_ds=os.path.basename(train_dataset)
     )
@@ -324,6 +325,7 @@ def run_train(
             loss_metric_name="ema_loss",
         )
     ) if toml_config["saving_folders"]["model_output_path"] and not is_pycharm else None
+
     all_cb.append(
         TriggerActionWhenReachingValue(
             mode="min",

@@ -214,8 +214,12 @@ class ResNet152decoders(nn.Module):
     ):
         super().__init__()
 
+        pretrained_weights = "IMAGENET1K_V1" if imagenet_pt else None
+
         self.net = torchvision.models.resnet152(
-            pretrained=imagenet_pt, progress=True, **kwargs
+            weights=pretrained_weights,
+            progress=True,
+            **kwargs,
         )
 
         if disable_batch_norm:

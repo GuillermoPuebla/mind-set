@@ -18,15 +18,16 @@ weight_decay = 0
 continue_train = false
 
 [stopping_conditions]
-stop_at_epoch = 1
+stop_at_epoch = 30
 stop_at_loss = false
 stop_at_accuracy = false
 
--
+
 [saving_folders]
 # If result_folder == false, results/{run_id} willbe used. If you want to save the results in a different folder, specify the path here.
+# the model_output_path is expecting a path of the checkpoint itself
 result_folder = false
-model_output_path = "./models/jastrow/"
+model_output_path = "./models/jastrow/linear_decoder_jastrow.pt"
 
 [monitoring]
 # If you want to log in neptune.ai, specify the project name. You need an account there + you need to have created a project with the correct name through their UI + You need to set up your API token: \nhttps://docs.neptune.ai/getting-started/installation. The API should be in an environmental variable called NEPTUNE_API_TOKEN.
