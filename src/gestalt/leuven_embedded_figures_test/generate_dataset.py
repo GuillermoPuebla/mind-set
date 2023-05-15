@@ -1,3 +1,4 @@
+import argparse
 import glob
 import os
 import shutil
@@ -64,42 +65,56 @@ def load_and_invert(path):
     return img
 
 
-left_ds = pathlib.Path("assets/leuven_embedded_figures_test")
-figs_to_take = range(0, 16 * 4, 4)
-i = figs_to_take[0]
-all_shapes_path = [
-    left_ds / "shapes" / (str(i).zfill(3) + ".png") for i in figs_to_take
-]
-all_context_path = [
-    left_ds / "context" / (str(i).zfill(3) + "a.png") for i in range(0, 64)
-]
+def generate(Ntrain, Ntest):
+    left_ds = pathlib.Path("assets/leuven_embedded_figures_test")
+    figs_to_take = range(0, 16 * 4, 4)
+    i = figs_to_take[0]
+    all_shapes_path = [
+        left_ds / "shapes" / (str(i).zfill(3) + ".png") for i in figs_to_take
+    ]
+    all_context_path = [
+        left_ds / "context" / (str(i).zfill(3) + "a.png") for i in range(0, 64)
+    ]
 
-output_folder = pathlib.Path("data/gestalt/leuven_embedded_figures_test/")
-output_folder_shape = output_folder / "train"
-[
-    (output_folder_shape / str(i)).mkdir(parents=True, exist_ok=True)
-    for i, s in enumerate(all_shapes_path)
-]
+    output_folder = pathlib.Path("data/gestalt/leuven_embedded_figures_test/")
+    output_folder_shape = output_folder / "train"
+    [
+        (output_folder_shape / str(i)).mkdir(parents=True, exist_ok=True)
+        for i, s in enumerate(all_shapes_path)
+    ]
 
-## Train figures
-Ntrain = 10
-for idx, s in enumerate(all_shapes_path):
-    img = load_and_invert(s)
-    transform_save(img, output_folder_shape / str(idx), Ntrain)
+    ## Train figures
+    for idx, s in enumerate(all_shapes_path):
+        img = load_and_invert(s)
+        transform_save(img, output_folder_shape / str(idx), Ntrain)
 
-## Test figures
-# Here we only take the figures containing the "target" shape, not the figures with the distractor. The test consits of checking whether a network can correctly classify these stimuli with a high accuracy.
-# each context path goes in group of 4: from 0 to 4 refer to the 1st shape, from 5 to 8 to the second... So let's group the folders together
-Ntest = 10
-output_folder_context = output_folder / "test"
-[
-    shutil.rmtree(output_folder_context / str(i // 4), ignore_errors=True)
-    for i, s in enumerate(all_context_path)
-]
-[
-    (output_folder_context / str(i // 4)).mkdir(parents=True, exist_ok=True)
-    for i, s in enumerate(all_context_path)
-]
-for idx, s in enumerate(all_context_path):
-    img = load_and_invert(s)
-    transform_save(img, output_folder_context / str(idx // 4), Ntest)
+    ## Test figures
+    # Here we only take the figures containing the "target" shape, not the figures with the distractor. The test consits of checking whether a network can correctly classify these stimuli with a high accuracy.
+    # each context path goes in group of 4: from 0 to 4 refer to the 1st shape, from 5 to 8 to the second... So let's group the folders together
+
+    output_folder_context = output_folder / "test"
+    [
+        shutil.rmtree(output_folder_context / str(i // 4), ignore_errors=True)
+        for i, s in enumerate(all_context_path)
+    ]
+    [
+        (output_folder_context / str(i // 4)).mkdir(parents=True, exist_ok=True)
+        for i, s in enumerate(all_context_path)
+    ]
+    for idx, s in enumerate(all_context_path):
+        img = load_and_invert(s)
+        transform_save(img, output_folder_context / str(idx // 4), Ntest // 4)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--Ntrain_per_class",
+        default=1000,
+    )
+    parser.add_argument(
+        "--Ntest_per_class",
+        default=100,
+    )
+    args = parser.parse_known_args()[0]
+    generate(**args.__dict__)
