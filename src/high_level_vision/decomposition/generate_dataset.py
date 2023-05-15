@@ -21,24 +21,6 @@ save_path_base = Path("data", "high_level_vision", "decomposition")
 
 # ------------------------------------------------------
 
-combinations_familiar = list(product(familiar_shapes, familiar_shapes))
-combinations_familiar = [
-    {"shape_1_name": shape_1_name, "shape_2_name": shape_2_name, "path": "familiar"}
-    for shape_1_name, shape_2_name in combinations_familiar
-]
-combinations_familiar *= 10
-
-# ------------------------------------------------------
-
-combinations_unfamiliar = list(product(unfamiliar_shapes, unfamiliar_shapes))
-combinations_unfamiliar = [
-    {"shape_1_name": shape_1_name, "shape_2_name": shape_2_name, "path": "unfamiliar"}
-    for shape_1_name, shape_2_name in combinations_unfamiliar
-]
-combinations_unfamiliar *= 10
-
-# ------------------------------------------------------
-
 
 def make_one(params_dict):
     """
@@ -167,5 +149,42 @@ def make_one(params_dict):
 
 
 if __name__ == "__main__":
+    target_image_pairs_num = 10000
+
+    # ------------------------------------------------------
+
+    combinations_familiar = list(product(familiar_shapes, familiar_shapes))
+    combinations_familiar = [
+        {
+            "shape_1_name": shape_1_name,
+            "shape_2_name": shape_2_name,
+            "path": "familiar",
+        }
+        for shape_1_name, shape_2_name in combinations_familiar
+    ]
+    assert (
+        len(combinations_familiar) < target_image_pairs_num
+    ), "The number of target_image_pairs_num is too small, it has to be at least larger than the number of combinations of familiar shapes"
+
+    combinations_familiar *= int(target_image_pairs_num / len(combinations_familiar))
+
+    # ------------------------------------------------------
+
+    combinations_unfamiliar = list(product(unfamiliar_shapes, unfamiliar_shapes))
+    combinations_unfamiliar = [
+        {
+            "shape_1_name": shape_1_name,
+            "shape_2_name": shape_2_name,
+            "path": "unfamiliar",
+        }
+        for shape_1_name, shape_2_name in combinations_unfamiliar
+    ]
+    assert (
+        len(combinations_unfamiliar) < target_image_pairs_num
+    ), "The number of target_image_pairs_num is too small, it has to be at least larger than the number of combinations of unfamiliar shapes"
+
+    combinations_unfamiliar *= int(target_image_pairs_num / len(combinations_unfamiliar))
+
+    # ------------------------------------------------------
     parallel_args(make_one, combinations_familiar, progress_bar=True)
     parallel_args(make_one, combinations_unfamiliar, progress_bar=True)
