@@ -105,10 +105,8 @@ def get_objects_from_image(path_to_image, additional_mask_path, canvas_to_object
 
 
 if __name__ == "__main__":
-    image_path = (
-        "data/high_level_vision/leek_reppa_arguin_2005_dataset/imgs_upscaled_mod.png"
-    )
-    mask = "data/high_level_vision/leek_reppa_arguin_2005_dataset/additional_mask.png"
-    output = f"data/high_level_vision/leek_reppa_arguin_2005_dataset"
+    image_path = "assets/leek_2005//imgs_upscaled_mod.png"
+    mask = "assets/leek_2005/additional_mask.png"
+    output = f"data/high_level_vision/volumetric_vs_surface"
     canvas_to_object_ratio = 3
     get_objects_from_image(image_path, mask, canvas_to_object_ratio)
