@@ -1,33 +1,26 @@
 import argparse
-import glob
 import os
 import shutil
-
-import cv2
-import numpy as np
-from matplotlib import pyplot as plt
 import pathlib
-from PIL.ImageOps import grayscale, invert
-import PIL.Image as Image
-from PIL import Image, ImageFilter
+from PIL.ImageOps import invert
+from PIL import Image
 from torchvision.transforms import InterpolationMode
-from torchvision.transforms import transforms
 from src.utils.compute_distance.misc import get_new_affine_values, my_affine
 import re
 
+"""
+Using the dataset from Downloaded from https://figshare.com/articles/dataset/Leuven_Embedded_Figures_Test_Target_Shapes/3807885 (shapes) and here https://figshare.com/articles/dataset/Leuven_Embedded_Figures_Test_Context_Shapes/3807894 (embedded shapes). These dataset should already be in the assets/leuven_embedded_figures_test folder 
+"""
+
 
 def get_highest_number(folder_path):
-    # List all filenames in the folder
     filenames = os.listdir(folder_path)
 
-    # Initialize the highest number found so far
     highest_number = -1
 
     for filename in filenames:
-        # Extract all sequences of digits from the filename
         numbers = re.findall(r"\d+", filename)
 
-        # If we found any numbers, update the highest number if necessary
         for number_str in numbers:
             number = int(number_str)
             if number > highest_number:
@@ -56,7 +49,6 @@ def transform_save(
         img.save(folder / f"{n+1}.png")
 
 
-# Takes a path to a figure, load the figure, invert the colors of the figure
 def load_and_invert(path):
     img = invert(Image.open(path).convert("L"))
     img = img.resize((224, 224))
@@ -89,8 +81,8 @@ def generate(Ntrain, Ntest):
         transform_save(img, output_folder_shape / str(idx), Ntrain)
 
     ## Test figures
-    # Here we only take the figures containing the "target" shape, not the figures with the distractor. The test consits of checking whether a network can correctly classify these stimuli with a high accuracy.
-    # each context path goes in group of 4: from 0 to 4 refer to the 1st shape, from 5 to 8 to the second... So let's group the folders together
+    # Here we only take the figures containing the "target" shape, not the figures with the distractor (which are also provided in the dataset). The test consits of checking whether a network can correctly classify these stimuli with a high accuracy.
+    # each context path goes in group of 4: from 0 to 4 refer to the 1st shape, from 5 to 8 to the second shape, etc.
 
     output_folder_context = output_folder / "test"
     [

@@ -2,7 +2,6 @@ import argparse
 
 from tqdm import tqdm
 import random
-import math
 import pathlib
 from torchvision.transforms import transforms, InterpolationMode
 import numpy as np
@@ -130,7 +129,6 @@ def draw_shape(
     return canvas
 
 
-##
 polys = [
     [
         (57.24191632273875, 56.91324204660534),
