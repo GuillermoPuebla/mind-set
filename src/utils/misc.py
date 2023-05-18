@@ -3,6 +3,7 @@ import sty
 import torch
 import matplotlib.pyplot as plt
 import cv2
+from PIL import Image
 
 try:
     from neptune.new.types import File
@@ -224,3 +225,9 @@ def update_dict(dictA, dictB, replace=True):
                     f"Value {key} not replaced as already present ({dictA[key]}) and 'replace=False'"
                 )
     return dictA
+
+
+def apply_antialiasing(img):
+    return img.resize(tuple(np.array(img.size) * 2)).resize(
+        img.size, resample=Image.Resampling.LANCZOS
+    )

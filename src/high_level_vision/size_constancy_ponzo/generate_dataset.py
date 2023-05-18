@@ -1,12 +1,13 @@
 import argparse
 import shutil
 import math
-from copy import deepcopy
 from pathlib import Path
 
 import numpy as np
 from PIL import Image, ImageDraw
 import random
+
+from src.utils.misc import apply_antialiasing
 
 
 def get_random_start_end_ponts(canvas_size):
@@ -155,10 +156,7 @@ def generate_test_image(
     label = red_length - blue_length
     norm_label = label / max_length
 
-    if antialias:
-        img = img.resize(tuple(np.array(canvas_size) * 2)).resize(
-            canvas_size, resample=Image.Resampling.LANCZOS
-        )
+    img = apply_antialiasing() if antialias else img
 
     return img, norm_label, upper_line_color
 

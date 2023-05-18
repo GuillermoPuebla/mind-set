@@ -2,6 +2,8 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 import matplotlib.pyplot as plt
 
+import src.utils.misc
+
 
 class ConstrainedError(Exception):
     pass
@@ -1302,8 +1304,8 @@ class DrawShape:
             ),
         )
         if self.antialiasing:
-            im1 = self.apply_antialiasing(im1)
-            im2 = self.apply_antialiasing(im2)
+            im1 = src.utils.misc.apply_antialiasing(im1)
+            im2 = src.utils.misc.apply_antialiasing(im2)
         return im1, im2
 
     @resize_up_down
