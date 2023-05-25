@@ -16,7 +16,7 @@ class Shapes(ShapeCoreFunctions):
 
     # shape section ------------------------------------------------------------
     def add_arc(self, size, x=0.5, y=0.5, arc=50, width=0.3):
-        self.shape = "arc" # for the jastrow illusion
+        self.shape = "arc"  # for the decoder_jastrow illusion
 
         x *= self.initial_image_width
         y *= self.initial_image_width

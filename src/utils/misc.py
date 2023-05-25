@@ -1,3 +1,5 @@
+from typing import List
+
 import numpy as np
 import sty
 import torch
@@ -187,6 +189,55 @@ def convert_lists_to_strings(obj):
         return {k: convert_lists_to_strings(v) for k, v in obj.items()}
     else:
         return obj
+
+
+def add_training_args(parser):
+    parser.add_argument(
+        "--num_training_samples",
+        "-ntrain",
+        default=10000,
+        type=int,
+    )
+    parser.add_argument(
+        "--num_testing_samples",
+        "-ntest",
+        default=5000,
+        help="Two testing folders will be generated, one for the version with small flankers, the other for the version with big flankers",
+        type=int,
+    )
+
+
+def add_general_args(parser):
+    parser.add_argument(
+        "--output_folder",
+        "-o",
+        default=None,
+        help="The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset",
+    )
+    parser.add_argument(
+        "--canvas_size",
+        "-csize",
+        default="224x224",
+        help="A string in the format NxM specifying the size of the canvas",
+        type=lambda x: tuple([int(i) for i in x.split("x")]),
+    )
+
+    parser.add_argument(
+        "--background",
+        "-bg",
+        default="0_0_0",
+        help="Specify the background as rgb value in the form R_G_B, or write [random] for a randomly pixellated background.or [rnd-uniform] for a random (but uniform) color",
+        type=lambda x: (tuple([int(i) for i in x.split("_")]) if "_" in x else x),
+    )
+
+    parser.add_argument(
+        "--no_antialiasing",
+        "-nantial",
+        dest="antialiasing",
+        help="Specify whether we want to disable antialiasing",
+        action="store_false",
+        default=True,
+    )
 
 
 def pretty_print_dict(dictionary, indent=0):

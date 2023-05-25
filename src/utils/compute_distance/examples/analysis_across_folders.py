@@ -15,7 +15,7 @@ parser.add_argument("--result_folder", default=None)
 
 args = parser.parse_known_args()[0]
 
-# args = parser.parse_args(['--pickle_path', './results/NAPvsMP/NAPvsMPlines/cossim_df.pickle'
+# args = parser.parse_args(['--pickle_path', './results/similarity_NAPvsMP_3D/NAPvsMPlines/cossim_df.pickle'
 # ])
 
 if args.result_folder is None:

@@ -1,8 +1,9 @@
 [run_info]
 type = ""
 
-# If you are using the "folders vs folders" setup, then [folder] is the path to the parent folder containing all other folders, and [base_name] is the path  of the FOLDER containing all base images. [base_name] does NOT need to be a subfolder in [folder].
-# If you are using the "base image vs folder", then [base_name] is the path of the IMAGE against which all other images in the [folder] will be compared against.
+# If you want to use the "folders vs folders" setup, then set [folder] as the path to the parent folder containing all other folders, and [base_name] is the path  of the FOLDER containing all base images. [base_name] does NOT need to be a subfolder in [folder].
+# If you want to use the "base image vs folder", then set [base_name] as the path of the IMAGE against which all other images in the [folder] will be compared against.
+# If you want to use the "all vs all", then set the [folder] as the path containing all the images, leave base_name empty.
  # See README for details.
 [input_paths]
 folder= ""

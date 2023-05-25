@@ -32,6 +32,10 @@ However, there are cases in which you want to compare each image in the base fol
 
 (Note: by carefully arranging the folders and setting `match_more` to `all`, you could perfectly recreate the `base image vs set of images` mode. Thus, `base image vs set of images` mode is a special case of `folder vs folder` mode. We decide to keep them separated for simplicity). 
 
+## Dataset: All vs All
+* **Example dataset in TBD 
+* **Example usage TBD 
+This computes all paired comparisons for all iamges within one folder. In this case the user just needs to specify the `folder` arugment, leaving the `base_name` empty. 
 
 ## Optional Arguments
 All default arguments are specified in `src/utils/compute_distance/default_distance_config.toml`. Here are some info about some of those options.
