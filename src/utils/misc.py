@@ -1,11 +1,14 @@
+import pathlib
+import shutil
 from typing import List
 
+import PIL
 import numpy as np
 import sty
 import torch
 import matplotlib.pyplot as plt
 import cv2
-from PIL import Image
+from PIL import Image, ImageFilter
 
 try:
     from neptune.new.types import File
@@ -278,7 +281,12 @@ def update_dict(dictA, dictB, replace=True):
     return dictA
 
 
-def apply_antialiasing(img):
-    return img.resize(tuple(np.array(img.size) * 2)).resize(
-        img.size, resample=Image.Resampling.LANCZOS
-    )
+def apply_antialiasing(img: PIL.Image, amount=None):
+    if amount is None:
+        amount = min(img.size) * 0.00334
+    return img.filter(ImageFilter.GaussianBlur(radius=amount))
+
+
+def delete_and_recreate_path(path: pathlib.Path):
+    shutil.rmtree(path) if path.exists() else None
+    path.mkdir(parents=True, exist_ok=True)

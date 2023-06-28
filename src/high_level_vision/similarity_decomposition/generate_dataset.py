@@ -16,10 +16,7 @@ cut_rotation_fun = lambda: random.uniform(0, 360)
 rotation_fun = lambda: random.uniform(0, 360)
 position_fun = lambda: (random.uniform(0.1, 0.9), random.uniform(0.1, 0.9))
 
-# ------------------------------------------------------
 save_path_base = Path("data", "high_level_vision", "similarity_decomposition")
-
-# ------------------------------------------------------
 
 
 def make_one(params_dict):

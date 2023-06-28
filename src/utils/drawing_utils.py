@@ -1,3 +1,4 @@
+import PIL
 import cv2
 import numpy as np
 from PIL import Image, ImageDraw
@@ -14,26 +15,30 @@ class DrawShape:
         antialiasing: bool = False,
         borders_width: int = None,
     ):
+        self.line_col = None
         self.resize_up_resize_down = antialiasing
         self.antialiasing = antialiasing
         self.borders = borders
-        self.background = background
+        self.background_mode = (
+            background if isinstance(background, str) else "one_color"
+        )
+        self.background = background if isinstance(background, tuple) else None
         self.canvas_size = canvas_size
         if width is None:
             width = int(np.round(canvas_size[0] * 0.00893))
 
-        if background == "random":
+        if self.background_mode == "random":
             self.line_col = (0, 0, 0) if line_col is None else line_col
-
-        elif background == (0, 0, 0):
+        elif self.background_mode == "rnd-uniform":
             self.line_col = (255, 255, 255) if line_col is None else line_col
+        elif self.background_mode == "one_color":
+            if self.background == (0, 0, 0):
+                self.line_col = (255, 255, 255) if line_col is None else line_col
 
-        elif background == (255, 255, 255):
-            self.line_col = (0, 0, 0) if line_col is None else line_col
+            elif self.background == (255, 255, 255):
+                self.line_col = (0, 0, 0) if line_col is None else line_col
 
-        elif background == "rnd-uniform":
-            self.line_col = (255, 255, 255) if line_col is None else line_col
-
+        self.line_col = (0, 0, 0) if self.line_col is None else self.line_col
         self.fill = (*self.line_col, 255)
         self.line_args = dict(fill=self.fill, width=width)  # , joint="curve")
         if borders:
@@ -44,24 +49,33 @@ class DrawShape:
             self.borders_width = 0
 
     def create_canvas(self, borders=None, size=None, background=None):
-        background = self.background if background is None else background
+        if background is not None:
+            background_mode = background if isinstance(background, str) else "one_color"
+            background = background if isinstance(background, tuple) else None
+        else:
+            background_mode = self.background_mode
+            background = self.background
         size = self.canvas_size if size is None else size
-        if background == "random":
+        if background_mode == "one_color":
+            if isinstance(background, tuple):
+                img = Image.new("RGB", size, background)  # x and y
+
+        if background_mode == "random":
             img = Image.fromarray(
                 np.random.randint(0, 255, (size[1], size[0], 3)).astype(np.uint8),
                 mode="RGB",
             )
-        elif isinstance(background, tuple):
-            img = Image.new("RGB", size, background)  # x and y
-        elif background == "rnd-uniform":
+
+        elif background_mode == "rnd-uniform":
+            self.background = (
+                np.random.randint(256),
+                np.random.randint(256),
+                np.random.randint(256),
+            )
             img = Image.new(
                 "RGB",
                 size,
-                (
-                    np.random.randint(256),
-                    np.random.randint(256),
-                    np.random.randint(256),
-                ),
+                self.background,
             )
 
         borders = self.borders if borders is None else borders
@@ -128,16 +142,15 @@ class DrawShape:
         return wrap
 
 
-def get_mask_from_linedrawing(img_path, size):
-    linedrawing = cv2.imread(str(img_path), cv2.IMREAD_GRAYSCALE)
-    linedrawing = cv2.resize(
-        linedrawing,
-        size,
-        interpolation=cv2.INTER_AREA,
-    )
-    mask = np.zeros_like(linedrawing)
+def get_mask_from_linedrawing(opencv_img):
+    """
+    This function assumed the background of the linedrawing is white, and the stroke is black/grayscale.
+    :param opencv_img:
+    :return:
+    """
+    mask = np.zeros_like(opencv_img)
 
-    _, binary_linedrawing = cv2.threshold(linedrawing, 240, 255, cv2.THRESH_BINARY_INV)
+    _, binary_linedrawing = cv2.threshold(opencv_img, 240, 255, cv2.THRESH_BINARY_INV)
 
     contours, _ = cv2.findContours(
         binary_linedrawing, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE
@@ -152,3 +165,48 @@ def get_mask_from_linedrawing(img_path, size):
         "RGBA", (linedrawing_pil, linedrawing_pil, linedrawing_pil, mask)
     )
     return mask
+
+
+def resize_image_keep_aspect_ratio(opencv_img, max_side_length):
+    # Calculate new dimensions while keeping the aspect ratio
+    height, width = opencv_img.shape
+    aspect_ratio = float(width) / float(height)
+
+    if height > width:
+        new_height = max_side_length
+        new_width = int(new_height * aspect_ratio)
+    else:
+        new_width = max_side_length
+        new_height = int(new_width / aspect_ratio)
+
+    resized_img = cv2.resize(
+        opencv_img, (new_width, new_height), interpolation=cv2.INTER_AREA
+    )
+    # background = np.bincount(resized_img.flatten()).argmax()
+    # canvas = np.ones(canvas_size) * background
+    # canvas[: resized_img.shape[0], : resized_img.shape[1]] = resized_img
+    return resized_img
+
+
+def paste_linedrawing_onto_canvas(
+    opencv_linedrawing, canvas, stroke_color
+) -> PIL.Image:
+    """
+    This function assumes the linedrawing is an opencv_img with black stroke on a white background. Returns a PIL.Image
+    """
+
+    mask = get_mask_from_linedrawing(opencv_linedrawing)
+
+    canvas_foreg_text = Image.new(
+        "RGB", (opencv_linedrawing.shape[1], opencv_linedrawing.shape[0]), stroke_color
+    )
+
+    canvas.paste(
+        canvas_foreg_text,
+        (
+            canvas.size[0] // 2 - mask.size[0] // 2,
+            canvas.size[1] // 2 - mask.size[1] // 2,
+        ),
+        mask=mask,
+    )
+    return canvas
