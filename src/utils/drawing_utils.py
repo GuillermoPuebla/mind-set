@@ -4,7 +4,7 @@ import numpy as np
 from PIL import Image, ImageDraw
 
 
-class DrawShape:
+class DrawStimuli:
     def __init__(
         self,
         background="black",
@@ -153,7 +153,7 @@ def get_mask_from_linedrawing(opencv_img):
     _, binary_linedrawing = cv2.threshold(opencv_img, 240, 255, cv2.THRESH_BINARY_INV)
 
     contours, _ = cv2.findContours(
-        binary_linedrawing, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE
+        binary_linedrawing, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE
     )
     cv2.drawContours(mask, contours, -1, (255), thickness=cv2.FILLED)
 

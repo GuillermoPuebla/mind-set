@@ -1,13 +1,17 @@
-[run_info]
-type = ""
+[basic_info]
+# The path of the annotation file. The annotation files are generally at the top level of a dataset directory.
+annotation_file_path = ""
+# Specify which factor you are gonna compare across. Every image of every level of this factor is gonna be compared against every image in the reference_level level. For example, the annotation contains  the factor "ObjectType" with levels "Large", "Small", "Medium". If reference_level = "Medium", then each image of ObjectType == Large and ObjectType == Small will be compared with each other image of ObjectType == "Medium".
+factor_variable = ""
+reference_level = ""
+# The comparion detailed with the two config variable above can be made even more specific by using match_factors. Continuing the example above, let's say we want to compare images of ObjectType == "Medium" vs ObjecType == "Large". However, we want to compare every large object containing a specific shape (specified in the factor "Shape") with every medium object with _the same_ shape. For example, we want to compare LargeObject_Circle.png with MediumeObject_Circle.png, and LargeObject_Square.png with MediumObject_Square.png. To do that, specify the factors that needs to match across comparison. E.g. match_factors = ["Shape", ...]
+match_factors = [""]
 
-# If you want to use the "folders vs folders" setup, then set [folder] as the path to the parent folder containing all other folders, and [base_name] is the path  of the FOLDER containing all base images. [base_name] does NOT need to be a subfolder in [folder].
-# If you want to use the "base image vs folder", then set [base_name] as the path of the IMAGE against which all other images in the [folder] will be compared against.
+[basic_info.filter_factor_level]
+# Put here any filter you want to apply to the annotation file. For example, if you only want to consider those images for which the "Type" column is equal to "random" and the "ObjectNum" is equal to 23, do
+# Type = "random"
+# ObjectNum = 23
 
- # See README for details.
-[input_paths]
-folder= ""
-base_name = ""
 
 [options]
 # Either [euclidean] or [cossim], default=euclidean"
@@ -23,21 +27,17 @@ pretraining = "ImageNet"
 result_folder = "results/tmp"
 
 [transformation]
-# Specify what transformation to apply. Use t/s/r for translation, scale and rotation, and square brackets with the transformation limits. E.g. t[-0.2, 0.2]r[-50, 50]s will translate from -0.2 to 0.2 (normalize to image size), rotate from -50 to +50 degrees, and s indicates that will scale using default values. Default values are t=[-0.2, 0.2], s=0.7, 1.3], r=[0, 360].
+# Specify what transformation to apply. Use t/s/r for translation, scale and rotation, and square brackets with the transformation limits. E.g. t[-0.2, 0.2]r[-50, 50]s will translate from -0.2 to 0.2 (normalize to image size), rotate from -50 to +50 degrees, and s indicates that will scale using default values. Default values are t=[-0.2, 0.2], s=0.7, 1.3], r=[0, 360]. Leave empty "" for no transformation.
 affine_transf_code = "t[-0.2, 0.2]r[-50, 50]"
 # When rotating/scaling the image, a "fill in" background will be used. Specify it here with a tuple of ints from 0 to 255. Default is black: (0, 0, 0). [random] for randomly pixellated background is not supported yet.
 affine_transf_background = [0, 0, 0]
 # specify whether all members of a comparison set should have the same transformation applied to them (according to "affine_transf_code")
 matching_transform = true
-# How many times do we need to repeat a transformed sample. Only applies when you use some type of transformation. If no transformation specified, this is set to 1.
-repetitions = 50
+# How many times do we need to repeat a transformed sample. Only applies when you use some type of transformation.
+repetitions = 1
 
 # Whether we want to copy the images found in the folders onto a bigger canvas. The canvas background will be `affine_transf_background`. The canvas will be `canvas_to_obj_ratio` along the horizontal dimension, and it will be a square.
 copy_on_bigger_canvas = false
 # Only used if `copy_on_bigger_canvas` is true.
 canvas_to_image_ratio = 3
 
-# options that are related only to the folder_vs_folder mode
-[folder_vs_folder]
-# When comparing a base image with images in the other folder, "same_name" will only compare with images with the same name, "all" will compare each base image with ALL images in the other folders (will take much longer).
-match_mode = "same_name"

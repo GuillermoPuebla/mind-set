@@ -9,13 +9,19 @@ import torch
 import matplotlib.pyplot as plt
 import cv2
 from PIL import Image, ImageFilter
+import tqdm
 
 try:
-    from neptune.new.types import File
-    import neptune.new as neptune
-
+    import neptune
 except:
     pass
+
+
+def conditional_tqdm(iterable, enable_tqdm, **kwargs):
+    if enable_tqdm:
+        return tqdm.tqdm(iterable, **kwargs)
+    else:
+        return iterable
 
 
 class ConfigSimple:
@@ -210,27 +216,40 @@ def add_training_args(parser):
     )
 
 
+DEFAULTS = {
+    "output_folder": None,
+    "canvas_size": (224, 224),
+    "background_color": (0, 0, 0),
+    "antialiasing": True,
+    "regenerate": True,
+}
+
+
 def add_general_args(parser):
     parser.add_argument(
         "--output_folder",
         "-o",
-        default=None,
+        default=DEFAULTS["output_folder"],
         help="The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset",
     )
     parser.add_argument(
         "--canvas_size",
         "-csize",
-        default="224x224",
+        default=DEFAULTS["canvas_size"],
         help="A string in the format NxM specifying the size of the canvas",
-        type=lambda x: tuple([int(i) for i in x.split("x")]),
+        type=lambda x: tuple([int(i) for i in x.split("x")])
+        if isinstance(x, str)
+        else x,
     )
 
     parser.add_argument(
-        "--background",
+        "--background_color",
         "-bg",
-        default="0_0_0",
+        default=DEFAULTS["background_color"],
         help="Specify the background as rgb value in the form R_G_B, or write [random] for a randomly pixellated background.or [rnd-uniform] for a random (but uniform) color",
-        type=lambda x: (tuple([int(i) for i in x.split("_")]) if "_" in x else x),
+        type=lambda x: (tuple([int(i) for i in x.split("_")]) if "_" in x else x)
+        if isinstance(x, str)
+        else x,
     )
 
     parser.add_argument(
@@ -239,7 +258,16 @@ def add_general_args(parser):
         dest="antialiasing",
         help="Specify whether we want to disable antialiasing",
         action="store_false",
-        default=True,
+        default=DEFAULTS["antialiasing"],
+    )
+
+    parser.add_argument(
+        "--no_regenerate_if_present",
+        "-noreg",
+        help="If the dataset is already present, DO NOT regenerate it, just return",
+        dest="regenerate",
+        action="store_false",
+        default=DEFAULTS["regenerate"],
     )
 
 

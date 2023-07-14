@@ -1,7 +1,7 @@
 """
 In this script we show 3 ways to run a REGRESSION training session.
-Before running this example, generate the ebbinghaus dataset in this way:
-    python -m src.ebbinghaus.generate_datasets.py --num_training_data=100 --num_testing_data=20 --folder data/examples/ebbinghaus
+Before running this example, generate the ebbinghaus_illusion dataset in this way:
+    python -m src.ebbinghaus_illusion.generate_datasets.py --num_training_data=100 --num_testing_data=20 --folder data/examples/ebbinghaus_illusion
 """
 import os
 import toml
@@ -9,7 +9,7 @@ from src.utils.decoder.train import run_train
 
 ##
 # Firstly, we can use just few training options. The options in "default_train_config" will be used for all other options.
-data_folder = "data/examples/ebbinghaus"
+data_folder = "data/examples/ebbinghaus_illusion"
 run_train(
     training=dict(
         train_dataset=f"{data_folder}/random_data_n100/train",
@@ -19,7 +19,7 @@ run_train(
             f"{data_folder}/small_flankers_data_n20/test",
         ],
     ),
-    saving_folders=dict(result_folder="results/examples/decoder/ebbinghaus"),
+    saving_folders=dict(result_folder="results/examples/decoder/ebbinghaus_illusion"),
 )
 
 ##

@@ -3,7 +3,7 @@ import argparse
 import toml
 import torch
 from src.utils.net_utils import GrabNet, prepare_network
-from src.utils.misc import update_dict, pretty_print_dict
+from src.utils.misc import delete_and_recreate_path, update_dict, pretty_print_dict
 from sty import fg, rs
 import pickle
 import os
@@ -15,18 +15,16 @@ from src.utils.compute_distance.misc import (
     PasteOnCanvas,
 )
 from src.utils.compute_distance.activation_recorder import (
-    RecordDistanceAcrossFolders,
-    RecordDistanceImgBaseVsFolder,
+    RecordDistance,
 )
 import inspect
 
 
 def compute_distance(
-    input_paths=None,
+    basic_info=None,
     options=None,
     saving_folders=None,
     transformation=None,
-    folder_vs_folder=None,
 ):
     with open(os.path.dirname(__file__) + "/default_distance_config.toml", "r") as f:
         toml_config = toml.load(f)
@@ -53,35 +51,10 @@ def compute_distance(
         toml_config["options"]["gpu_num"]
     ) if torch.cuda.is_available() else None
 
-    if has_subfolders(toml_config["input_paths"]["folder"]):
-        assert os.path.isdir(
-            toml_config["input_paths"]["base_name"]
-        ), f"{toml_config['input_paths']['folder']} contains other folders, and so you are in folders vs folders mode. However, { toml_config['input_paths']['base_name']} should be a path but it's not!"
-        toml_config["run_info"]["type"] = "folder_vs_folder"
-    else:
-        assert os.path.isfile(
-            toml_config["input_paths"]["base_name"]
-        ), f"Folder {toml_config['input_paths']['folder']} does not have subfolders, so you are in `image vs folder mode. However, base_name {toml_config['input_paths']['base_name']} is NOT a path to a file!"
-        toml_config["run_info"]["type"] = "image_vs_folder"
-
     pathlib.Path(toml_config["saving_folders"]["result_folder"]).mkdir(
         parents=True, exist_ok=True
     )
 
-    toml.dump(
-        {
-            **toml_config,
-            "transformation": {
-                **toml_config["transformation"],
-                "affine_transf_background": list(
-                    toml_config["transformation"]["affine_transf_background"]
-                ),
-            },
-        },
-        open(
-            toml_config["saving_folders"]["result_folder"] + "/train_config.toml", "w"
-        ),
-    )
     pretty_print_dict(toml_config)
 
     prepare_network(
@@ -110,44 +83,65 @@ def compute_distance(
 
     transform = torchvision.transforms.Compose(transf_list)
 
-    debug_image_path = toml_config["saving_folders"]["result_folder"] + "/debug_img/"
-    pathlib.Path(os.path.dirname(toml_config["saving_folders"]["result_folder"])).mkdir(
-        parents=True, exist_ok=True
+    delete_and_recreate_path(
+        pathlib.Path(toml_config["saving_folders"]["result_folder"])
     )
-    pathlib.Path(os.path.dirname(debug_image_path)).mkdir(parents=True, exist_ok=True)
-    if toml_config["run_info"]["type"] == "folder_vs_folder":
-        recorder = RecordDistanceAcrossFolders(
-            distance_metric=toml_config["options"]["distance_metric"],
-            net=network,
-            use_cuda=False,
-            only_save=toml_config["options"]["save_layers"],
-            match_mode=toml_config["folder_vs_folder"]["match_mode"],
-        )
-    elif toml_config["run_info"]["type"] == "image_vs_folder":
-        recorder = RecordDistanceImgBaseVsFolder(
-            distance_metric=toml_config["options"]["distance_metric"],
-            net=network,
-            use_cuda=torch.cuda.is_available(),
-            only_save=toml_config["options"]["save_layers"],
-        )
 
-    distance_df, layers_names = recorder.compute_random_set(
-        folder=toml_config["input_paths"]["folder"],
+    toml.dump(
+        {
+            **toml_config,
+            "transformation": {
+                **toml_config["transformation"],
+                "affine_transf_background": list(
+                    toml_config["transformation"]["affine_transf_background"]
+                ),
+            },
+            "basic_info": {
+                **toml_config["basic_info"],
+                "annotation_file_path": str(
+                    toml_config["basic_info"]["annotation_file_path"]
+                ),
+            },
+        },
+        open(toml_config["saving_folders"]["result_folder"] + "/config.toml", "w"),
+    )
+
+    debug_image_path = toml_config["saving_folders"]["result_folder"] + "/debug_img/"
+    pathlib.Path(os.path.dirname(debug_image_path)).mkdir(parents=True, exist_ok=True)
+    recorder = RecordDistance(
+        annotation_filepath=toml_config["basic_info"]["annotation_file_path"],
+        match_factors=toml_config["basic_info"]["match_factors"],
+        factor_variable=toml_config["basic_info"]["factor_variable"],
+        reference_level=toml_config["basic_info"]["reference_level"],
+        filter_factor_level=toml_config["basic_info"]["filter_factor_level"],
+        distance_metric=toml_config["options"]["distance_metric"],
+        net=network,
+        use_cuda=False,
+        only_save=toml_config["options"]["save_layers"],
+    )
+
+    distance_df, layers_names = recorder.compute_from_annotation(
         transform=transform,
         matching_transform=toml_config["transformation"]["matching_transform"],
         fill_bk=toml_config["transformation"]["affine_transf_background"],
         affine_transf=toml_config["transformation"]["affine_transf_code"],
-        N=toml_config["transformation"]["repetitions"],
+        transformed_repetition=toml_config["transformation"]["repetitions"],
         path_save_fig=debug_image_path,
-        base_name=toml_config["input_paths"]["base_name"],
+    )
+    save_folder = pathlib.Path(toml_config["saving_folders"]["result_folder"])
+    distance_df.to_csv(save_folder / "dataframe.csv", index=False)
+    with open(save_folder / "layers.txt", "w") as f:
+        for layer in layers_names:
+            f.write(f"{layer}\n")
+
+    print(
+        fg.red
+        + f"CSV dataframe and Layer Names List saved in "
+        + fg.green
+        + f"{str(save_folder)}"
+        + rs.fg
     )
 
-    save_path = toml_config["saving_folders"]["result_folder"] + "/dataframe.pickle"
-    print(fg.red + f"Saved in " + fg.green + f"{save_path}" + rs.fg)
-
-    pickle.dump(
-        {"layers_names": layers_names, "dataframe": distance_df}, open(save_path, "wb")
-    )
     return distance_df, layers_names
 
 

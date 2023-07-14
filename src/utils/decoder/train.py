@@ -5,7 +5,6 @@ General training script for decoder approach. The only thing you need to change 
 import toml
 from datetime import datetime
 
-# from src.utils.Config import Config
 from src.utils.decoder.train_utils import (
     decoder_step,
     ResNet152decoders,
@@ -22,7 +21,11 @@ import torch.backends.cudnn as cudnn
 from src.utils.net_utils import load_pretraining
 from functools import partial
 from torchvision.datasets import ImageFolder
-import neptune.new as neptune
+
+try:
+    import neptune
+except:
+    pass
 import inspect
 
 

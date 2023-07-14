@@ -8,6 +8,7 @@ import torch
 from matplotlib import pyplot as plt
 from torchvision.transforms import functional as F
 
+
 class PasteOnCanvas(torch.nn.Module):
     def __init__(self, canvas_to_image_ratio, background):
         super().__init__()
@@ -25,6 +26,7 @@ class PasteOnCanvas(torch.nn.Module):
         )
         canvas = paste_at_center(canvas, pil_image).convert("RGB")
         return canvas
+
 
 def get_new_affine_values(transf_code):
     # Example transf_code = 's[0.2, 0.3]tr[0,90]'  -> s is within 0.2, 0.3, t is default, r is between 0 and 90 degrees
@@ -93,6 +95,7 @@ def save_figs(path, set, extra_info="", n=None):
     plt.subplots_adjust(left=0, right=1, top=0.9, bottom=0, wspace=0, hspace=0.1)
 
     plt.savefig(path, dpi=dpi, bbox_inches="tight", pad_inches=0)
+    plt.close(plt.gcf())
 
 
 def has_subfolders(folder_path):
@@ -100,6 +103,7 @@ def has_subfolders(folder_path):
         if os.path.isdir(os.path.join(folder_path, item)):
             return True
     return False
+
 
 def paste_at_center(canvas, image_to_paste):
     canvas = deepcopy(canvas)

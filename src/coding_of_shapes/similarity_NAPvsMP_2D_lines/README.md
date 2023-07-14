@@ -1,2 +1,0 @@
-The stimulis for this dataset have been completely recreated from scratch based on the examples in the paper [Sensitivity to Nonaccidental Configurations of Two-Line Stimuli - Jonas Kubilius, Charlotte Sleurs, Johan Wagemans, 2017](https://journals.sagepub.com/doi/10.1177/2041669517699628). 
-A `.svg` version can be found in `assets/wagemans_2017`, and the `.png` version in `data/coding_os_shapes/similarity_NAPvsMP_2D_lines`. In this latter folder, the stimulis are organized to be used for the similarity judgment task. 

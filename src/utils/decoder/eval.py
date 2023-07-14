@@ -162,7 +162,7 @@ if __name__ == "__main__":
     # for testing a single folder -------------------------
     decoder_evaluate(
         save_name="red_top",
-        results_folder="./results/decoder_jastrow/",
+        results_folder="./results/jastrow_illusion/",
         dataset_folder="data/low_level_vision/jastrow_test/red_on_top_0_smaller/",
         pretraining="private/checkpoints/linear_decoder_jastrow__final_checkpoint.pt",
         gpu_num=0,
@@ -178,7 +178,7 @@ if __name__ == "__main__":
     # for dataset_folder in tqdm(dataset_folders):
     #     decoder_evaluate(
     #         save_name=dataset_folder,
-    #         results_folder="./results/decoder_jastrow/",
+    #         results_folder="./results/jastrow_illusion/",
     #         dataset_folder=path_jastrow_test_data / dataset_folder,
     #         pretraining="private/checkpoints/residual_decoder_color_picker.pt",
     #         gpu_num=0,

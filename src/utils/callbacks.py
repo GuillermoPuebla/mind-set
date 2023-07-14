@@ -13,9 +13,7 @@ import time
 import math
 
 try:
-    from neptune.new.types import File
-    import neptune.new as neptune
-
+    import neptune
 except:
     pass
 

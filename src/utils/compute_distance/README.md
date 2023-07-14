@@ -1,6 +1,6 @@
 
 ## Distance Similarity
-
+# NEEDS TO BE COMPLETELY REWRITTEN!!!
 [//]: # (All the relevant scripts are in `src/utils/compute_distance` and `src/utils`. Examples are in `src/utils/compute_distance/examples`.  )
 You can compute the distance between activation with `cosine similarity` or `euclideaen distance`. Use the command line argument `--distance_metric cossim` or `--distance_metric euclidean`. The latter is the default. 
 

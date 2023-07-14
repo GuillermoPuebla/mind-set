@@ -1,5 +1,6 @@
 import glob
 import os
+from pathlib import Path
 
 import pandas as pd
 import torch
@@ -13,9 +14,10 @@ from torchvision.transforms import InterpolationMode, transforms
 from tqdm import tqdm
 
 from src.utils.compute_distance.misc import my_affine, get_new_affine_values, save_figs
-from src.utils.misc import conver_tensor_to_plot
+from src.utils.misc import conditional_tqdm, conver_tensor_to_plot
 from src.utils.net_utils import make_cuda
 from copy import deepcopy
+import csv
 
 
 class RecordActivations:
@@ -86,12 +88,27 @@ class RecordActivations:
 
 
 class RecordDistance(RecordActivations):
-    def __init__(self, distance_metric, *args, **kwargs):
+    def __init__(
+        self,
+        annotation_filepath,
+        match_factors,
+        factor_variable,
+        filter_factor_level,
+        reference_level,
+        distance_metric,
+        *args,
+        **kwargs,
+    ):
         assert distance_metric in [
             "euclidean",
             "cossim",
         ], f"distance_metric must be one of ['euclidean', 'cossim'], instead is {distance_metric}"
+        self.filter_factor_level = filter_factor_level
         self.distance_metric = distance_metric
+        self.annotation_filepath = annotation_filepath
+        self.match_factors = match_factors
+        self.factor_variable = factor_variable
+        self.reference_level = reference_level
         super().__init__(*args, **kwargs)
 
     def compute_distance_pair(self, image0, image1):  # path_save_fig, stats):
@@ -114,7 +131,6 @@ class RecordDistance(RecordActivations):
                 continue
             second_image_act[name] = features2.flatten()
             if name not in distance:
-                distance[name] = []
                 if self.distance_metric == "cossim":
                     distance[name].append(
                         torch.nn.CosineSimilarity(dim=0)(
@@ -122,67 +138,103 @@ class RecordDistance(RecordActivations):
                         ).item()
                     )
                 if self.distance_metric == "euclidean":
-                    distance[name].append(
-                        torch.norm(
-                            (first_image_act[name] - second_image_act[name])
-                        ).item()
-                    )
+                    distance[name] = torch.norm(
+                        (first_image_act[name] - second_image_act[name])
+                    ).item()
         return distance
 
-
-class RecordDistanceAcrossFolders(RecordDistance):
-    def __init__(self, match_mode, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.match_mode = match_mode
-
-    def compute_random_set(
+    def compute_from_annotation(
         self,
-        folder,
         transform,
         matching_transform=False,
         fill_bk=None,
         affine_transf="",
-        N=5,
+        transformed_repetition=5,
         path_save_fig=None,
-        base_name="base",
     ):
         norm = [i for i in transform.transforms if isinstance(i, transforms.Normalize)][
             0
         ]
-        save_num_image_sets = 5
-        levels = [
-            os.path.basename(i) for i in glob.glob(folder + "/**") if os.path.isdir(i)
+        df = pd.read_csv(self.annotation_filepath)
+
+        mask = pd.Series([True] * len(df), index=df.index, dtype="bool")
+
+        for col, val in self.filter_factor_level.items():
+            mask = mask & (df[col] == val)
+        df = df.loc[mask]
+
+        matching_levels = df[self.match_factors].drop_duplicates().values.tolist()
+
+        all_other_levels = [
+            i for i in df[self.factor_variable].unique() if i != self.reference_level
         ]
-
-
-        sets = [
-            np.unique(
-                [
-                    os.path.splitext(os.path.basename(i))[0]
-                    for i in glob.glob(folder + f"/{l}/*")
-                ]
+        pbar = tqdm(all_other_levels, desc="comparison levels")
+        df_rows = []
+        for comparison_level in pbar:
+            pbar.set_postfix(
+                {
+                    sty.fg.blue
+                    + f"{self.factor_variable}"
+                    + sty.rs.fg: f"{self.reference_level} vs {comparison_level}"
+                },
+                refresh=True,
             )
-            for l in levels
-        ]
-        assert self.match_mode == "all" or np.all(
-            [len(sets[ix]) == len(sets[ix - 1]) for ix in range(1, len(sets))]
-        ), "Length for one of the folder doesn't match other folder in the dataset"
-        assert self.match_mode == "all" or np.all(
-            [np.all(sets[ix] == sets[ix - 1]) for ix in range(1, len(sets))]
-        ), "All names in all folders in the dataset needs to match. Some name didn't match"
-        sets = sets[0]
-        df = pd.DataFrame([])
-        for s in tqdm(sets):
-            plt.close("all")
-            for a in levels:
-                for s2 in sets:
+            pbar2 = tqdm(matching_levels, desc="matching samples", leave=False)
+
+            for mm in pbar2:
+                pbar2.set_postfix(
+                    {
+                        sty.fg.blue + f"{k}" + sty.rs.fg: v
+                        for k, v in zip(self.match_factors, mm)
+                    },
+                    refresh=True,
+                )
+                mask = pd.Series([True] * len(df), index=df.index)
+
+                for col, val in zip(self.match_factors, mm):
+                    mask = mask & (df[col] == val)
+
+                comparison_paths = np.random.permutation(
+                    df[df[self.factor_variable] == comparison_level]
+                    .loc[mask]["Path"]
+                    .values
+                )
+                reference_paths = np.random.permutation(
+                    df[df[self.factor_variable] == self.reference_level]
+                    .loc[mask]["Path"]
+                    .values
+                )
+
+                if len(comparison_paths) != len(reference_paths):
+                    print(
+                        sty.fg.red
+                        + f"The number of images satisfying the requirements is not the same for level {comparison_level} and {self.reference_level}. Some images won't be processed"
+                        + sty.rs.fg
+                    )
+
+                for sample_num, selected_paths in conditional_tqdm(
+                    enumerate(zip(reference_paths, comparison_paths)),
+                    len(reference_paths) > 1,
+                    desc="nth matching sample",
+                    leave=False,
+                ):
+                    reference_path, comp_path = (
+                        Path(self.annotation_filepath).parent / i
+                        for i in selected_paths
+                    )
+                    save_num_image_sets = 5
+
                     save_sets = []
                     save_fig = True
-                    if self.match_mode == "same_name" and s2 != s:
-                        continue
-                    for n in range(N):
-                        im_0 = Image.open(f"{base_name}/{s}.png").convert("RGB")
-                        im_i = Image.open(folder + f"/{a}/{s2}.png").convert("RGB")
+
+                    for transform_idx in conditional_tqdm(
+                        range(transformed_repetition),
+                        transformed_repetition > 1,
+                        desc="transformation rep.",
+                        leave=False,
+                    ):
+                        im_0 = Image.open(reference_path).convert("RGB")
+                        im_i = Image.open(comp_path).convert("RGB")
                         af = (
                             [get_new_affine_values(affine_transf) for i in [im_0, im_i]]
                             if not matching_transform
@@ -202,13 +254,22 @@ class RecordDistanceAcrossFolders(RecordDistance):
                         ]
 
                         images = [transform(i) for i in images]
-                        df_row = {"base_obj": s, "obj": s2, "level": a, "n": n}
-                        cs = self.compute_distance_pair(
-                            images[0], images[1]
-                        )  # , path_fig='')
-                        df_row.update(cs)
-                        df = pd.concat([df, pd.DataFrame.from_dict(df_row)])
 
+                        layers_distances = self.compute_distance_pair(
+                            images[0], images[1]
+                        )
+                        df_rows.append(
+                            {
+                                "ReferencePath": str(reference_path),
+                                "ComparisonPath": str(comp_path),
+                                "ReferenceLevel": self.reference_level,
+                                "ComparisonLevel": comparison_level,
+                                "MatchingLevels": mm,
+                                **{f"{i}": j for i, j in zip(self.match_factors, mm)},
+                                "TransformerRep": transform_idx,
+                                **layers_distances,
+                            }
+                        )
                         if save_fig:
                             save_sets.append(
                                 [
@@ -216,80 +277,19 @@ class RecordDistanceAcrossFolders(RecordDistance):
                                     for i in images
                                 ]
                             )
-                            if len(save_sets) == min([save_num_image_sets, N]):
+                            if len(save_sets) == min(
+                                [save_num_image_sets, transformed_repetition]
+                            ):
                                 save_figs(
                                     path_save_fig
-                                    + f"[{os.path.basename(base_name)}]_{s}-{a}_{s2}",
+                                    + f"[{self.reference_level}]_{comparison_level}_{'-'.join([str(i) for i in mm])}",
                                     save_sets,
                                     extra_info=affine_transf,
                                 )
+
                                 save_fig = False
                                 save_sets = []
-        all_layers = list(cs.keys())
-        return df, all_layers
+        result_df = pd.DataFrame(df_rows)
 
-
-class RecordDistanceImgBaseVsFolder(RecordDistance):
-    def compute_random_set(
-        self,
-        folder,
-        transform,
-        matching_transform=False,
-        fill_bk=None,
-        affine_transf="",
-        N=5,
-        path_save_fig=None,
-        base_name="base.png",
-    ):
-        norm = [i for i in transform.transforms if isinstance(i, transforms.Normalize)][
-            0
-        ]
-        save_num_image_sets = 5
-        compare_images = glob.glob(folder + "/**")
-
-        df = pd.DataFrame([])
-        for s in tqdm(compare_images):
-            save_sets = []
-            plt.close("all")
-            save_fig = True
-            for n in range(N):
-                im_0 = Image.open(s).convert("RGB")
-                im_i = Image.open(base_name).convert("RGB")
-                af = (
-                    [get_new_affine_values(affine_transf) for i in [im_0, im_i]]
-                    if not matching_transform
-                    else [get_new_affine_values(affine_transf)] * 2
-                )
-                images = [
-                    my_affine(
-                        im,
-                        translate=af[idx]["tr"],
-                        angle=af[idx]["rt"],
-                        scale=af[idx]["sc"],
-                        shear=af[idx]["sh"],
-                        interpolation=InterpolationMode.NEAREST,
-                        fill=fill_bk,
-                    )
-                    for idx, im in enumerate([im_0, im_i])
-                ]
-
-                images = [transform(i) for i in images]
-                df_row = {"compare_img": os.path.basename(s), "n": n}
-                cs = self.compute_distance_pair(images[0], images[1])  # , path_fig='')
-                df_row.update(cs)
-                df = pd.concat([df, pd.DataFrame.from_dict(df_row)])
-
-                if save_fig:
-                    save_sets.append(
-                        [conver_tensor_to_plot(i, norm.mean, norm.std) for i in images]
-                    )
-                    if len(save_sets) == min([save_num_image_sets, N]):
-                        save_figs(
-                            path_save_fig + f"{os.path.basename(s)}",
-                            save_sets,
-                            extra_info=affine_transf,
-                        )
-                        save_fig = False
-                        save_sets = []
-        all_layers = list(cs.keys())
-        return df, all_layers
+        all_layers = list(layers_distances.keys())
+        return result_df, all_layers

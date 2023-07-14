@@ -13,14 +13,14 @@ from src.utils.compute_distance.misc import (
     get_new_affine_values,
 )
 from src.utils.drawing_utils import (
-    DrawShape,
+    DrawStimuli,
     resize_image_keep_aspect_ratio,
     paste_linedrawing_onto_canvas,
 )
 from src.utils.misc import add_general_args, delete_and_recreate_path
 
 
-class DrawTrainingImages(DrawShape):
+class DrawTrainingImages(DrawStimuli):
     def __init__(self, obj_longest_side, transform_code, *args, **kwargs):
         self.transform_code = transform_code
 
@@ -75,7 +75,7 @@ def generate_all(
     ]
 
     ds = DrawTrainingImages(
-        background=background,
+        background=background_color,
         canvas_size=canvas_size,
         antialiasing=antialiasing,
         obj_longest_side=object_longest_side,
