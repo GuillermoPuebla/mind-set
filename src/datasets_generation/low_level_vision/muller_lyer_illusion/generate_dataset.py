@@ -7,14 +7,18 @@ from pathlib import Path
 import numpy as np
 import sty
 from PIL import ImageDraw
+from tqdm import tqdm
 
 from src.utils.drawing_utils import DrawStimuli
 from src.utils.misc import (
     add_general_args,
     apply_antialiasing,
     delete_and_recreate_path,
-    DEFAULTS,
 )
+
+from src.utils.misc import DEFAULTS as BASE_DEFAULTS
+
+DEFAULTS = BASE_DEFAULTS.copy()
 
 
 def draw_arrow(draw, pos, theta, angle_arrow, arrow_length, width, color):
@@ -112,27 +116,32 @@ class DrawMullerLyer(DrawStimuli):
         return apply_antialiasing(img) if self.antialiasing else img
 
 
+DEFAULTS.update(
+    {
+        "num_scrambled_samples": 100,
+        "num_illusory_samples": 100,
+        "output_folder": "data/low_level_vision/muller_lyer_illusion",
+    }
+)
+
+
 def generate_all(
-    num_scrambled_samples,
-    num_illusory_samples,
+    num_scrambled_samples=DEFAULTS["num_scrambled_samples"],
+    num_illusory_samples=DEFAULTS["num_illusory_samples"],
     output_folder=DEFAULTS["output_folder"],
     canvas_size=DEFAULTS["canvas_size"],
     background_color=DEFAULTS["background_color"],
     antialiasing=DEFAULTS["antialiasing"],
     regenerate=DEFAULTS["regenerate"],
 ):
-    output_folder = (
-        Path("data") / "low_level_vision" / "muller_lyer_illusion"
-        if output_folder is None
-        else Path(output_folder)
-    )
+    output_folder = Path(output_folder)
     if output_folder.exists() and not regenerate:
         print(
             sty.fg.yellow
-            + f"Dataset already exists and regenerate if false. Finished"
+            + f"Dataset already exists and `regenerate` flag if false. Finished"
             + sty.rs.fg
         )
-        return output_folder
+        return str(output_folder)
 
     delete_and_recreate_path(output_folder)
     conditions = ["scrambled", "mulllyer_inward", "mulllyer_outward"]
@@ -188,11 +197,11 @@ def generate_all(
                 "IterNum",
             ]
         )
-        for c in conditions:
+        for c in tqdm(conditions):
             num_samples = (
                 num_scrambled_samples if c == "scrambled" else num_illusory_samples
             )
-            for i in range(num_samples):
+            for i in tqdm(range(num_samples), leave=False):
                 (
                     line_length,
                     line_position,
@@ -215,7 +224,7 @@ def generate_all(
                     [
                         path,
                         c,
-                        background,
+                        ds.background,
                         line_length,
                         line_position,
                         arrow_length,
@@ -224,6 +233,7 @@ def generate_all(
                         i,
                     ]
                 )
+    return str(output_folder)
 
 
 if __name__ == "__main__":
@@ -232,14 +242,20 @@ if __name__ == "__main__":
     )
 
     add_general_args(parser)
-    # add_training_args(parser)
+    parser.set_defaults(output_folder=DEFAULTS["output_folder"])
+
     parser.add_argument(
         "--num_scrambled_samples",
         "-nscrambled",
-        default=100,
+        default=DEFAULTS["num_scrambled_samples"],
         type=int,
     )
-    parser.add_argument("--num_illusory_samples", "-nill", default=100, type=int)
+    parser.add_argument(
+        "--num_illusory_samples",
+        "-nill",
+        default=DEFAULTS["num_illusory_samples"],
+        type=int,
+    )
     parser.set_defaults(antialiasing=False)
     args = parser.parse_known_args()[0]
     generate_all(**args.__dict__)

@@ -16,6 +16,10 @@ from pathlib import Path
 import numpy as np
 import uuid
 
+from src.utils.misc import DEFAULTS as BASE_DEFAULTS
+
+DEFAULTS = BASE_DEFAULTS.copy()
+
 
 class DrawDecomposition(DrawStimuli):
     def __init__(self, shape_size, shape_color, moving_distance, *args, **kwargs):
@@ -87,7 +91,14 @@ def get_random_params():
     return cut_rotation, rotation, position
 
 
-DEFAULTS.update({"num_samples": 100, "moving_distance": 60, "shape_color": (255, 0, 0)})
+DEFAULTS.update(
+    {
+        "num_samples": 100,
+        "moving_distance": 60,
+        "shape_color": (255, 0, 0),
+        "output_folder": "data/high_level_vision/decomposition",
+    }
+)
 
 
 def generate_all(
@@ -150,19 +161,15 @@ def generate_all(
         antialiasing=antialiasing,
     )
 
-    output_folder = (
-        pathlib.Path("data") / "high_level_vision" / "decomposition"
-        if output_folder is None
-        else pathlib.Path(output_folder)
-    )
+    output_folder = pathlib.Path(output_folder)
 
     if output_folder.exists() and not regenerate:
         print(
             sty.fg.yellow
-            + f"Dataset already exists and regenerate if false. Finished"
+            + f"Dataset already exists and `regenerate` flag if false. Finished"
             + sty.rs.fg
         )
-        return output_folder
+        return str(output_folder)
 
     delete_and_recreate_path(output_folder)
     split_types = ["no_split", "unnatural", "natural"]
@@ -187,9 +194,8 @@ def generate_all(
                 "SampleNum",
             ]
         )
-        for name_comb, combs in shapes_types.items():
-            print(f"{name_comb} stimuli")
-            for idx, c in tqdm(enumerate(combs)):
+        for name_comb, combs in tqdm(shapes_types.items()):
+            for idx, c in enumerate(tqdm(combs, leave=False)):
                 cut_rotation, rotation, position = get_random_params()
                 for split_type in split_types:
                     img = ds.generate_canvas(
@@ -205,7 +211,7 @@ def generate_all(
                     writer.writerow(
                         [
                             path,
-                            background_color,
+                            ds.background,
                             name_comb,
                             split_type,
                             cut_rotation,
@@ -214,6 +220,7 @@ def generate_all(
                             idx,
                         ]
                     )
+    return str(output_folder)
 
 
 if __name__ == "__main__":
@@ -222,6 +229,7 @@ if __name__ == "__main__":
     )
 
     add_general_args(parser)
+    parser.set_defaults(output_folder=DEFAULTS["output_folder"])
 
     parser.add_argument(
         "--num_samples",

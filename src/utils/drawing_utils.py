@@ -169,7 +169,7 @@ def get_mask_from_linedrawing(opencv_img):
 
 def resize_image_keep_aspect_ratio(opencv_img, max_side_length):
     # Calculate new dimensions while keeping the aspect ratio
-    height, width = opencv_img.shape
+    height, width, *_ = opencv_img.shape
     aspect_ratio = float(width) / float(height)
 
     if height > width:
@@ -182,9 +182,6 @@ def resize_image_keep_aspect_ratio(opencv_img, max_side_length):
     resized_img = cv2.resize(
         opencv_img, (new_width, new_height), interpolation=cv2.INTER_AREA
     )
-    # background = np.bincount(resized_img.flatten()).argmax()
-    # canvas = np.ones(canvas_size) * background
-    # canvas[: resized_img.shape[0], : resized_img.shape[1]] = resized_img
     return resized_img
 
 

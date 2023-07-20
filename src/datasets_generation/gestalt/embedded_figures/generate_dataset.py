@@ -1,4 +1,5 @@
 import argparse
+import csv
 import glob
 import os
 import shutil
@@ -7,15 +8,18 @@ import sty
 from tqdm import tqdm
 import pathlib
 from torchvision.transforms import transforms, InterpolationMode
+from tqdm import tqdm
 
 from src.datasets_generation.gestalt.embedded_figures.utils import DrawEmbeddedFigures
 from src.utils.compute_distance.misc import my_affine, get_new_affine_values
 from src.utils.misc import (
     add_general_args,
-    add_training_args,
-    DEFAULTS,
     delete_and_recreate_path,
 )
+
+from src.utils.misc import DEFAULTS as BASE_DEFAULTS
+
+DEFAULTS = BASE_DEFAULTS.copy()
 
 polys = [
     [
@@ -70,77 +74,95 @@ polys = [
     ],
 ]
 
+DEFAULTS.update(
+    {
+        "num_samples_polygons": 100,
+        "num_samples_embedded_polygons": 100,
+        "shape_size": 45,
+        "debug_mode": False,
+        "output_folder": "data/gestalt/embedded_figures",
+    }
+)
+
 
 def generate_all(
-    num_training_samples,
-    num_testing_samples,
-    shape_size,
-    debug_mode,
+    num_samples_polygons=DEFAULTS["num_samples_polygons"],
+    num_samples_embedded_polygons=DEFAULTS["num_samples_embedded_polygons"],
+    shape_size=DEFAULTS["shape_size"],
+    debug_mode=DEFAULTS["debug_mode"],
     output_folder=DEFAULTS["output_folder"],
     canvas_size=DEFAULTS["canvas_size"],
     background_color=DEFAULTS["background_color"],
     antialiasing=DEFAULTS["antialiasing"],
     regenerate=DEFAULTS["regenerate"],
 ):
-    output_folder = (
-        pathlib.Path("data") / "gestalt" / "embedded_figures"
-        if output_folder is None
-        else pathlib.Path(output_folder)
-    )
+    output_folder = pathlib.Path(output_folder)
 
     if output_folder.exists() and not regenerate:
         print(
             sty.fg.yellow
-            + f"Dataset already exists and regenerate if false. Finished"
+            + f"Dataset already exists and `regenerate` flag if false. Finished"
             + sty.rs.fg
         )
-        return output_folder
+        return str(output_folder)
 
     delete_and_recreate_path(output_folder)
 
-    ds = DrawEmbeddedFigures(
-        shape_size=shape_size * canvas_size[0],
-        canvas_size=canvas_size,
-        background=background_color,
-        antialiasing=antialiasing,
-    )
     shapes = list(((n, p) for n, p in enumerate(polys)))
 
-    for cond in ["polygons", "embedded_polygons"]:
-        N = num_training_samples if cond == "train" else num_testing_samples
-        for s in tqdm(shapes):
-            shape_name, shape_points = str(s[0]), s[1]
-            class_folder = output_folder / cond / shape_name
-            class_folder.mkdir(parents=True, exist_ok=True)
-            for i in tqdm(range(N)):
-                if cond == "train":
-                    main_image = ds.draw_shape(
-                        shape_points,
-                        extend_lines=False,
-                        num_shift_lines=0,
-                        num_rnd_lines=0,
-                        debug=debug_mode,
+    with open(output_folder / "annotation.csv", "w", newline="") as annfile:
+        writer = csv.writer(annfile)
+        writer.writerow(["Path", "Type", "Background", "IterNum"])
+        ds = DrawEmbeddedFigures(
+            shape_size=shape_size,
+            canvas_size=canvas_size,
+            background=background_color,
+            antialiasing=antialiasing,
+        )
+        for cond in tqdm(["polygons", "embedded_polygons"]):
+            N = (
+                num_samples_polygons
+                if cond == "train"
+                else num_samples_embedded_polygons
+            )
+
+            for s in tqdm(shapes, leave=False):
+                shape_name, shape_points = str(s[0]), s[1]
+                img_path = pathlib.Path(cond) / shape_name
+                class_folder = output_folder / img_path
+                class_folder.mkdir(parents=True, exist_ok=True)
+                for i in tqdm(range(N)):
+                    if cond == "polygons":
+                        main_image = ds.draw_shape(
+                            shape_points,
+                            extend_lines=False,
+                            num_shift_lines=0,
+                            num_rnd_lines=0,
+                            debug=debug_mode,
+                        )
+
+                    else:
+                        main_image = ds.draw_shape(
+                            shape_points,
+                            extend_lines=True,
+                            num_shift_lines=10,
+                            num_rnd_lines=10,
+                            debug=debug_mode,
+                        )
+                    af = get_new_affine_values("r[-180, 180]t[-0.1, 0.1]s[0.5, 2]")
+                    img = my_affine(
+                        main_image,
+                        translate=af["tr"],
+                        angle=af["rt"],
+                        scale=af["sc"],
+                        shear=af["sh"],
+                        interpolation=InterpolationMode.BILINEAR,
+                        fill=ds.background,
                     )
-                else:
-                    main_image = ds.draw_shape(
-                        shape_points,
-                        extend_lines=True,
-                        num_shift_lines=10,
-                        num_rnd_lines=10,
-                        debug=debug_mode,
-                    )
-                af = get_new_affine_values("r[-180, 180]t[-0.1, 0.1]s[0.5, 2]")
-                img = my_affine(
-                    main_image,
-                    translate=af["tr"],
-                    angle=af["rt"],
-                    scale=af["sc"],
-                    shear=af["sh"],
-                    interpolation=InterpolationMode.BILINEAR,
-                    fill=ds.background,
-                )
-                img = transforms.CenterCrop((canvas_size[1], canvas_size[0]))(img)
-                img.save(class_folder / f"{i}.png")
+                    img = transforms.CenterCrop((canvas_size[1], canvas_size[0]))(img)
+                    img.save(class_folder / f"{i}.png")
+                    writer.writerow([img_path, cond, ds.background, i])
+    return str(output_folder)
 
 
 if __name__ == "__main__":
@@ -149,14 +171,30 @@ if __name__ == "__main__":
     )
 
     add_general_args(parser)
-    add_training_args(parser)
+    parser.set_defaults(output_folder=DEFAULTS["output_folder"])
 
     parser.add_argument("--debug_mode", "-debug", action="store_true")
     parser.add_argument(
+        "--num_samples_polygons",
+        "-nsp",
+        help="The number of samples to generate for each (non-embedded) polygons",
+        default=DEFAULTS["num_samples_polygons"],
+        type=int,
+    )
+
+    parser.add_argument(
+        "--num_samples_embedded_polygons",
+        "-nsep",
+        help="The number of samples to generate for each (embedded) polygons",
+        default=DEFAULTS["num_samples_embedded_polygons"],
+        type=int,
+    )
+
+    parser.add_argument(
         "--shape_size",
         "-shs",
-        help="The shape of the embedded size (in proportion to the canvas)",
-        default=0.20,
+        help="The shape of the embedded size (in pixels)",
+        default=DEFAULTS["shape_size"],
         type=float,
     )
 

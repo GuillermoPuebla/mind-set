@@ -200,24 +200,7 @@ def convert_lists_to_strings(obj):
         return obj
 
 
-def add_training_args(parser):
-    parser.add_argument(
-        "--num_training_samples",
-        "-ntrain",
-        default=10000,
-        type=int,
-    )
-    parser.add_argument(
-        "--num_testing_samples",
-        "-ntest",
-        default=5000,
-        help="Two testing folders will be generated, one for the version with small flankers, the other for the version with big flankers",
-        type=int,
-    )
-
-
 DEFAULTS = {
-    "output_folder": None,
     "canvas_size": (224, 224),
     "background_color": (0, 0, 0),
     "antialiasing": True,
@@ -229,7 +212,6 @@ def add_general_args(parser):
     parser.add_argument(
         "--output_folder",
         "-o",
-        default=DEFAULTS["output_folder"],
         help="The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset",
     )
     parser.add_argument(
@@ -318,3 +300,4 @@ def apply_antialiasing(img: PIL.Image, amount=None):
 def delete_and_recreate_path(path: pathlib.Path):
     shutil.rmtree(path) if path.exists() else None
     path.mkdir(parents=True, exist_ok=True)
+    print(sty.fg.yellow + f"Creating Dataset in {path}. Please wait..." + sty.rs.fg)

@@ -5,6 +5,7 @@ import csv
 import numpy as np
 import sty
 from PIL import ImageColor
+from tqdm import tqdm
 
 from src.datasets_generation.gestalt.CSE_CIE_dots.utils import DrawCSE_CIEdots
 import pathlib
@@ -14,11 +15,14 @@ from src.utils.drawing_utils import DrawStimuli
 from src.utils.misc import (
     add_general_args,
     delete_and_recreate_path,
-    DEFAULTS,
     apply_antialiasing,
 )
 
-DEFAULTS["shape_color"] = ""
+from src.utils.misc import DEFAULTS as BASE_DEFAULTS
+
+DEFAULTS = BASE_DEFAULTS.copy()
+DEFAULTS["stroke_color"] = ""
+DEFAULTS["output_folder"] = "data/coding_of_shapes/NAPvsMP_geons"
 
 
 class DrawLines(DrawStimuli):
@@ -62,20 +66,16 @@ def generate_all(
     canvas_size=DEFAULTS["canvas_size"],
     background_color=DEFAULTS["background_color"],
     antialiasing=DEFAULTS["antialiasing"],
-    shape_color=DEFAULTS["shape_color"],
+    stroke_color=DEFAULTS["stroke_color"],
     regenerate=DEFAULTS["regenerate"],
 ) -> str:
     shape_folder = pathlib.Path("assets") / "amir_geons" / "NAPvsMP"
     all_types = ["reference", "MP", "NAP"]
-    output_folder = (
-        pathlib.Path("data") / "coding_of_shapes" / "NAPvsMP_geons"
-        if output_folder is None
-        else pathlib.Path(output_folder)
-    )
+    output_folder = pathlib.Path(output_folder)
     if output_folder.exists() and not regenerate:
         print(
             sty.fg.yellow
-            + f"Dataset already exists and regenerate if false. Finished"
+            + f"Dataset already exists and `regenerate` flag if false. Finished"
             + sty.rs.fg
         )
         return str(output_folder)
@@ -91,27 +91,28 @@ def generate_all(
             antialiasing=antialiasing,
         )
 
-        for t in all_types:
-            for i in (shape_folder / t).glob("*"):
+        for t in tqdm(all_types):
+            for i in tqdm((shape_folder / t).glob("*"), leave=False):
                 name_sample = i.stem
                 img_path = pathlib.Path(t) / f"{name_sample}.png"
                 img = ds.process_image(
                     shape_folder / img_path,
-                    shape_color,
+                    stroke_color,
                 )
                 img.save(output_folder / img_path)
                 writer.writerow([img_path, t, ds.background, name_sample])
-        return str(output_folder)
+    return str(output_folder)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     add_general_args(parser)
+    parser.set_defaults(output_folder=DEFAULTS["output_folder"])
 
     parser.add_argument(
-        "--shape_color",
-        "-shape_color",
-        default=DEFAULTS["shape_color"],
+        "--stroke_color",
+        "-sc",
+        default=DEFAULTS["stroke_color"],
         help="Specify the color of the shape. The shading will be preserved. Leave it empty to not change the color of the shape. Specify it as a rgb tuple in the format of 255_255_255",
         type=lambda x: (tuple([int(i) for i in x.split("_")]) if "_" in x else x)
         if isinstance(x, str)

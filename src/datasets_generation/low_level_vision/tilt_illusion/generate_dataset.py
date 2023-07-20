@@ -10,15 +10,18 @@ import numpy as np
 import sty
 from PIL import Image
 from PIL import ImageDraw
+from tqdm import tqdm
 
 from src.utils.drawing_utils import DrawStimuli
 from src.utils.misc import (
     add_general_args,
-    add_training_args,
     apply_antialiasing,
     delete_and_recreate_path,
-    DEFAULTS,
 )
+
+from src.utils.misc import DEFAULTS as BASE_DEFAULTS
+
+DEFAULTS = BASE_DEFAULTS.copy()
 
 
 def generate_grating(canvas_size, frequency, orientation, phase=0):
@@ -53,7 +56,6 @@ class DrawTiltIllusion(DrawStimuli):
         test = Image.fromarray(np.uint8(test * 255))
         mask = Image.new("L", test.size, 0)
 
-        # Draw a white circle in the middle of the mask image
         draw = ImageDraw.Draw(mask)
         center_test = np.array(center_test) * self.canvas_size
         draw.ellipse(
@@ -66,14 +68,22 @@ class DrawTiltIllusion(DrawStimuli):
             fill=255,
         )
 
-        # Paste the test image onto the context image using the mask
         context.paste(test, mask=mask)
         return apply_antialiasing(context) if self.antialiasing else context
 
 
+DEFAULTS.update(
+    {
+        "num_only_center_samples": 100,
+        "num_center_context_samples": 100,
+        "output_folder": "data/low_level_vision/tilt_illusion",
+    }
+)
+
+
 def generate_all(
-    num_only_center_samples,
-    num_center_context_samples,
+    num_only_center_samples=DEFAULTS["num_only_center_samples"],
+    num_center_context_samples=DEFAULTS["num_center_context_samples"],
     output_folder=DEFAULTS["output_folder"],
     canvas_size=DEFAULTS["canvas_size"],
     background_color=DEFAULTS["background_color"],
@@ -91,19 +101,15 @@ def generate_all(
         theta = np.random.uniform(-np.pi / 2, np.pi / 2)
         return theta, radius, center, freq
 
-    output_folder = (
-        Path("data") / "low_level_vision" / "tilt_illusion"
-        if output_folder is None
-        else Path(output_folder)
-    )
+    output_folder = Path(output_folder)
 
     if output_folder.exists() and not regenerate:
         print(
             sty.fg.yellow
-            + f"Dataset already exists and regenerate if false. Finished"
+            + f"Dataset already exists and `regenerate` flag if false. Finished"
             + sty.rs.fg
         )
-        return output_folder
+        return str(output_folder)
 
     delete_and_recreate_path(output_folder)
 
@@ -130,24 +136,34 @@ def generate_all(
                 "IterNum",
             ]
         )
-        for i in range(num_only_center_samples):
+        for i in tqdm(range(num_only_center_samples)):
             theta_center, radius, _, freq = get_random_values()
             path = Path("only_center") / f"{-theta_center:.3f}__0_{i}.png"
             img = ds.generate_illusion(theta_center, radius, (0.5, 0.5), freq)
             img.save(str(output_folder / path))
             writer.writerow(
-                [path, "only_center", background, theta_center, radius, freq, "", i]
+                [path, "only_center", ds.background, theta_center, radius, freq, "", i]
             )
 
         all_thetas = np.linspace(-np.pi / 2, np.pi / 2, num_center_context_samples)
-        for i, theta_context in enumerate(all_thetas):
+        for i, theta_context in enumerate(tqdm(all_thetas)):
             _, radius, _, freq = get_random_values()
             img = ds.generate_illusion(0, radius, (0.5, 0.5), freq, theta_context)
-            path = Path("CenterAndContext") / f"0__{theta_context:.3f}_{i}.png"
-            img.save(str(output_folder / path))
+            path = Path("center_context") / f"0__{theta_context:.3f}_{i}.png"
+            img.save(output_folder / path)
             writer.writerow(
-                [path, "center_context", background, 0, radius, freq, theta_context, i]
+                [
+                    path,
+                    "center_context",
+                    ds.background,
+                    0,
+                    radius,
+                    freq,
+                    theta_context,
+                    i,
+                ]
             )
+    return str(output_folder)
 
 
 if __name__ == "__main__":
@@ -156,17 +172,19 @@ if __name__ == "__main__":
     )
 
     add_general_args(parser)
+    parser.set_defaults(output_folder=DEFAULTS["output_folder"])
+
     parser.add_argument(
         "--num_only_center_samples",
         "-ncenter",
         help="Number of samples with only the center gabor patch",
-        default=100,
+        default=DEFAULTS["num_only_center_samples"],
         type=int,
     )
     parser.add_argument(
         "--num_center_context_samples",
         "-ncontext",
-        default=100,
+        default=DEFAULTS["num_center_context_samples"],
         help="Number of samples for center and context gabor patches",
         type=int,
     )

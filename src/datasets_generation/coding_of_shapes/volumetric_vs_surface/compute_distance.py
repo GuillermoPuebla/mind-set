@@ -1,5 +1,5 @@
 import pathlib
-from src.datasets_generation.coding_of_shapes.volumetric_vs_surface.generate_dataset import (
+from src.generate_dataset import (
     generate_all,
 )
 from src.utils.compute_distance.run import compute_distance

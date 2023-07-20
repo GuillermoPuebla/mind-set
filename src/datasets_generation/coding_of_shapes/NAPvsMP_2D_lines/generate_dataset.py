@@ -4,14 +4,19 @@ import json
 import pathlib
 import PIL.Image as Image
 import sty
+from tqdm import tqdm
 
 from src.utils.drawing_utils import DrawStimuli
 from src.utils.misc import (
     add_general_args,
     delete_and_recreate_path,
-    DEFAULTS,
     apply_antialiasing,
 )
+
+from src.utils.misc import DEFAULTS as BASE_DEFAULTS
+
+DEFAULTS = BASE_DEFAULTS.copy()
+DEFAULTS["output_folder"] = "data/coding_of_shapes/NAPvsMP_2D_lines"
 
 
 class DrawLines(DrawStimuli):
@@ -44,16 +49,12 @@ def generate_all(
 ) -> str:
     kubilius_dataset = pathlib.Path("assets") / "kubilius_2017" / "png"
     all_types = ["reference", "MP", "NAP"]
-    output_folder = (
-        pathlib.Path("data") / "coding_of_shapes" / "NAPvsMP_2D_lines"
-        if output_folder is None
-        else pathlib.Path(output_folder)
-    )
+    output_folder = pathlib.Path(output_folder)
 
     if output_folder.exists() and not regenerate:
         print(
             sty.fg.yellow
-            + f"Dataset already exists and regenerate if false. Finished"
+            + f"Dataset already exists and `regenerate` flag if false. Finished"
             + sty.rs.fg
         )
         return str(output_folder)
@@ -70,8 +71,8 @@ def generate_all(
             canvas_size=canvas_size,
             antialiasing=antialiasing,
         )
-        for t in all_types:
-            for i in (kubilius_dataset / t).glob("*"):
+        for t in tqdm(all_types):
+            for i in tqdm((kubilius_dataset / t).glob("*"), leave=False):
                 name_sample = i.stem
                 img_path = pathlib.Path(t) / f"{name_sample}.png"
                 img = ds.process_image(
@@ -86,6 +87,7 @@ def generate_all(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     add_general_args(parser)
+    parser.set_defaults(output_folder=DEFAULTS["output_folder"])
 
     args = parser.parse_known_args()[0]
     generate_all(**args.__dict__)

@@ -8,6 +8,7 @@ import PIL.Image as Image
 import numpy as np
 import sty
 from torchvision import transforms
+from tqdm import tqdm
 
 from src.datasets_generation.gestalt.thatcher_illusion.utils import (
     get_image_facial_landmarks,
@@ -15,37 +16,33 @@ from src.datasets_generation.gestalt.thatcher_illusion.utils import (
     apply_thatcher_effect_on_image,
 )
 from src.utils.misc import (
-    add_general_args,
-    add_training_args,
     delete_and_recreate_path,
-    DEFAULTS,
 )
+
+DEFAULTS = {
+    "canvas_size": (224, 224),
+    "face_folder": "assets/celebA_sample/normal",
+    "output_folder": "data/gestalt/thatcher_illusion",
+    "regenerate": True,
+}
 
 
 def generate_all(
-    face_folder,
-    output_folder=DEFAULTS["output_foder"],
+    face_folder=DEFAULTS["face_folder"],
+    output_folder=DEFAULTS["output_folder"],
     canvas_size=DEFAULTS["canvas_size"],
     regenerate=DEFAULTS["regenerate"],
 ):
-    face_folder = (
-        pathlib.Path("assets") / "celebA_sample" / "normal"
-        if face_folder is None
-        else face_folder
-    )
-    output_folder = (
-        pathlib.Path("data") / "gestalt" / "thatcher_illusion"
-        if output_folder is None
-        else pathlib.Path(output_folder)
-    )
+    face_folder = pathlib.Path(face_folder)
+    output_folder = pathlib.Path(output_folder)
 
     if output_folder.exists() and not regenerate:
         print(
             sty.fg.yellow
-            + f"Dataset already exists and regenerate if false. Finished"
+            + f"Dataset already exists and `regenerate` flag if false. Finished"
             + sty.rs.fg
         )
-        return output_folder
+        return str(output_folder)
 
     delete_and_recreate_path(output_folder)
     [
@@ -55,7 +52,7 @@ def generate_all(
     with open(output_folder / "annotation.csv", "w", newline="") as annfile:
         writer = csv.writer(annfile)
         writer.writerow(["Path", "Transformation", "FaceId"])
-        for idx, f in enumerate(face_folder.glob("*")):
+        for idx, f in tqdm(enumerate(face_folder.glob("*"))):
             image_facial_landmarks = get_image_facial_landmarks(f)
             if (
                 not image_facial_landmarks
@@ -88,6 +85,7 @@ def generate_all(
                 Image.open(f).rotate(180).transpose(Image.FLIP_LEFT_RIGHT)
             ).save(output_folder / "inverted" / f"{idx}.png")
             writer.writerow([pathlib.Path("inverted") / f"{idx}.png", "inverted", idx])
+    return str(output_folder)
 
 
 if __name__ == "__main__":
@@ -98,20 +96,20 @@ if __name__ == "__main__":
     parser.add_argument(
         "--output_folder",
         "-o",
-        default=None,
+        default=DEFAULTS["output_folder"],
         help="The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset",
     )
 
     parser.add_argument(
         "--face_folder",
         "-ff",
-        default=None,
+        default=DEFAULTS["face_folder"],
         help="The folder containing faces that need to be Thatcherized. These faces will also be resized to `canvas_size` size. ",
     )
     parser.add_argument(
         "--canvas_size",
         "-csize",
-        default="224x224",
+        default=DEFAULTS["canvas_size"],
         help="A string in the format NxM specifying the size of the canvas",
         type=lambda x: tuple([int(i) for i in x.split("x")]),
     )

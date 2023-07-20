@@ -2,13 +2,17 @@ import argparse
 import csv
 
 import sty
-
+from tqdm import tqdm
 from src.datasets_generation.gestalt.CSE_CIE_dots.utils import DrawCSE_CIEdots
 import pathlib
 
-from src.utils.misc import add_general_args, delete_and_recreate_path, DEFAULTS
+from src.utils.misc import add_general_args, delete_and_recreate_path
 
+from src.utils.misc import DEFAULTS as BASE_DEFAULTS
+
+DEFAULTS = BASE_DEFAULTS.copy()
 DEFAULTS["num_samples"] = 100
+DEFAULTS["output_folder"] = "data/gestalt/CSE_CIE_dots"
 
 
 def generate_all(
@@ -19,7 +23,7 @@ def generate_all(
     num_samples=DEFAULTS["num_samples"],
     regenerate=DEFAULTS["regenerate"],
 ):
-    dr = DrawCSE_CIEdots(
+    ds = DrawCSE_CIEdots(
         background=background_color,
         canvas_size=canvas_size,
         antialiasing=antialiasing,
@@ -28,19 +32,15 @@ def generate_all(
 
     all_types = ["single", "proximity", "orientation", "linearity"]
 
-    output_folder = (
-        pathlib.Path("data") / "gestalt" / "CSE_CIE_dots"
-        if output_folder is None
-        else pathlib.Path(output_folder)
-    )
+    output_folder = pathlib.Path(output_folder)
 
     if output_folder.exists() and not regenerate:
         print(
             sty.fg.yellow
-            + f"Dataset already exists and regenerate if false. Finished"
+            + f"Dataset already exists and `regenerate` flag if false. Finished"
             + sty.rs.fg
         )
-        return output_folder
+        return str(output_folder)
 
     delete_and_recreate_path(output_folder)
 
@@ -51,19 +51,22 @@ def generate_all(
 
     with open(output_folder / "annotation.csv", "w", newline="") as annfile:
         writer = csv.writer(annfile)
-        writer.writerow(["Path", "Type", "PairA/B", "IterNum"])
-        for i in range(num_samples):
-            all = dr.get_all_sets()[0]
-            for t in all_types:
+        writer.writerow(["Path", "Type", "Background", "PairA/B", "IterNum"])
+        for i in tqdm(range(num_samples)):
+            all = ds.get_all_sets()[0]
+            for t in tqdm(all_types, leave=False):
                 for ip, pair in enumerate(["a", "b"]):
                     path = pathlib.Path(t) / pair / f"{i}.png"
                     all[t][ip].save(output_folder / path)
-                    writer.writerow([path, t, pair, i])
+                    writer.writerow([path, t, pair, ds.background, i])
+    return str(output_folder)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     add_general_args(parser)
+    parser.set_defaults(output_folder=DEFAULTS["output_folder"])
+
     parser.add_argument(
         "--num_samples",
         "-ns",

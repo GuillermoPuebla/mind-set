@@ -1,8 +1,5 @@
 import argparse
 import csv
-import glob
-import os
-import shutil
 import math
 from pathlib import Path
 
@@ -10,15 +7,18 @@ import numpy as np
 import sty
 from PIL import Image, ImageDraw
 import random
+from tqdm import tqdm
 
 from src.utils.drawing_utils import DrawStimuli
 from src.utils.misc import (
     apply_antialiasing,
-    add_training_args,
     add_general_args,
     delete_and_recreate_path,
-    DEFAULTS,
 )
+
+from src.utils.misc import DEFAULTS as BASE_DEFAULTS
+
+DEFAULTS = BASE_DEFAULTS.copy()
 
 
 def compute_x(y, line_start, line_end):
@@ -186,30 +186,37 @@ class DrawPonzo(DrawStimuli):
         return apply_antialiasing(img) if self.antialiasing else img, label, norm_label
 
 
+DEFAULTS.update(
+    {
+        "num_scrambled_samples": 100,
+        "num_illusory_samples": 100,
+        "num_rail_lines": 5,
+        "train_with_rnd_col_lines": False,
+        "output_folder": "data/high_level_vision/size_constancy_ponzo",
+    }
+)
+
+
 def generate_all(
-    num_scrambled_samples,
-    num_illusory_samples,
-    num_rail_lines,
-    train_with_rnd_col_lines,
+    num_scrambled_samples=DEFAULTS["num_scrambled_samples"],
+    num_illusory_samples=DEFAULTS["num_illusory_samples"],
+    num_rail_lines=DEFAULTS["num_rail_lines"],
+    train_with_rnd_col_lines=DEFAULTS["train_with_rnd_col_lines"],
     output_folder=DEFAULTS["output_folder"],
     canvas_size=DEFAULTS["canvas_size"],
     background_color=DEFAULTS["background_color"],
     antialiasing=DEFAULTS["antialiasing"],
     regenerate=DEFAULTS["regenerate"],
 ):
-    output_folder = (
-        Path("data") / "high_level_vision" / "size_constancy_ponzo"
-        if output_folder is None
-        else Path(output_folder)
-    )
+    output_folder = Path(output_folder)
 
     if output_folder.exists() and not regenerate:
         print(
             sty.fg.yellow
-            + f"Dataset already exists and regenerate if false. Finished"
+            + f"Dataset already exists and `regenerate` flag if false. Finished"
             + sty.rs.fg
         )
-        return output_folder
+        return str(output_folder)
 
     delete_and_recreate_path(output_folder)
 
@@ -239,7 +246,7 @@ def generate_all(
                 "IterNum",
             ]
         )
-        for i in range(num_scrambled_samples):
+        for i in tqdm(range(num_scrambled_samples)):
             img, label, norm_label = ds.generate_rnd_lines_images(
                 colored_line_always_horizontal=not train_with_rnd_col_lines,
                 antialias=antialiasing,
@@ -250,7 +257,7 @@ def generate_all(
                 [
                     path,
                     "scrambled_lines",
-                    background,
+                    ds.background,
                     label,
                     norm_label,
                     "",
@@ -258,47 +265,50 @@ def generate_all(
                     i,
                 ]
             )
-        for i in range(num_illusory_samples):
+        for i in tqdm(range(num_illusory_samples)):
             for c in ["ponzo_same_length", "ponzo_diff_length"]:
                 img, label, norm_label, upper_line_color = ds.generate_illusory_images(
                     same_length=True
                 )
-                path = Path() / f"{norm_label:.3f}_{upper_line_color}_{i}.png"
+                path = Path(c) / f"{norm_label:.3f}_{upper_line_color}_{i}.png"
                 img.save(output_folder / path)
                 writer.writerow(
                     [
                         path,
                         c,
-                        background,
+                        ds.background,
                         label,
                         norm_label,
                         upper_line_color,
                         i,
                     ]
                 )
+    return str(output_folder)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     add_general_args(parser)
+    parser.set_defaults(output_folder=DEFAULTS["output_folder"])
+
     parser.add_argument(
         "--num_scrambled_samples",
         "-nscr",
-        default=100,
+        default=DEFAULTS["num_scrambled_samples"],
         type=int,
     )
     parser.add_argument(
         "--num_illusory_samples",
         "-nill",
-        default=100,
+        default=DEFAULTS["num_illusory_samples"],
         type=int,
     )
 
     parser.add_argument(
         "--num_rail_lines",
         "-nrl",
-        default=5,
+        default=DEFAULTS["num_rail_lines"],
         help="This refers to the number of horizontal lines (excluding the red and blue lines) in the proper illusion shape_based_image_generation. During training, we generate dataset matching the total number of lines, so that this parameter will affect both test and train shape_based_image_generation. Notice that, since in the minimal illusion, two oblique lines are always present, similarly in the train shape_based_image_generation there are always two lines, to which we add a number of lines specified by this parameter",
         type=int,
     )
@@ -308,6 +318,7 @@ if __name__ == "__main__":
         "-trc",
         help="Specify whether the red and blue lines in  training dataset should be randomly placed, or should be horizontal like in the testing (illusion) condition",
         action="store_true",
+        default=False,
     )
 
     args = parser.parse_known_args()[0]

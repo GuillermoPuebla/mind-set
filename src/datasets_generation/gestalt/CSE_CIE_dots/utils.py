@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 import src.utils.misc
 from src.utils.drawing_utils import DrawStimuli
-from src.utils.misc import apply_antialiasing, add_training_args, add_general_args
+from src.utils.misc import apply_antialiasing
 
 
 class ConstrainedError(Exception):

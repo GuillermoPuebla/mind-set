@@ -8,39 +8,41 @@ import numpy as np
 import argparse
 
 import sty
+from tqdm import tqdm
 
 from src.datasets_generation.low_level_vision.ebbinghaus_illusion.utils import (
     DrawEbbinghaus,
 )
 from src.utils.misc import (
     add_general_args,
-    add_training_args,
     delete_and_recreate_path,
-    DEFAULTS,
 )
+
+from src.utils.misc import DEFAULTS as BASE_DEFAULTS
+
+DEFAULTS = BASE_DEFAULTS.copy()
+
+DEFAULTS["num_samples"] = 100
+DEFAULTS["output_folder"] = "data/low_level_vision/ebbinghaus_illusion"
 
 
 def generate_all(
-    num_samples,
+    num_samples=DEFAULTS["num_samples"],
     output_folder=DEFAULTS["output_folder"],
     canvas_size=DEFAULTS["canvas_size"],
     background_color=DEFAULTS["background_color"],
     antialiasing=DEFAULTS["antialiasing"],
     regenerate=DEFAULTS["regenerate"],
 ):
-    output_folder = (
-        pathlib.Path("data") / "low_level_vision" / "ebbinghaus_illusion"
-        if output_folder is None
-        else pathlib.Path(output_folder)
-    )
+    output_folder = pathlib.Path(output_folder)
 
     if output_folder.exists() and not regenerate:
         print(
             sty.fg.yellow
-            + f"Dataset already exists and regenerate if false. Finished"
+            + f"Dataset already exists and `regenerate` flag if false. Finished"
             + sty.rs.fg
         )
-        return output_folder
+        return str(output_folder)
 
     delete_and_recreate_path(output_folder)
 
@@ -65,7 +67,7 @@ def generate_all(
                 "Shift",
             ]
         )
-        for i in range(num_samples):
+        for i in tqdm(range(num_samples)):
             r_c = np.random.uniform(0.05, 0.2)
             img = ds.create_random_ebbinghaus(
                 r_c=r_c,
@@ -75,7 +77,7 @@ def generate_all(
             )
             path = pathlib.Path("scrambled_circles") / f"{r_c:.5f}_{i}.png"
             img.save(output_folder / path)
-            writer.writerow([path, "scrambled_circles", r_c, "", 5, background, ""])
+            writer.writerow([path, "scrambled_circles", r_c, "", 5, ds.background, ""])
 
             number_flankers = 5
             r_c = np.random.uniform(0.08, 0.1)
@@ -92,7 +94,7 @@ def generate_all(
             path = pathlib.Path("big_flankers") / f"{r_c:.5f}_{i}.png"
             img.save(output_folder / path)
             writer.writerow(
-                [path, "big_flankers", r_c, r2, number_flankers, background, shift]
+                [path, "big_flankers", r_c, r2, number_flankers, ds.background, shift]
             )
 
             number_flankers = 8
@@ -110,18 +112,21 @@ def generate_all(
             path = pathlib.Path("small_flankers") / f"{r_c:.5f}_{i}.png"
             img.save(output_folder / path)
             writer.writerow(
-                [path, "small_flankers", r_c, r2, number_flankers, background, shift]
+                [path, "small_flankers", r_c, r2, number_flankers, ds.background, shift]
             )
+    return str(output_folder)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     add_general_args(parser)
+    parser.set_defaults(output_folder=DEFAULTS["output_folder"])
+
     parser.add_argument(
         "--num_samples",
         "-ns",
         type=int,
-        default=1000,
+        default=DEFAULTS["num_samples"],
         help="Each `sample` corresponds to an entire set of pair of shape_based_image_generation, for each condition.",
     )
     args = parser.parse_known_args()[0]

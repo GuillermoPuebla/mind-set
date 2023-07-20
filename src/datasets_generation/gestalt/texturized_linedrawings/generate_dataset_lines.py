@@ -1,14 +1,11 @@
+from tqdm import tqdm
 import argparse
 import csv
-import glob
 import os
 import random
-import shutil
-
-import cv2
 import numpy as np
 from pathlib import Path
-
+import cv2
 import sty
 from PIL import Image, ImageDraw
 import math
@@ -24,11 +21,13 @@ from src.utils.drawing_utils import (
 )
 from src.utils.misc import (
     add_general_args,
-    add_training_args,
     apply_antialiasing,
     delete_and_recreate_path,
-    DEFAULTS,
 )
+
+from src.utils.misc import DEFAULTS as BASE_DEFAULTS
+
+DEFAULTS = BASE_DEFAULTS.copy()
 
 
 class DrawPatternedCanvas(DrawStimuli):
@@ -76,7 +75,10 @@ class DrawPatternedCanvas(DrawStimuli):
 
     def draw_pattern(self, img_path, slope_rad, line_length):
         expand_factor = 1.5
-        mask = get_mask_from_linedrawing(img_path)
+        img = cv2.imread(str(img_path), cv2.IMREAD_GRAYSCALE)
+        mask = get_mask_from_linedrawing(
+            resize_image_keep_aspect_ratio(img, self.obj_longest_side)
+        )
 
         canvas = self.add_line_pattern(
             self.create_canvas(
@@ -92,9 +94,7 @@ class DrawPatternedCanvas(DrawStimuli):
             else (slope_rad - math.pi / 2)
         )
         canvas_foreg_text = self.add_line_pattern(
-            resize_image_keep_aspect_ratio(
-                np.array(self.create_canvas()), self.obj_longest_side
-            ),
+            self.create_canvas(size=mask.size),
             line_length,
             perpendicular_radian,
             self.density,
@@ -123,11 +123,24 @@ class DrawPatternedCanvas(DrawStimuli):
         return apply_antialiasing(img) if self.antialiasing else img
 
 
+DEFAULTS.update(
+    {
+        "linedrawing_input_folder": "assets/baker_2018/outline_images_fix/",
+        "num_samples": 50,
+        "object_longest_side": 100,
+        "density": 1.8,
+        "antialiasing": False,
+    }
+)
+
+DEFAULTS["output_folder"] = "data/gestalt/texturized_linedrawings_lines"
+
+
 def generate_all(
-    linedrawing_input_folder,
-    num_samples,
-    obj_longest_side,
-    density,
+    linedrawing_input_folder=DEFAULTS["linedrawing_input_folder"],
+    num_samples=DEFAULTS["num_samples"],
+    object_longest_side=DEFAULTS["object_longest_side"],
+    density=DEFAULTS["density"],
     output_folder=DEFAULTS["output_folder"],
     canvas_size=DEFAULTS["canvas_size"],
     background_color=DEFAULTS["background_color"],
@@ -135,17 +148,8 @@ def generate_all(
     regenerate=DEFAULTS["regenerate"],
 ):
     transf_code = f"t[-0.1,0.1]"
-    linedrawing_input_folder = (
-        Path("assets") / "baker_2018" / "outline_images_fix"
-        if linedrawing_input_folder is None
-        else linedrawing_input_folder
-    )
-
-    output_folder = (
-        Path("data") / "gestalt" / "texturized_linedrawings_lines"
-        if output_folder is None
-        else Path(output_folder)
-    )
+    linedrawing_input_folder = Path(linedrawing_input_folder)
+    output_folder = Path(output_folder)
 
     all_categories = [
         os.path.splitext(os.path.basename(i))[0]
@@ -155,10 +159,10 @@ def generate_all(
     if output_folder.exists() and not regenerate:
         print(
             sty.fg.yellow
-            + f"Dataset already exists and regenerate if false. Finished"
+            + f"Dataset already exists and `regenerate` flag if false. Finished"
             + sty.rs.fg
         )
-        return output_folder
+        return str(output_folder)
 
     delete_and_recreate_path(output_folder)
 
@@ -167,7 +171,7 @@ def generate_all(
         background=background_color,
         canvas_size=canvas_size,
         antialiasing=antialiasing,
-        obj_longest_side=obj_longest_side,
+        obj_longest_side=object_longest_side,
         density=density,
         width=1,
         transform_code=transf_code,  # np.max((1, np.round(canvas_size[0] * 0.00446).astype(int))),
@@ -178,10 +182,10 @@ def generate_all(
         writer.writerow(
             ["Path", "Class", "Background", "SlopeLine", "LineLength", "IterNum"]
         )
-        for img_path in linedrawing_input_folder.glob("*"):
+        for img_path in tqdm(linedrawing_input_folder.glob("*")):
             print(img_path)
             class_name = img_path.stem
-            for n in range(num_samples):
+            for n in tqdm(range(num_samples), leave=False):
                 slope_line = np.deg2rad(random.uniform(*random.choice([(-60, 60)])))
                 line_length = random.randint(4, 8)
                 img = ds.draw_pattern(
@@ -190,64 +194,47 @@ def generate_all(
                     line_length,
                 )
                 # We don't perform scaling or rotation because it creates many artifacts that make the task too difficult even for humans.
-                path = class_name / f"{n}.png"
+                path = Path(class_name) / f"{n}.png"
                 img.save(output_folder / path)
                 writer.writerow(
-                    [path, class_name, background, slope_line, line_length, n]
+                    [path, class_name, ds.background, slope_line, line_length, n]
                 )
+    return str(output_folder)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     add_general_args(parser)
-    parser.set_defaults(antialiasing=False)
+    parser.set_defaults(antialiasing=DEFAULTS["antialiasing"])
+    parser.set_defaults(output_folder=DEFAULTS["output_folder"])
+
     parser.add_argument(
         "--num_samples",
         "-ns",
         type=int,
-        default=100,
+        default=DEFAULTS["num_samples"],
     )
     parser.add_argument(
         "--density",
         "-d",
-        default=1.8,
+        default=DEFAULTS["density"],
         help="The desity of the pattern. The horizontal and vertical spacing are equal to line_length/density",
     )
 
     parser.add_argument(
         "--object_longest_side",
         "-objlside",
-        default=100,
+        default=DEFAULTS["object_longest_side"],
         type=int,
         help="Specify the value to which the longest side of the line drawings will be resized (keeping the aspect ratio),  before pasting the image into a canvas",
     )
     parser.add_argument(
-        "--folder_linedrawings",
+        "--linedrawing_input_folder",
         "-fld",
         dest="linedrawing_input_folder",
         help="A folder containing linedrawings. We assume these to be black strokes-on-white canvas simple contour drawings.",
-        default="assets/baker_2018/outline_images_fix/",
+        default=DEFAULTS["linedrawing_input_folder"],
     )
 
     args = parser.parse_known_args()[0]
     generate_all(**args.__dict__)
-
-
-####
-
-from PIL import Image, ImageDraw, ImageFont
-from PIL import Image, ImageDraw, ImageFont
-import numpy as np
-
-from PIL import Image, ImageDraw, ImageFont
-
-
-import cv2
-import numpy as np
-
-
-# Call the functions to create and rotate a canvas
-# create_canvas(500, 500, "A", 20, 45)
-
-
-##

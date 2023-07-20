@@ -16,6 +16,7 @@ from PIL.ImageOps import grayscale, invert
 import numpy as np
 from torchvision import transforms
 from torchvision.transforms import InterpolationMode
+from tqdm import tqdm
 
 from src.utils.compute_distance.misc import (
     paste_at_center,
@@ -27,11 +28,13 @@ from src.utils.drawing_utils import (
 )
 from src.utils.misc import (
     add_general_args,
-    add_training_args,
     delete_and_recreate_path,
     apply_antialiasing,
-    DEFAULTS,
 )
+
+from src.utils.misc import DEFAULTS as BASE_DEFAULTS
+
+DEFAULTS = BASE_DEFAULTS.copy()
 
 
 class DrawGriddedImages(DrawStimuli):
@@ -89,37 +92,41 @@ class DrawGriddedImages(DrawStimuli):
         return apply_antialiasing(img) if self.antialiasing else img
 
 
+DEFAULTS.update(
+    {
+        "linedrawing_input_folder": "assets/baker_2018/outline_images_fix",
+        "object_longest_side": 100,
+        "grid_degree": 45,
+        "grid_size": 8,
+        "grid_thickness": 4,
+        "output_folder": "data/high_level_vision/gridded_images",
+    }
+)
+
+
 def generate_all(
-    linedrawing_input_folder,
-    object_longest_side,
-    grid_degree,
-    grid_size,
-    grid_thickness,
+    linedrawing_input_folder=DEFAULTS["linedrawing_input_folder"],
+    object_longest_side=DEFAULTS["object_longest_side"],
+    grid_degree=DEFAULTS["grid_degree"],
+    grid_size=DEFAULTS["grid_size"],
+    grid_thickness=DEFAULTS["grid_thickness"],
     output_folder=DEFAULTS["output_folder"],
     canvas_size=DEFAULTS["canvas_size"],
     background_color=DEFAULTS["background_color"],
     antialiasing=DEFAULTS["antialiasing"],
     regenerate=DEFAULTS["regenerate"],
 ):
-    linedrawing_input_folder = (
-        pathlib.Path("assets") / "baker_2018" / "outline_images_fix"
-        if linedrawing_input_folder is None
-        else linedrawing_input_folder
-    )
+    linedrawing_input_folder = pathlib.Path(linedrawing_input_folder)
 
-    output_folder = (
-        pathlib.Path("data") / "high_level_vision" / "gridded_images"
-        if output_folder is None
-        else pathlib.Path(output_folder)
-    )
+    output_folder = pathlib.Path(output_folder)
 
     if output_folder.exists() and not regenerate:
         print(
             sty.fg.yellow
-            + f"Dataset already exists and regenerate if false. Finished"
+            + f"Dataset already exists and `regenerate` flag if false. Finished"
             + sty.rs.fg
         )
-        return output_folder
+        return str(output_folder)
 
     delete_and_recreate_path(output_folder)
 
@@ -154,7 +161,7 @@ def generate_all(
             ]
         )
         grid_shift = 0
-        for complement in [True, False]:
+        for complement in tqdm([True, False]):
             for img_path in linedrawing_input_folder.glob("*"):
                 class_name = img_path.stem
 
@@ -181,35 +188,39 @@ def generate_all(
                         path,
                         class_name,
                         complement,
-                        background,
+                        ds.background,
                         grid_shift,
                         grid_thickness,
                         grid_degree,
                     ]
                 )
+    return str(output_folder)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     add_general_args(parser)
+    parser.set_defaults(output_folder=DEFAULTS["output_folder"])
+
     parser.add_argument(
         "--object_longest_side",
         "-objlside",
-        default=100,
+        default=DEFAULTS["object_longest_side"],
         type=int,
         help="Specify the value to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas",
     )
     parser.add_argument(
-        "--folder_linedrawings",
+        "--linedrawing_input_folder",
         "-fld",
         dest="linedrawing_input_folder",
         help="A folder containing linedrawings. We assume these to be black strokes-on-white canvas simple contour drawings.",
+        default=DEFAULTS["linedrawing_input_folder"],
     )
     parser.add_argument(
         "--grid_degree",
         "-gd",
         type=int,
-        default=45,
+        default=DEFAULTS["grid_degree"],
         help="The rotation of the grid, in angles.",
     )
     parser.add_argument(
@@ -217,12 +228,12 @@ if __name__ == "__main__":
         "-gs",
         help="The size of each cell of the grid (in pixels)",
         type=int,
-        default=8,
+        default=DEFAULTS["grid_size"],
     )
     parser.add_argument(
         "--grid_thickness",
         "-gt",
-        default=4,
+        default=DEFAULTS["grid_thickness"],
         type=int,
         help="The thickness of the grid (in pixels)",
     )

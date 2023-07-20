@@ -1,28 +1,35 @@
+# file types
 *.pdf
 *.pt
 *.bat
 *.svg 
-**/__pycache__/**
-**/.neptune/**
-**/.pytest_cache/**
+*.pyc
+.DS_Store
+*.pyc
 
-tmp/
+# specific directories
+**/__pycache__/
+**/.neptune/
+**/.pytest_cache/
 **/.ipynb_checkpoints/
-.idea
-.neptune
-models/*
+.idea/
+*.DS_Store
 
+# directories with exceptions
+models/*
 !models/.gitkeep
-.bashrc*
 
 results/*
 !results/.gitkeep
 
-data
+data/*
 !data/.gitkeep
-
-.DS_Store
 
 private/*
 temp/*
+
+# specific files
+.bashrc*
+
+# macOS specific
 Icon*

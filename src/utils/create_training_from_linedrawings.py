@@ -75,7 +75,7 @@ def generate_all(
     ]
 
     ds = DrawTrainingImages(
-        background=background_color,
+        background=background,
         canvas_size=canvas_size,
         antialiasing=antialiasing,
         obj_longest_side=object_longest_side,
@@ -83,7 +83,7 @@ def generate_all(
     )
     with open(output_folder / "annotation.csv", "w", newline="") as annfile:
         writer = csv.writer(annfile)
-        writer.writerow(["Path", "Label"])
+        writer.writerow(["Path", "Label", "Background"])
 
         for f in linedrawing_input_folder.glob("*"):
             class_name = f.stem
@@ -92,7 +92,7 @@ def generate_all(
                 path = os.path.join(class_name, f"{n}.png")
                 img = ds.create_training_image(f)
                 img.save(output_folder / path)
-                writer.writerow([path, n])
+                writer.writerow([path, n, ds.background])
 
 
 if __name__ == "__main__":
@@ -113,7 +113,7 @@ if __name__ == "__main__":
         type=int,
     )
     parser.add_argument(
-        "--folder_linedrawings",
+        "--linedrawing_input_folder",
         "-fld",
         dest="linedrawing_input_folder",
         help="A folder containing linedrawings. We assume these to be black strokes-on-white canvas simple contour drawings.",

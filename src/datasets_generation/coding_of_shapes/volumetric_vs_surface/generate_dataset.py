@@ -36,10 +36,13 @@ from src.utils.misc import (
     apply_antialiasing,
     add_general_args,
     delete_and_recreate_path,
-    DEFAULTS,
 )
 
+from src.utils.misc import DEFAULTS as BASE_DEFAULTS
+
+DEFAULTS = BASE_DEFAULTS.copy()
 DEFAULTS["object_longest_side"] = 100
+DEFAULTS["output_folder"] = "data/coding_of_shapes/volumetric_vs_surface"
 
 
 def generate_all(
@@ -63,16 +66,12 @@ def generate_all(
         "small_vol",
         "small_surf",
     ]
-    output_folder = (
-        pathlib.Path("data") / "coding_of_shapes" / "volumetric_vs_surface"
-        if output_folder is None
-        else pathlib.Path(output_folder)
-    )
+    output_folder = pathlib.Path(output_folder)
 
     if output_folder.exists() and not regenerate:
         print(
             sty.fg.yellow
-            + f"Dataset already exists and regenerate if false. Finished"
+            + f"Dataset already exists and `regenerate` flag if false. Finished"
             + sty.rs.fg
         )
         return str(output_folder)
@@ -106,7 +105,6 @@ def generate_all(
         writer = csv.writer(annfile)
         writer.writerow(["Path", "Type", "Background", "ObjectNum"])
         for label in tqdm(np.unique(labels)):
-            # print(cc)
             if label == 0:  # Skip the background
                 continue
 
@@ -142,7 +140,7 @@ def generate_all(
             output_path = pathlib.Path(output_folder) / path
 
             (apply_antialiasing(pil_img) if antialiasing else pil_img).save(output_path)
-            writer.writerow([path, categories[type], background_color, main_obj_type])
+            writer.writerow([path, categories[type], ds.background, main_obj_type])
 
             cc += 1
     return str(output_folder)
@@ -154,6 +152,7 @@ if __name__ == "__main__":
     )
 
     add_general_args(parser)
+    parser.set_defaults(output_folder=DEFAULTS["output_folder"])
 
     parser.add_argument(
         "--object_longest_side",

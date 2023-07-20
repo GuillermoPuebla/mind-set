@@ -4,16 +4,20 @@ import math
 import pathlib
 
 import sty
+from tqdm import tqdm
 
 from src.utils.drawing_utils import DrawStimuli
-from src.utils.misc import add_general_args, DEFAULTS, delete_and_recreate_path
+from src.utils.misc import add_general_args, delete_and_recreate_path
 from src.utils.shape_based_image_generation.modules.parent import ParentStimuli
 from src.utils.shape_based_image_generation.modules.shapes import Shapes
-from src.utils.shape_based_image_generation.utils.parallel import parallel_args
 import uuid
 import numpy as np
 from pathlib import Path
 import random
+
+from src.utils.misc import DEFAULTS as BASE_DEFAULTS
+
+DEFAULTS = BASE_DEFAULTS.copy()
 
 
 def get_random_params():
@@ -121,7 +125,12 @@ class DrawJastrow(DrawStimuli):
 
 
 DEFAULTS.update(
-    {"num_illusory_samples": 100, "num_random_samples": 100, "num_aligned_samples": 100}
+    {
+        "num_illusory_samples": 50,
+        "num_random_samples": 50,
+        "num_aligned_samples": 50,
+        "output_folder": "data/low_level_vision/jastrow_illusion",
+    }
 )
 
 
@@ -135,11 +144,7 @@ def generate_all(
     antialiasing=DEFAULTS["antialiasing"],
     regenerate=DEFAULTS["regenerate"],
 ):
-    output_folder = (
-        pathlib.Path("data") / "low_level_vision" / "jastrow_illusion"
-        if output_folder is None
-        else pathlib.Path(output_folder)
-    )
+    output_folder = pathlib.Path(output_folder)
 
     ## Aligned means the shapes are one on top of the other but different sizes
     # Illusory is Aligned with the same size
@@ -149,10 +154,10 @@ def generate_all(
     if output_folder.exists() and not regenerate:
         print(
             sty.fg.yellow
-            + f"Dataset already exists and regenerate if false. Finished"
+            + f"Dataset already exists and `regenerate` flag if false. Finished"
             + sty.rs.fg
         )
-        return output_folder
+        return str(output_folder)
 
     delete_and_recreate_path(output_folder)
     on_top_cols = ["red", "blue"]
@@ -186,14 +191,13 @@ def generate_all(
                 "SampleNum",
             ]
         )
-        for type in types:
+        for type in tqdm(types):
             num_samples = {
                 "illusory": num_illusory_samples,
                 "aligned": num_aligned_samples,
                 "random": num_random_samples,
             }[type]
-            print(f"type: {type}")
-            for idx in range(num_samples):
+            for idx in tqdm(range(num_samples), leave=False):
                 for top_color in on_top_cols:
                     arc_curvature, width, size_red, size_blue = get_random_params()
                     size_blue = size_red if type == "illusory" else size_blue
@@ -224,6 +228,7 @@ def generate_all(
                             idx,
                         ]
                     )
+    return str(output_folder)
 
 
 if __name__ == "__main__":
@@ -232,6 +237,8 @@ if __name__ == "__main__":
     )
 
     add_general_args(parser)
+    parser.set_defaults(output_folder=DEFAULTS["output_folder"])
+
 
     parser.add_argument(
         "--num_illusory_samples",

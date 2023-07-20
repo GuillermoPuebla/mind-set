@@ -12,32 +12,32 @@ import math
 import random
 
 from PIL.ImageDraw import Draw
+from tqdm import tqdm
 
 from src.utils.drawing_utils import DrawStimuli
 from src.utils.misc import (
     add_general_args,
     apply_antialiasing,
     delete_and_recreate_path,
-    DEFAULTS,
 )
+
+from src.utils.misc import DEFAULTS as BASE_DEFAULTS
+
+DEFAULTS = BASE_DEFAULTS.copy()
 
 
 def vector_length(s, theta):
-    # convert theta from degrees to radians
     theta_rad = math.radians(theta)
 
-    # define the quadrant ranges where we'll use cosine or sine
     use_cosine_ranges = [(0, 45), (135, 180), (180, 225), (315, 360)]
 
     for range_start, range_end in use_cosine_ranges:
         if range_start <= theta < range_end:
             return 0.5 * s / abs(math.cos(theta_rad))
 
-    # if we didn't return inside the loop, theta is in a range where we should use sine
     return 0.5 * s / abs(math.sin(theta_rad))
 
 
-# L = maximum_dist
 class DrawCompletion(DrawStimuli):
     def __init__(self, circle_color, square_color, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -132,10 +132,20 @@ class DrawCompletion(DrawStimuli):
         return apply_antialiasing(img) if self.antialiasing else img
 
 
+DEFAULTS.update(
+    {
+        "num_samples": 100,
+        "circle_color": (255, 255, 255),
+        "square_color": (0, 0, 0),
+        "output_folder": "data/low_level_vision/contour_completion",
+    }
+)
+
+
 def generate_all(
-    num_samples,
-    circle_color,
-    square_color,
+    num_samples=DEFAULTS["num_samples"],
+    circle_color=DEFAULTS["circle_color"],
+    square_color=DEFAULTS["square_color"],
     output_folder=DEFAULTS["output_folder"],
     canvas_size=DEFAULTS["canvas_size"],
     background_color=DEFAULTS["background_color"],
@@ -150,19 +160,15 @@ def generate_all(
         square_color=square_color,
     )
 
-    output_folder = (
-        Path("data") / "low_level_vision" / "contour_completion"
-        if output_folder is None
-        else Path(output_folder)
-    )
+    output_folder = Path(output_folder)
 
     if output_folder.exists() and not regenerate:
         print(
             sty.fg.yellow
-            + f"Dataset already exists and regenerate if false. Finished"
+            + f"Dataset already exists and `regenerate` flag if false. Finished"
             + sty.rs.fg
         )
-        return output_folder
+        return str(output_folder)
 
     delete_and_recreate_path(output_folder)
 
@@ -183,6 +189,8 @@ def generate_all(
         np.cos(theta) * ll + center_circle[0],
         np.sin(theta) * ll + center_circle[1],
     )
+    pbar = tqdm(total=num_samples, dynamic_ncols=True)
+
     completed_samples = 0
     with open(output_folder / "annotation.csv", "w", newline="") as annfile:
         writer = csv.writer(annfile)
@@ -218,7 +226,7 @@ def generate_all(
             center_square = get_center_square(theta, ll)
             if not check_square_fully_in_canvas(center_square):
                 continue
-
+            pbar.update(1)
             for top_shape in top_shapes:
                 img = ds.draw(
                     center_circle,
@@ -234,7 +242,7 @@ def generate_all(
                 [
                     path,
                     "no_occlusion",
-                    background_color,
+                    ds.background,
                     top_shape,
                     center_circle,
                     center_square,
@@ -268,7 +276,7 @@ def generate_all(
                 [
                     path,
                     "notched" if notched else "occlusion",
-                    background_color,
+                    ds.background,
                     top_shape,
                     center_circle,
                     center_square,
@@ -279,30 +287,33 @@ def generate_all(
             )
 
             completed_samples += 1
+    return str(output_folder)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     add_general_args(parser)
     parser.set_defaults(background="100_100_100")
+    parser.set_defaults(output_folder=DEFAULTS["output_folder"])
+
     parser.add_argument(
         "--num_samples",
         "-ns",
         type=int,
-        default=1000,
+        default=DEFAULTS["num_samples"],
         help="Each `sample` corresponds to an entire set of pair of shape_based_image_generation, for each condition.",
     )
     parser.add_argument(
         "--circle_color",
         "-ccol",
-        default="255_255_255",
+        default=DEFAULTS["circle_color"],
         help="The color of the circle object.",
         type=lambda x: (tuple([int(i) for i in x.split("_")]) if "_" in x else x),
     )
     parser.add_argument(
         "--square_color",
         "-scol",
-        default="0_0_0",
+        default=DEFAULTS["square_color"],
         help="The color of the square object.",
         type=lambda x: (tuple([int(i) for i in x.split("_")]) if "_" in x else x),
     )

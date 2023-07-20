@@ -18,10 +18,15 @@ from torch import rand
 
 from PIL import Image, ImageDraw
 import math
-from src.utils.compute_distance.misc import get_new_affine_values, my_affine
+
+from tqdm import tqdm
 from src.utils.drawing_utils import DrawStimuli
 
-from src.utils.misc import DEFAULTS, add_general_args, delete_and_recreate_path
+from src.utils.misc import add_general_args, delete_and_recreate_path
+
+from src.utils.misc import DEFAULTS as BASE_DEFAULTS
+
+DEFAULTS = BASE_DEFAULTS.copy()
 
 
 def draw_line(length, width_range, lum_range, len_var, len_unit, size_imx, size_imy):
@@ -70,6 +75,7 @@ DEFAULTS["num_samples_per_length"] = 100
 DEFAULTS["max_line_length"] = 50
 DEFAULTS["min_line_length"] = 5
 DEFAULTS["interval_line_length"] = 1
+DEFAULTS["output_folder"] = "data/low_level_vision/webers_law_length"
 
 
 def generate_all(
@@ -84,16 +90,12 @@ def generate_all(
     regenerate=DEFAULTS["regenerate"],
 ) -> str:
     lengths_conditions = range(min_line_length, max_line_length, interval_line_length)
-    output_folder = (
-        pathlib.Path("data") / "low_level_vision" / "Webers_Law_length"
-        if output_folder is None
-        else pathlib.Path(output_folder)
-    )
+    output_folder = pathlib.Path(output_folder)
 
     if output_folder.exists() and not regenerate:
         print(
             sty.fg.yellow
-            + f"Dataset already exists and regenerate if false. Finished"
+            + f"Dataset already exists and `regenerate` flag if false. Finished"
             + sty.rs.fg
         )
         return str(output_folder)
@@ -115,7 +117,7 @@ def generate_all(
             antialiasing=antialiasing,
         )
 
-        for l in lengths_conditions:
+        for l in tqdm(lengths_conditions):
             for n in range(num_samples_per_length):
                 # with a canvas_size_y of 224, this is from 1 to 5 pixels width.
                 width = int(np.random.uniform(0.0044, 0.02232) * ds.canvas_size[1])
@@ -134,6 +136,8 @@ def generate_all(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     add_general_args(parser)
+    parser.set_defaults(output_folder=DEFAULTS["output_folder"])
+
     parser.add_argument(
         "--num_samples_per_length",
         "-nsl",

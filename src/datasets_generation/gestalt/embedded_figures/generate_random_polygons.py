@@ -30,12 +30,10 @@ def generate_random_polygon(n_vertices, canvas_size=100):
 
     vertices.append(vertices[0])
 
-    # Return the vertices
     return vertices
 
 
 def change_range(x, initial_range, finale_range):
-    # Calculate the scale factor between the initial range and the finale range
     scale_factor = (finale_range[1] - finale_range[0]) / (
         initial_range[1] - initial_range[0]
     )

@@ -1,7 +1,7 @@
 """
 Base on the Code by Doerig, A., Choung, O. H.:
 https://github.com/adriendoerig/Doerig-Bornet-Choung-Herzog-2019/blob/master/Code/Alexnet/batch_maker.py
-Used with written permission.
+Used with permission.
 Main changes to the main code:
     - drawPolygon uses the draw.polygon_perimeter which solves some artifacts encountered with the previous method
     - drawCircle now uses the skimage.circle_perimeter which solves some artifacts encountered with the previous method
@@ -17,6 +17,8 @@ import glob
 import os
 import PIL.Image as Image
 import random
+from tqdm import tqdm
+
 import numpy as np
 import sty
 from skimage import draw
@@ -28,10 +30,12 @@ from src.utils.drawing_utils import DrawStimuli
 from src.utils.misc import (
     apply_antialiasing,
     add_general_args,
-    add_training_args,
     delete_and_recreate_path,
-    DEFAULTS,
 )
+
+from src.utils.misc import DEFAULTS as BASE_DEFAULTS
+
+DEFAULTS = BASE_DEFAULTS.copy()
 
 
 def all_test_shapes():
@@ -560,30 +564,35 @@ class DrawUncrowding(DrawStimuli):
 
 random_pixels = 0
 
+DEFAULTS.update(
+    {
+        "num_samples_vernier_inside": 100,
+        "num_samples_vernier_outside": 100,
+        "random_size": True,
+        "output_folder": "data/gestalt/un_crowding",
+    }
+)
+
 
 def generate_all(
-    num_vernier_inside_samples,
-    num_vernier_outside_samples,
-    random_size,
+    num_samples_vernier_inside=DEFAULTS["num_samples_vernier_inside"],
+    num_samples_vernier_outside=DEFAULTS["num_samples_vernier_outside"],
+    random_size=DEFAULTS["random_size"],
     output_folder=DEFAULTS["output_folder"],
     canvas_size=DEFAULTS["canvas_size"],
     background_color=DEFAULTS["background_color"],
     antialiasing=DEFAULTS["antialiasing"],
     regenerate=DEFAULTS["regenerate"],
 ):
-    output_folder = (
-        Path("data") / "gestalt" / "un_crowding"
-        if output_folder is None
-        else Path(output_folder)
-    )
+    output_folder = Path(output_folder)
 
     if output_folder.exists() and not regenerate:
         print(
             sty.fg.yellow
-            + f"Dataset already exists and regenerate if false. Finished"
+            + f"Dataset already exists and `regenerate` flag if false. Finished"
             + sty.rs.fg
         )
-        return output_folder
+        return str(output_folder)
 
     delete_and_recreate_path(output_folder)
     vernier_in_out = ["outside", "inside"]
@@ -616,23 +625,23 @@ def generate_all(
             ]
         )
 
-        for v_in_out in vernier_in_out:
+        for v_in_out in tqdm(vernier_in_out):
             num_requested_samples = (
-                num_vernier_outside_samples
+                num_samples_vernier_outside
                 if v_in_out == "outside"
-                else num_vernier_inside_samples
+                else num_samples_vernier_inside
             )
             samples_per_cond = num_requested_samples // len(t)
             if samples_per_cond == 0:
                 print(
-                    f"To have at least one sample per condition, the total number of sample has been increased to {len(t)}"
+                    f"In order to have at least one sample per condition, the total number of sample has been increased to {len(t)}"
                 )
                 samples_per_cond = 1
             print(
                 f"You specified {num_requested_samples} for {v_in_out} but to keep the number of sample per subcategory equal, {samples_per_cond * len(t)} samples will be generated ({len(t)} categories, {samples_per_cond} samples per category)"
             ) if samples_per_cond * len(t) != num_requested_samples else None
             for v in vernier_type:
-                for s in t:
+                for s in tqdm(t, leave=False):
                     for n in range(samples_per_cond):
                         shape_size = (
                             random.randint(
@@ -668,28 +677,31 @@ def generate_all(
                                 path,
                                 v_in_out,
                                 vernier_type,
-                                background,
+                                ds.background,
                                 shape_code,
                                 shape_size,
                                 n,
                             ]
                         )
+    return str(output_folder)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     add_general_args(parser)
+    parser.set_defaults(output_folder=DEFAULTS["output_folder"])
+
     parser.add_argument(
-        "--num_vernier_inside_samples",
-        "-ns",
-        default=100,
+        "--num_samples_vernier_inside",
+        "-nsi",
+        default=DEFAULTS["num_samples_vernier_inside"],
         help="The number of samples for each vernier type (left/right orientation) and condition. The vernier is places inside a flanker.",
         type=int,
     )
     parser.add_argument(
-        "--num_vernier_outside_samples",
-        "-ns",
-        default=100,
+        "--num_samples_vernier_outside",
+        "-nso",
+        default=DEFAULTS["num_samples_vernier_outside"],
         help="The number of samples for each vernier type (left/right orientation) and condition. The vernier is placed outside of the flankers",
         type=int,
     )
@@ -698,7 +710,7 @@ if __name__ == "__main__":
         "-rnds",
         help="Specify whether the size of the shapes will vary across samples",
         action="store_true",
-        default=True,
+        default=DEFAULTS["random_size"],
     )
 
     args = parser.parse_known_args()[0]

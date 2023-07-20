@@ -15,8 +15,12 @@ from src.utils.misc import (
     add_general_args,
     delete_and_recreate_path,
     apply_antialiasing,
-    DEFAULTS,
 )
+
+from src.utils.misc import DEFAULTS as BASE_DEFAULTS
+
+DEFAULTS = BASE_DEFAULTS.copy()
+from tqdm import tqdm
 
 
 class DrawDottedImage(DrawStimuli):
@@ -65,49 +69,39 @@ class DrawDottedImage(DrawStimuli):
 
         return apply_antialiasing(canvas) if self.antialiasing else canvas
 
-    def center_image_on_canvas(self, opencv_img, canvas_size=224):
-        canvas = np.zeros((canvas_size, canvas_size), dtype=np.uint8)
 
-        # Calculate the center position on the canvas
-        height, width = opencv_img.shape
-        y_offset = (canvas_size - height) // 2
-        x_offset = (canvas_size - width) // 2
-
-        # Paste the image onto the canvas
-        canvas[y_offset : y_offset + height, x_offset : x_offset + width] = opencv_img
-        return canvas
+DEFAULTS.update(
+    {
+        "object_longest_side": 100,
+        "linedrawing_input_folder": "assets/baker_2018/outline_images_fix/",
+        "dot_distance": 5,
+        "dot_size": 1,
+        "output_folder": "data/gestalt/dotted_linedrawings",
+    }
+)
 
 
 def generate_all(
-    object_longest_side,
-    linedrawing_input_folder,
-    dot_distance,
-    dot_size,
+    object_longest_side=DEFAULTS["object_longest_side"],
+    linedrawing_input_folder=DEFAULTS["linedrawing_input_folder"],
+    dot_distance=DEFAULTS["dot_distance"],
+    dot_size=DEFAULTS["dot_size"],
     output_folder=DEFAULTS["output_folder"],
     canvas_size=DEFAULTS["canvas_size"],
     background_color=DEFAULTS["background_color"],
     antialiasing=DEFAULTS["antialiasing"],
     regenerate=DEFAULTS["regenerate"],
 ):
-    linedrawing_input_folder = (
-        Path("assets") / "baker_2018" / "outline_images_fix"
-        if linedrawing_input_folder is None
-        else Path(linedrawing_input_folder)
-    )
-
-    output_folder = (
-        Path("data") / "gestalt" / "dotted_linedrawings"
-        if output_folder is None
-        else Path(output_folder)
-    )
+    linedrawing_input_folder = Path(linedrawing_input_folder)
+    output_folder = Path(output_folder)
 
     if output_folder.exists() and not regenerate:
         print(
             sty.fg.yellow
-            + f"Dataset already exists and regenerate if false. Finished"
+            + f"Dataset already exists and `regenerate` flag if false. Finished"
             + sty.rs.fg
         )
-        return output_folder
+        return str(output_folder)
 
     delete_and_recreate_path(output_folder)
 
@@ -127,7 +121,7 @@ def generate_all(
         writer.writerow(
             ["Path", "Class", "Background", "DotDistance", "DotSize", "IterNum"]
         )
-        for n, img_path in enumerate(linedrawing_input_folder.glob("*")):
+        for n, img_path in enumerate(tqdm(linedrawing_input_folder.glob("*"))):
             class_name = img_path.stem
             img = ds.dotted_image(
                 img_path, dot_distance=dot_distance, dot_size=dot_size
@@ -135,7 +129,10 @@ def generate_all(
 
             path = Path(class_name) / f"{n}.png"
             img.save(output_folder / path)
-            writer.writerow([path, class_name, background, dot_distance, dot_size, n])
+            writer.writerow(
+                [path, class_name, ds.background, dot_distance, dot_size, n]
+            )
+    return str(output_folder)
 
 
 if __name__ == "__main__":
@@ -144,27 +141,36 @@ if __name__ == "__main__":
     )
 
     add_general_args(parser)
+    parser.set_defaults(output_folder=DEFAULTS["output_folder"])
 
     parser.add_argument(
         "--object_longest_side",
         "-objlside",
-        default=100,
+        default=DEFAULTS["object_longest_side"],
         type=int,
-        help="Specify the value to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas",
+        help="Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas",
     )
     parser.add_argument(
-        "--folder_linedrawings",
+        "--linedrawing_input_folder",
         "-fld",
         dest="linedrawing_input_folder",
         help="A folder containing linedrawings. We assume these to be black strokes-on-white canvas simple contour drawings.",
-        default="assets/baker_2018/outline_images_fix/",
+        default=DEFAULTS["linedrawing_input_folder"],
     )
 
     parser.add_argument(
-        "--dot_distance", "-dd", default=5, help="Distance between dots", type=int
+        "--dot_distance",
+        "-dd",
+        default=DEFAULTS["dot_distance"],
+        help="Distance between dots",
+        type=int,
     )
     parser.add_argument(
-        "--dot_size", "-ds", default=1, help="Size of each dot", type=int
+        "--dot_size",
+        "-ds",
+        default=DEFAULTS["dot_size"],
+        help="Size of each dot",
+        type=int,
     )
 
     args = parser.parse_known_args()[0]

@@ -15,6 +15,7 @@ import math
 import src.utils.create_training_from_linedrawings as create_training
 from torchvision.transforms import InterpolationMode, transforms
 from PIL import Image, ImageDraw, ImageFont
+from tqdm import tqdm
 
 from src.utils.compute_distance.misc import get_new_affine_values, my_affine
 from src.utils.drawing_utils import (
@@ -24,11 +25,13 @@ from src.utils.drawing_utils import (
 )
 from src.utils.misc import (
     add_general_args,
-    add_training_args,
     delete_and_recreate_path,
     apply_antialiasing,
-    DEFAULTS,
 )
+
+from src.utils.misc import DEFAULTS as BASE_DEFAULTS
+
+DEFAULTS = BASE_DEFAULTS.copy()
 
 
 class DrawPatternedCanvas(DrawStimuli):
@@ -44,7 +47,7 @@ class DrawPatternedCanvas(DrawStimuli):
         font_size,
         spacing=0,
         rotation_angle=45,
-        font_path="arial.ttf",
+        font_path="assets/arial.ttf",
     ):
         font = ImageFont.truetype(font_path, font_size)
 
@@ -138,7 +141,6 @@ class DrawPatternedCanvas(DrawStimuli):
             if abs(rotation_angle_rad + math.pi / 2) <= math.pi / 2
             else (rotation_angle_rad - math.pi / 2)
         )
-        # perpendicular_radian = 0
         canvas_foreg_text = self.get_canvas_char_pattered(
             size=mask.size,
             tile_char=foreground_char,
@@ -146,7 +148,6 @@ class DrawPatternedCanvas(DrawStimuli):
             rotation_angle=np.rad2deg(perpendicular_radian),
             spacing=foreground_spacing,
         )
-        # canvas_foreg_text.show()
 
         canvas.paste(
             canvas_foreg_text,
@@ -178,38 +179,42 @@ def get_spacing(char):
         return 0
 
 
+DEFAULTS.update(
+    {
+        "linedrawing_input_folder": "assets/baker_2018/outline_images_fix/",
+        "num_samples": 50,
+        "object_longest_side": 100,
+        "background_char": "\\",
+        "foreground_char": ".",
+        "output_folder": "data/gestalt/texturized_linedrawings_chars",
+    }
+)
+
+
 def generate_all(
-    linedrawing_input_folder,
-    num_samples,
-    object_longest_side,
-    background_char,
-    foreground_char,
+    linedrawing_input_folder=DEFAULTS["linedrawing_input_folder"],
+    num_samples=DEFAULTS["num_samples"],
+    object_longest_side=DEFAULTS["object_longest_side"],
+    background_char=DEFAULTS["background_char"],
+    foreground_char=DEFAULTS["foreground_char"],
     output_folder=DEFAULTS["output_folder"],
     canvas_size=DEFAULTS["canvas_size"],
     background_color=DEFAULTS["background_color"],
     antialiasing=DEFAULTS["antialiasing"],
-    regenerate=DEFAULT["regenerate"],
+    regenerate=DEFAULTS["regenerate"],
 ):
     transf_code = f"t[-0.1,0.1]"
-    linedrawing_input_folder = (
-        Path("assets") / "baker_2018" / "outline_images_fix"
-        if linedrawing_input_folder is None
-        else Path(linedrawing_input_folder)
-    )
+    linedrawing_input_folder = Path(linedrawing_input_folder)
 
-    output_folder = (
-        Path("data") / "gestalt" / "texturized_linedrawings_chars"
-        if output_folder is None
-        else Path(output_folder)
-    )
+    output_folder = Path(output_folder)
 
     if output_folder.exists() and not regenerate:
         print(
             sty.fg.yellow
-            + f"Dataset already exists and regenerate if false. Finished"
+            + f"Dataset already exists and `regenerate` flag if false. Finished"
             + sty.rs.fg
         )
-        return output_folder
+        return str(output_folder)
 
     delete_and_recreate_path(output_folder)
 
@@ -241,10 +246,10 @@ def generate_all(
                 "BackgroundSpacing",
             ]
         )
-        for img_path in linedrawing_input_folder.glob("*"):
+        for img_path in tqdm(linedrawing_input_folder.glob("*")):
             print(img_path)
             class_name = img_path.stem
-            for n in range(num_samples):
+            for n in tqdm(range(num_samples), leave=False):
                 rotation_angle = random.uniform(*random.choice([(-60, 60)]))
                 font_size = random.randint(15, 20)
                 foreground_spacing = get_spacing(foreground_char)
@@ -266,7 +271,7 @@ def generate_all(
                     [
                         path,
                         class_name,
-                        background,
+                        ds.background,
                         background_char,
                         foreground_char,
                         font_size,
@@ -275,18 +280,18 @@ def generate_all(
                         background_spacing,
                     ]
                 )
+    return str(output_folder)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     add_general_args(parser)
-    # add_training_args(parser)
-    # parser.set_defaults(antialiasing=False)
+    parser.set_defaults(output_folder=DEFAULTS["output_folder"])
 
     parser.add_argument(
         "--num_samples",
         "-ns",
-        default=1000,
+        default=DEFAULTS["num_samples"],
         help="The number of augmented samples to generate for each line drawings",
         type=int,
     )
@@ -294,29 +299,29 @@ if __name__ == "__main__":
     parser.add_argument(
         "--object_longest_side",
         "-objlside",
-        default=100,
+        default=DEFAULTS["object_longest_side"],
         type=int,
         help="Specify the value to which the longest side of the line drawings will be resized (keeping the aspect ratio),  before pasting the image into a canvas",
     )
     parser.add_argument(
-        "--folder_linedrawings",
+        "--linedrawing_input_folder",
         "-fld",
         dest="linedrawing_input_folder",
         help="A folder containing linedrawings. We assume these to be black strokes-on-white canvas simple contour drawings.",
-        default="assets/baker_2018/outline_images_fix/",
+        default=DEFAULTS["linedrawing_input_folder"],
     )
 
     parser.add_argument(
         "--background_char",
         "-bgch",
-        default="\\",
+        default=DEFAULTS["background_char"],
         help="The character to be used as background",
     )
 
     parser.add_argument(
         "--foreground_char",
         "-fgch",
-        default=".",
+        default=DEFAULTS["foreground_char"],
         help="The character to be used as foreground",
     )
 
