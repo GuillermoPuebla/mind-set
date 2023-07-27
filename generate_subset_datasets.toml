@@ -1,46 +1,9 @@
-["src/datasets_generation/gestalt/dotted_linedrawings/generate_dataset.py"]
+["src/datasets_generation/low_level_vision/jastrow_illusion/generate_dataset.py"]
 canvas_size = [ 224, 224,]
 background_color = [ 0, 0, 0,]
 antialiasing = true
 regenerate = true
-object_longest_side = 100
-linedrawing_input_folder = "assets/baker_2018/outline_images_fix/"
-dot_distance = 5
-dot_size = 1
-output_folder = "data/gestalt/dotted_linedrawings"
-
-
-["src/datasets_generation/gestalt/texturized_linedrawings/generate_dataset_lines.py"]
-canvas_size = [ 224, 224,]
-background_color = [ 0, 0, 0,]
-antialiasing = false
-regenerate = true
-linedrawing_input_folder = "assets/baker_2018/outline_images_fix/"
-num_samples = 50
-object_longest_side = 100
-density = 1.8
-output_folder = "data/gestalt/texturized_linedrawings_lines"
-
-["src/datasets_generation/gestalt/texturized_linedrawings/generate_dataset_chars.py"]
-canvas_size = [ 224, 224,]
-background_color = [ 0, 0, 0,]
-antialiasing = true
-regenerate = true
-linedrawing_input_folder = "assets/baker_2018/outline_images_fix/"
-num_samples = 50
-object_longest_side = 100
-background_char = "\\"
-foreground_char = "."
-output_folder = "data/gestalt/texturized_linedrawings_chars"
-
-["src/datasets_generation/high_level_vision/gridded_images/generate_dataset.py"]
-canvas_size = [ 224, 224,]
-background_color = [ 0, 0, 0,]
-antialiasing = true
-regenerate = true
-linedrawing_input_folder = "assets/baker_2018/outline_images_fix"
-object_longest_side = 100
-grid_degree = 45
-grid_size = 8
-grid_thickness = 4
-output_folder = "data/high_level_vision/gridded_images"
+num_illusory_samples = 500
+num_random_samples = 10000
+num_aligned_samples = 500
+output_folder = "data/low_level_vision/jastrow_illusion"

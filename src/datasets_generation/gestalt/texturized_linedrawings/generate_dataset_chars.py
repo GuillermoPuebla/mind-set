@@ -126,7 +126,7 @@ class DrawPatternedCanvas(DrawStimuli):
         opencv_img = cv2.imread(str(img_path), cv2.IMREAD_GRAYSCALE)
         opencv_img = resize_image_keep_aspect_ratio(opencv_img, self.obj_longest_side)
 
-        mask = get_mask_from_linedrawing(opencv_img)
+        mask = get_mask_from_linedrawing(opencv_img, fill=True)
 
         canvas = self.get_canvas_char_pattered(
             size=tuple(np.array(self.canvas_size) * expand_factor),
@@ -183,10 +183,11 @@ DEFAULTS.update(
     {
         "linedrawing_input_folder": "assets/baker_2018/outline_images_fix/",
         "num_samples": 50,
-        "object_longest_side": 100,
+        "object_longest_side": 200,
         "background_char": "\\",
         "foreground_char": ".",
         "output_folder": "data/gestalt/texturized_linedrawings_chars",
+        "antialiasing": False,
     }
 )
 
@@ -287,7 +288,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     add_general_args(parser)
     parser.set_defaults(output_folder=DEFAULTS["output_folder"])
-
+    parser.set_defaults(antialiasing=DEFAULTS["antialiasing"])
     parser.add_argument(
         "--num_samples",
         "-ns",

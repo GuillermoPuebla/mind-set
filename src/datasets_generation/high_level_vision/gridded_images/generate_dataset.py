@@ -52,10 +52,10 @@ class DrawGriddedImages(DrawStimuli):
         complement=False,
     ):
         opencv_img = cv2.imread(str(image_path), cv2.IMREAD_GRAYSCALE)
-        opencv_img = resize_image_keep_aspect_ratio(opencv_img, self.obj_longest_side)
+        img = resize_image_keep_aspect_ratio(opencv_img, self.obj_longest_side)
         img = np.array(
             paste_linedrawing_onto_canvas(
-                opencv_img, self.create_canvas(), self.line_args["fill"]
+                Image.fromarray(img), self.create_canvas(), self.line_args["fill"]
             )
         )
 
@@ -84,11 +84,7 @@ class DrawGriddedImages(DrawStimuli):
             img[~rotated_mask] = self.background[0]
         else:
             img[rotated_mask] = self.background[0]
-
-        img = Image.fromarray(img.astype(np.uint8))
-        img = paste_at_center(self.create_canvas(), img)
-
-        img = transforms.CenterCrop((self.canvas_size[1], self.canvas_size[0]))(img)
+        img = Image.fromarray(img)
         return apply_antialiasing(img) if self.antialiasing else img
 
 
@@ -100,6 +96,7 @@ DEFAULTS.update(
         "grid_size": 8,
         "grid_thickness": 4,
         "output_folder": "data/high_level_vision/gridded_images",
+        "antialiasing": False,
     }
 )
 
@@ -164,7 +161,7 @@ def generate_all(
         for complement in tqdm([True, False]):
             for img_path in linedrawing_input_folder.glob("*"):
                 class_name = img_path.stem
-
+                print(class_name)
                 img = ds.apply_grid_mask(
                     img_path,
                     grid_size,
@@ -201,7 +198,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     add_general_args(parser)
     parser.set_defaults(output_folder=DEFAULTS["output_folder"])
-
+    parser.set_defaults(antialiasing=DEFAULTS["antialiasing"])
     parser.add_argument(
         "--object_longest_side",
         "-objlside",

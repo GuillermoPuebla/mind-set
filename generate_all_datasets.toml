@@ -130,7 +130,7 @@ regenerate = true
 ["src/datasets_generation/gestalt/dotted_linedrawings/generate_dataset.py"]
 canvas_size = [ 224, 224,]
 background_color = [ 0, 0, 0,]
-antialiasing = true
+antialiasing = false
 regenerate = true
 object_longest_side = 100
 linedrawing_input_folder = "assets/baker_2018/outline_images_fix/"
@@ -167,11 +167,11 @@ output_folder = "data/gestalt/texturized_linedrawings_lines"
 ["src/datasets_generation/gestalt/texturized_linedrawings/generate_dataset_chars.py"]
 canvas_size = [ 224, 224,]
 background_color = [ 0, 0, 0,]
-antialiasing = true
+antialiasing = false
 regenerate = true
 linedrawing_input_folder = "assets/baker_2018/outline_images_fix/"
 num_samples = 50
-object_longest_side = 100
+object_longest_side = 150
 background_char = "\\"
 foreground_char = "."
 output_folder = "data/gestalt/texturized_linedrawings_chars"

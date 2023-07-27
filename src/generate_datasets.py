@@ -24,7 +24,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--toml_file",
-        "-tf",
+        "-tomlf",
         default=DEFAULT["toml_file"],
         help="The file containing the datasets to generate with the parameters. Only the specified datasets are gonna be generated. For each dataset, parameters that are not specified will be set to their defaults",
     )

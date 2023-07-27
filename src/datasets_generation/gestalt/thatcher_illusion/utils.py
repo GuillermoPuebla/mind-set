@@ -9,12 +9,12 @@ import matplotlib.pyplot as plt
 from math import inf
 import cv2
 
-face_cascade = cv2.CascadeClassifier("assets/haarcascade_frontalface_default.xml")
-facemark = cv2.face.createFacemarkLBF()
-facemark.loadModel("assets/lbfmodel.yaml")
-
 
 def get_image_facial_landmarks(image_path):
+    face_cascade = cv2.CascadeClassifier("assets/haarcascade_frontalface_default.xml")
+    facemark = cv2.face.createFacemarkLBF()
+    facemark.loadModel("assets/lbfmodel.yaml")
+
     ret = []
 
     image = plt.imread(image_path)

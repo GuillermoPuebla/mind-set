@@ -1,7 +1,7 @@
 import PIL
 import cv2
 import numpy as np
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageChops, ImageOps
 
 
 class DrawStimuli:
@@ -142,7 +142,7 @@ class DrawStimuli:
         return wrap
 
 
-def get_mask_from_linedrawing(opencv_img):
+def get_mask_from_linedrawing(opencv_img, fill=True):
     """
     This function assumed the background of the linedrawing is white, and the stroke is black/grayscale.
     :param opencv_img:
@@ -153,9 +153,19 @@ def get_mask_from_linedrawing(opencv_img):
     _, binary_linedrawing = cv2.threshold(opencv_img, 240, 255, cv2.THRESH_BINARY_INV)
 
     contours, _ = cv2.findContours(
-        binary_linedrawing, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE
+        binary_linedrawing, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE
     )
-    cv2.drawContours(mask, contours, -1, (255), thickness=cv2.FILLED)
+    # cv2.drawContours(mask, contours, -1, (255), cv2.FILLED)
+    # cv2.drawContours(
+    #     mask, [contours[0]], -1, (255), thickness=cv2.FILLED if fill else 1
+    # )
+
+    cv2.drawContours(mask, contours, -1, (255), thickness=cv2.FILLED if fill else 1)
+
+    [
+        cv2.drawContours(mask, [c], -1, (255), thickness=cv2.FILLED if fill else 1)
+        for c in contours
+    ]
 
     mask = Image.fromarray(mask).convert("L")
 
@@ -186,24 +196,23 @@ def resize_image_keep_aspect_ratio(opencv_img, max_side_length):
 
 
 def paste_linedrawing_onto_canvas(
-    opencv_linedrawing, canvas, stroke_color
+    source_canvas, target_canvas, stroke_color
 ) -> PIL.Image:
     """
-    This function assumes the linedrawing is an opencv_img with black stroke on a white background. Returns a PIL.Image
+    This function assumes the linedrawing is an Pillow img with black stroke on a white background. Returns a PIL.Image
     """
+    mask = ImageOps.invert(source_canvas.convert("L"))
 
-    mask = get_mask_from_linedrawing(opencv_linedrawing)
+    # Step 4: Create the new image with the line color
+    new_image = Image.new("RGBA", source_canvas.size, stroke_color)
 
-    canvas_foreg_text = Image.new(
-        "RGB", (opencv_linedrawing.shape[1], opencv_linedrawing.shape[0]), stroke_color
-    )
+    result = ImageChops.composite(new_image, target_canvas, mask)
 
-    canvas.paste(
-        canvas_foreg_text,
-        (
-            canvas.size[0] // 2 - mask.size[0] // 2,
-            canvas.size[1] // 2 - mask.size[1] // 2,
-        ),
-        mask=mask,
-    )
-    return canvas
+    width_diff = target_canvas.size[0] - source_canvas.size[0]
+    height_diff = target_canvas.size[1] - source_canvas.size[1]
+    position = (width_diff // 2, height_diff // 2)
+
+    result = result.convert("RGBA")
+
+    target_canvas.paste(result, position, result)
+    return target_canvas

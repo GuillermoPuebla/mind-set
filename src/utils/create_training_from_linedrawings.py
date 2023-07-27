@@ -7,7 +7,7 @@ import cv2
 import numpy as np
 from torchvision import transforms
 from torchvision.transforms import InterpolationMode
-
+import PIL.Image as Image
 from src.utils.compute_distance.misc import (
     my_affine,
     get_new_affine_values,
@@ -37,7 +37,7 @@ class DrawTrainingImages(DrawStimuli):
             (np.array(self.canvas_size) * expand_factor).astype(int)
         )
         img = paste_linedrawing_onto_canvas(
-            opencv_img, self.create_canvas(), self.line_args["fill"]
+            Image.fromarray(opencv_img), self.create_canvas(), self.line_args["fill"]
         )
 
         self.canvas_size = original_canvas_size

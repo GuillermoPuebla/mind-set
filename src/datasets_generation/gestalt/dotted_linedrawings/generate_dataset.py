@@ -5,10 +5,11 @@ from pathlib import Path
 import cv2
 import numpy as np
 import sty
-
+import PIL.Image as Image
 from src.utils.drawing_utils import (
     DrawStimuli,
     get_mask_from_linedrawing,
+    paste_linedrawing_onto_canvas,
     resize_image_keep_aspect_ratio,
 )
 from src.utils.misc import (
@@ -54,17 +55,8 @@ class DrawDottedImage(DrawStimuli):
                     x, y = point[0]
                     draw_dot(dotted_img, x, y, dot_size, color=0)
 
-        mask = get_mask_from_linedrawing(dotted_img)
-
-        stroke_canvas = self.create_canvas(background=self.fill, size=mask.size)
-        canvas = self.create_canvas()
-        canvas.paste(
-            stroke_canvas,
-            (
-                canvas.size[0] // 2 - mask.size[0] // 2,
-                canvas.size[1] // 2 - mask.size[1] // 2,
-            ),
-            mask=mask,
+        canvas = paste_linedrawing_onto_canvas(
+            Image.fromarray(dotted_img), self.create_canvas(), self.fill
         )
 
         return apply_antialiasing(canvas) if self.antialiasing else canvas
@@ -77,6 +69,7 @@ DEFAULTS.update(
         "dot_distance": 5,
         "dot_size": 1,
         "output_folder": "data/gestalt/dotted_linedrawings",
+        "antialiasing": False,
     }
 )
 
@@ -142,7 +135,7 @@ if __name__ == "__main__":
 
     add_general_args(parser)
     parser.set_defaults(output_folder=DEFAULTS["output_folder"])
-
+    parser.set_defaults(antialiasing=DEFAULTS["antialiasing"])
     parser.add_argument(
         "--object_longest_side",
         "-objlside",

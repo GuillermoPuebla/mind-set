@@ -77,7 +77,7 @@ class DrawPatternedCanvas(DrawStimuli):
         expand_factor = 1.5
         img = cv2.imread(str(img_path), cv2.IMREAD_GRAYSCALE)
         mask = get_mask_from_linedrawing(
-            resize_image_keep_aspect_ratio(img, self.obj_longest_side)
+            resize_image_keep_aspect_ratio(img, self.obj_longest_side), fill=True
         )
 
         canvas = self.add_line_pattern(
@@ -127,7 +127,7 @@ DEFAULTS.update(
     {
         "linedrawing_input_folder": "assets/baker_2018/outline_images_fix/",
         "num_samples": 50,
-        "object_longest_side": 100,
+        "object_longest_side": 200,
         "density": 1.8,
         "antialiasing": False,
     }
