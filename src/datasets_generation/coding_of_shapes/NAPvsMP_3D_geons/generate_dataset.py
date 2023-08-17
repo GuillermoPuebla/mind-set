@@ -22,7 +22,7 @@ from src.utils.misc import DEFAULTS as BASE_DEFAULTS
 
 DEFAULTS = BASE_DEFAULTS.copy()
 DEFAULTS["stroke_color"] = ""
-DEFAULTS["output_folder"] = "data/coding_of_shapes/NAPvsMP_geons"
+DEFAULTS["output_folder"] = "data/coding_of_shapes/NAPvsMP_3D_geons"
 
 
 class DrawLines(DrawStimuli):

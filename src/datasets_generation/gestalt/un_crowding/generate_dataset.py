@@ -449,9 +449,7 @@ class DrawUncrowding(DrawStimuli):
             h = np.random.randint(2) * 2 + 1
             shape_matrix = np.zeros((h, siz)) + ID
 
-        image = np.array(
-            self.create_canvas()
-        )  # np.ones((*self.canvas_size, 3)) * (255, 0, 0)
+        image = np.array(self.create_canvas())
         critDist = 0  # int(self.shapeSize/6)
         padDist = int(self.shape_size / 6)
         shape_matrix = np.array(shape_matrix)
@@ -499,7 +497,7 @@ class DrawUncrowding(DrawStimuli):
                 first_row : (first_row + self.shape_size),
                 first_col : first_col + self.shape_size,
             ] += self.draw_vernier(offset, offset_size)
-            patch[patch > 1.0] = 1.0
+            # patch[patch > 1.0] = 1.0
 
         if fixed_position is None:
             first_row = random.randint(
@@ -558,8 +556,9 @@ class DrawUncrowding(DrawStimuli):
                 noise_patch[0] : noise_patch[0] + self.shape_size // 2,
                 noise_patch[1] : noise_patch[1] + self.shape_size // 2,
             ] = self.draw_noise()
-
-        return image
+        img = Image.fromarray(image).convert("RGBA")
+        img = apply_antialiasing(img) if self.antialiasing else img
+        return img
 
 
 random_pixels = 0
@@ -570,6 +569,7 @@ DEFAULTS.update(
         "num_samples_vernier_outside": 100,
         "random_size": True,
         "output_folder": "data/gestalt/un_crowding",
+        "antialiasing": False,
     }
 )
 
@@ -657,7 +657,7 @@ def generate_all(
                             vernier_ext=v_in_out == "outside",
                             shape_matrix=s,
                             shape_size=shape_size,
-                            vernier_in=v_in_out != "outside",
+                            vernier_in=v_in_out == "inside",
                             fixed_position=None,
                             offset=v,
                             offset_size=None,
@@ -668,8 +668,7 @@ def generate_all(
                             [i for i in strs if i not in [",", "[", "]", " "]]
                         )
                         shape_code = shape_code if shape_code != "" else "none"
-                        img = Image.fromarray(img).convert("RGB")
-                        img = apply_antialiasing(img) if antialiasing else img
+
                         path = Path(v_in_out) / str(v) / f"{shape_code}_{n}.png"
                         img.save(output_folder / path)
                         writer.writerow(
@@ -690,6 +689,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     add_general_args(parser)
     parser.set_defaults(output_folder=DEFAULTS["output_folder"])
+    parser.set_defaults(antialiasing=DEFAULTS["antialiasing"])
 
     parser.add_argument(
         "--num_samples_vernier_inside",

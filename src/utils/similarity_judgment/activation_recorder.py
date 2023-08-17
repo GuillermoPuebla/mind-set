@@ -13,7 +13,11 @@ from matplotlib import pyplot as plt
 from torchvision.transforms import InterpolationMode, transforms
 from tqdm import tqdm
 
-from src.utils.compute_distance.misc import my_affine, get_new_affine_values, save_figs
+from src.utils.similarity_judgment.misc import (
+    my_affine,
+    get_new_affine_values,
+    save_figs,
+)
 from src.utils.misc import conditional_tqdm, conver_tensor_to_plot
 from src.utils.net_utils import make_cuda
 from copy import deepcopy
@@ -163,7 +167,15 @@ class RecordDistance(RecordActivations):
             mask = mask & (df[col] == val)
         df = df.loc[mask]
 
-        matching_levels = df[self.match_factors].drop_duplicates().values.tolist()
+        if self.match_factors:
+            matching_levels = df[self.match_factors].drop_duplicates().values.tolist()
+        else:
+            matching_levels = df.values.tolist()
+            print(
+                sty.fg.red
+                + "No MATCHING LEVELS. Are you sure this is correct?"
+                + sty.rs.fg
+            )
 
         all_other_levels = [
             i for i in df[self.factor_variable].unique() if i != self.reference_level

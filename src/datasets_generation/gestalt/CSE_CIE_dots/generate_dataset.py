@@ -51,14 +51,14 @@ def generate_all(
 
     with open(output_folder / "annotation.csv", "w", newline="") as annfile:
         writer = csv.writer(annfile)
-        writer.writerow(["Path", "Type", "Background", "PairA/B", "IterNum"])
+        writer.writerow(["Path", "Type", "Background", "PairA/B", "SampleId"])
         for i in tqdm(range(num_samples)):
             all = ds.get_all_sets()[0]
             for t in tqdm(all_types, leave=False):
                 for ip, pair in enumerate(["a", "b"]):
                     path = pathlib.Path(t) / pair / f"{i}.png"
                     all[t][ip].save(output_folder / path)
-                    writer.writerow([path, t, pair, ds.background, i])
+                    writer.writerow([path, t, ds.background, pair, i])
     return str(output_folder)
 
 

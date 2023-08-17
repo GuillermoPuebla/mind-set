@@ -13,9 +13,14 @@ from src.utils.decoder.train_utils import (
 )
 from src.utils.net_utils import ExpMovingAverage, CumulativeAverage, run
 from torch.utils.data import DataLoader
-from src.utils.misc import weblog_dataset_info, pretty_print_dict, update_dict
+from src.utils.misc import (
+    assert_exists,
+    weblog_dataset_info,
+    pretty_print_dict,
+    update_dict,
+)
 from src.utils.callbacks import *
-from src.utils.decoder.data_utils import RegressionDataset
+from src.utils.decoder.data_utils import ImageRegressionDataset
 import argparse
 import torch.backends.cudnn as cudnn
 from src.utils.net_utils import load_pretraining
@@ -31,6 +36,7 @@ import inspect
 
 def run_train(
     run_info=None,
+    datasets=None,
     network=None,
     training=None,
     stopping_conditions=None,
@@ -51,19 +57,23 @@ def run_train(
     )
     toml_config["run_info"] = {
         "run_id": datetime.now().strftime("%d%m%Y_%H%M%S")
-        if toml_config["run_info"]["run_id"] is None
+        if not toml_config["run_info"]["run_id"]
         else toml_config["run_info"]["run_id"],
         "completed": False,
     }
-    toml_config["saving_folders"]["result_folder"] = (
-        f"results/{toml_config['run_info']['run_id']}"
-        if not toml_config["saving_folders"]["result_folder"]
-        else toml_config["saving_folders"]["result_folder"]
-    )
-
-    train_dataset = toml_config["training"]["train_dataset"].rstrip("/")
-    test_datasets = [i.rstrip("/") for i in toml_config["training"]["test_datasets"]]
-    [assert_exists(p) for p in [train_dataset, *test_datasets]]
+    for f in toml_config["saving_folders"].keys():
+        ff = {
+            "result_folder": "results/decoder_training",
+            "model_output_folder": "models/decoder_training",
+        }[f]
+        toml_config["saving_folders"][f] = (
+            f"{ff}/{toml_config['run_info']['run_id']}"
+            if not toml_config["saving_folders"][f]
+            else toml_config["saving_folders"][f]
+        )
+        pathlib.Path(toml_config["saving_folders"][f]).mkdir(
+            parents=True, exist_ok=True
+        )
 
     weblogger = False
     if toml_config["monitoring"]["neptune_proj_name"]:
@@ -80,10 +90,6 @@ def run_train(
             )
 
     log_neptune_init_info(weblogger, toml_config, tags=None) if weblogger else None
-    [
-        pathlib.Path(path).parent.mkdir(parents=True, exist_ok=True)
-        for path in list(toml_config["saving_folders"].values())
-    ]
 
     toml.dump(
         toml_config,
@@ -94,37 +100,35 @@ def run_train(
     pretty_print_dict(toml_config)
 
     use_cuda = torch.cuda.is_available()
-    is_pycharm = True if "PYCHARM_HOSTED" in os.environ else False
     torch.cuda.set_device(
         toml_config["training"]["gpu_num"]
     ) if torch.cuda.is_available() else None
 
-    if not list(os.walk(train_dataset))[0][1]:
-        print(
-            sty.fg.yellow
-            + sty.ef.inverse
-            + "You pointed to a folder containin only images, which means that you are going to run a REGRESSION method"
-            + sty.rs.ef
-        )
-        method = "regression"
-        ds = RegressionDataset
-    else:
-        print(
-            sty.fg.yellow
-            + sty.ef.inverse
-            + "You pointed to a dataset of folders, which means that you are going to run a CLASSIFICATION method"
-            + sty.rs.ef
-        )
-        method = "classification"
-        ds = ImageFolder
+    def load_dataset(ds_config):
+        if toml_config["training"]["type_training"] == "classification":
+            ds = ImageFolder(root=...)  # ToDo: CLASSIFICATION!
+        elif toml_config["training"]["type_training"] == "regression":
+            ds = ImageRegressionDataset(
+                csv_file=ds_config["annotation_file"],
+                img_path_col=ds_config["img_path_col_name"],
+                label_cols=ds_config["label_cols"],
+                filters=ds_config["filters"],
+            )
+        return fix_dataset(ds, name_ds=ds_config["name"])
 
-    train_dataset = fix_dataset(
-        ds(root=train_dataset), name_ds=os.path.basename(train_dataset)
+    train_dataset = load_dataset(toml_config["datasets"]["training"])
+
+    test_datasets = (
+        [load_dataset(i) for i in toml_config["datasets"]["validation"]]
+        if "validation" in toml_config["datasets"]
+        else []
     )
 
     net = ResNet152decoders(
-        imagenet_pt=True,
-        num_outputs=1 if method == "regression" else len(train_dataset.classes),
+        imagenet_pt=toml_config["network"]["imagenet_pretrained"],
+        num_outputs=toml_config["network"]["decoder_outputs"]
+        if toml_config["training"]["type_training"] == "regression"
+        else len(train_dataset.classes),
         use_residual_decoder=toml_config["network"]["use_residual_decoder"],
     )
     num_decoders = len(net.decoders)
@@ -139,17 +143,16 @@ def run_train(
         param.requires_grad = False
     for param in net.decoders.parameters():
         param.requires_grad = True
-    # for param in net.decoders_residual.parameters():
-    #     param.requires_grad = True
 
     net.cuda() if use_cuda else None
 
-    # cudnn.benchmark is a property of the cudnn library that determines whether to use a cached version of the best convolution algorithm for the hardware or to re-evaluate the convolution algorithm for each forward pass.
     cudnn.benchmark = False if use_cuda else False
 
     net.train()
     loss_fn = (
-        torch.nn.MSELoss() if method == "regression" else torch.nn.CrossEntropyLoss()
+        torch.nn.MSELoss()
+        if toml_config["training"]["type_training"] == "regression"
+        else torch.nn.CrossEntropyLoss()
     )
     optimizers = [
         torch.optim.Adam(
@@ -165,8 +168,8 @@ def run_train(
         batch_size=toml_config["training"]["batch_size"],
         drop_last=False,
         shuffle=True,
-        num_workers=0 if use_cuda and not is_pycharm else 0,
-        timeout=0 if use_cuda and not is_pycharm else 0,
+        num_workers=8 if use_cuda else 0,
+        timeout=0,
         pin_memory=True,
     )
 
@@ -174,21 +177,13 @@ def run_train(
         train_loader, weblogger=weblogger, num_batches_to_log=1, log_text="train"
     ) if weblogger else None
 
-    ds_type = RegressionDataset if method == "regression" else ImageFolder
-    test_datasets = [
-        fix_dataset(
-            ds_type(root=path), name_ds=os.path.splitext(os.path.basename(path))[0]
-        )
-        for path in test_datasets
-    ]
-
     test_loaders = [
         DataLoader(
             td,
             batch_size=toml_config["training"]["batch_size"],
             drop_last=False,
-            num_workers=8 if use_cuda and not is_pycharm else 0,
-            timeout=0 if use_cuda and not is_pycharm else 0,
+            num_workers=8 if use_cuda else 0,
+            timeout=0,
             pin_memory=True,
         )
         for td in test_datasets
@@ -242,9 +237,11 @@ def run_train(
         print("Early Stopping")
 
     log_type = (
-        "acc" if method == "classification" else "rmse"
+        "acc"
+        if toml_config["training"]["type_training"] == "classification"
+        else "rmse"
     )  # rmse: Root Mean Square Error : sqrt(MSE)
-    all_cb = [
+    all_callbacks = [
         StopFromUserInput(),
         ProgressBar(
             l=len(train_dataset),
@@ -259,7 +256,6 @@ def run_train(
             PrintNeptune(id=f"ema_{log_type}_{i}", plot_every=10, weblogger=weblogger)
             for i in range(num_decoders)
         ],
-        # Either train for X epochs
         TriggerActionWhenReachingValue(
             mode="max",
             patience=1,
@@ -279,7 +275,9 @@ def run_train(
                 log_text="test during train TRAINmode",
                 use_cuda=use_cuda,
                 logs_prefix=f"{tl.dataset.name_ds}/",
-                call_run=partial(call_run, method=method),
+                call_run=partial(
+                    call_run, method=toml_config["training"]["type_training"]
+                ),
                 plot_samples_corr_incorr=False,
                 callbacks=[
                     SaveInfoCsv(
@@ -321,15 +319,15 @@ def run_train(
         ],
     ]
 
-    all_cb.append(
+    all_callbacks.append(
         SaveModel(
             net,
-            toml_config["saving_folders"]["model_output_path"],
+            toml_config["saving_folders"]["model_output_folder"],
             loss_metric_name="ema_loss",
         )
-    ) if toml_config["saving_folders"]["model_output_path"] and not is_pycharm else None
+    ) if toml_config["training"]["save_trained_model"] else None
 
-    all_cb.append(
+    all_callbacks.append(
         TriggerActionWhenReachingValue(
             mode="min",
             patience=20,
@@ -341,7 +339,9 @@ def run_train(
         )
     ) if toml_config["stopping_conditions"]["stop_at_loss"] else None
 
-    net, logs = call_run(train_loader, True, all_cb, method)
+    net, logs = call_run(
+        train_loader, True, all_callbacks, toml_config["training"]["type_training"]
+    )
     weblogger.stop() if weblogger else None
     toml_config["run_info"]["completed"] = True
     toml.dump(
@@ -350,11 +350,6 @@ def run_train(
             toml_config["saving_folders"]["result_folder"] + "/train_config.toml", "w"
         ),
     )
-
-
-def assert_exists(path):
-    if not os.path.exists(path):
-        assert False, sty.fg.red + f"Path {path} doesn't exist!" + sty.rs.fg
 
 
 if __name__ == "__main__":

@@ -379,7 +379,7 @@ class SaveModel(Callback):
     def __init__(
         self,
         net,
-        output_path,
+        output_folder,
         loss_metric_name="loss",
         print_save=False,
         optimizer=None,
@@ -390,7 +390,7 @@ class SaveModel(Callback):
     ):
         self.print_save = print_save
         self.epoch_end = epoch_end
-        self.output_path = output_path
+        self.output_folder = output_folder
         self.net = net
         self.last_loss = np.inf
         self.last_iter = 0
@@ -401,9 +401,8 @@ class SaveModel(Callback):
         self.max_iter = max_iter
         super().__init__()
 
-    def save_model(self, path, print_it=True):
+    def save_model(self, path: pathlib.Path, print_it=True):
         # pathlib.Path(os.path.dirname(path)).mkdir(parents=True, exist_ok=True)
-        pathlib.Path(path).parent.mkdir(parents=True, exist_ok=True)
         print(
             fg.yellow
             + ef.inverse
@@ -421,14 +420,10 @@ class SaveModel(Callback):
 
     def on_epoch_begin(self, epoch, logs=None):
         if self.epoch_end:
-            self.save_model(
-                os.path.splitext(self.output_path)[0]
-                + "_checkpoint"
-                + os.path.splitext(self.output_path)[1]
-            )
+            self.save_model(pathlib.Path(self.output_folder) / "checkpoint.pt")
 
     def on_batch_end(self, batch, logs=None):
-        if self.output_path is not None:
+        if self.output_folder is not None:
             if (
                 ((logs["tot_iter"] - self.last_iter) > self.max_iter)
                 or ((self.last_loss - logs[self.loss_metric_name]) > self.epsilone_loss)
@@ -439,20 +434,14 @@ class SaveModel(Callback):
                     self.loss_metric_name
                 ]  # .value  ## ouch! You cannot overload assignment operator :( ! Nope!
                 self.save_model(
-                    os.path.splitext(self.output_path)[0]
-                    + "_checkpoint"
-                    + os.path.splitext(self.output_path)[1],
+                    pathlib.Path(self.output_folder) / "checkpoint.pt",
                     print_it=self.print_save,
                 )
 
     def on_train_end(self, logs=None):
-        if self.output_path is not None:
-            self.save_model(
-                os.path.splitext(self.output_path)[0]
-                + "_checkpoint"
-                + os.path.splitext(self.output_path)[1]
-            )
-            self.save_model(self.output_path, print_it=True)
+        if self.output_folder is not None:
+            self.save_model(pathlib.Path(self.output_folder) / "checkpoint.py")
+            self.save_model(self.output_folder / "finished.pt", print_it=True)
 
 
 class PrintLogs(Callback, ABC):

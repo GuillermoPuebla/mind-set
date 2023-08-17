@@ -138,6 +138,7 @@ DEFAULTS.update(
         "circle_color": (255, 255, 255),
         "square_color": (0, 0, 0),
         "output_folder": "data/low_level_vision/contour_completion",
+        "background_color": (100, 100, 100),
     }
 )
 
@@ -204,9 +205,10 @@ def generate_all(
                 "CenterSquare",
                 "RadiusCircle",
                 "SideSquare",
-                "IterNum",
+                "SampleId",
             ]
         )
+
         while completed_samples < num_samples:
             radius_circle = random.randint(20, 40)
             side_square = radius_circle * 1.5
@@ -227,6 +229,7 @@ def generate_all(
             if not check_square_fully_in_canvas(center_square):
                 continue
             pbar.update(1)
+            # note: the top shape is normally the shape "on top" in the occluded version, and the shape with a visible border in the notched and unoccluded version.
             for top_shape in top_shapes:
                 img = ds.draw(
                     center_circle,
@@ -238,19 +241,19 @@ def generate_all(
                 )
                 path = Path("no_occlusion") / f"{top_shape}_{completed_samples}.png"
                 img.save(output_folder / path)
-            writer.writerow(
-                [
-                    path,
-                    "no_occlusion",
-                    ds.background,
-                    top_shape,
-                    center_circle,
-                    center_square,
-                    radius_circle,
-                    side_square,
-                    completed_samples,
-                ]
-            )
+                writer.writerow(
+                    [
+                        path,
+                        "no_occlusion",
+                        ds.background,
+                        top_shape,
+                        center_circle,
+                        center_square,
+                        radius_circle,
+                        side_square,
+                        completed_samples,
+                    ]
+                )
 
             # Generate occluded and notched
             max_dist_occluded = vector_length(side_square, theta) + radius_circle
@@ -272,19 +275,19 @@ def generate_all(
                         / f"{top_shape}_{completed_samples}.png"
                     )
                     img.save(output_folder / path)
-            writer.writerow(
-                [
-                    path,
-                    "notched" if notched else "occlusion",
-                    ds.background,
-                    top_shape,
-                    center_circle,
-                    center_square,
-                    radius_circle,
-                    side_square,
-                    completed_samples,
-                ]
-            )
+                    writer.writerow(
+                        [
+                            path,
+                            "notched" if notched else "occlusion",
+                            ds.background,
+                            top_shape,
+                            center_circle,
+                            center_square,
+                            radius_circle,
+                            side_square,
+                            completed_samples,
+                        ]
+                    )
 
             completed_samples += 1
     return str(output_folder)
@@ -293,7 +296,7 @@ def generate_all(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     add_general_args(parser)
-    parser.set_defaults(background="100_100_100")
+    parser.set_defaults(background_color=DEFAULTS["background_color"])
     parser.set_defaults(output_folder=DEFAULTS["output_folder"])
 
     parser.add_argument(

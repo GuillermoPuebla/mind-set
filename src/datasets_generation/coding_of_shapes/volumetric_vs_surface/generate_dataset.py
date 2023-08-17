@@ -26,7 +26,7 @@ from skimage import measure
 from tqdm import tqdm
 import PIL.Image as Image
 
-from src.utils.compute_distance.misc import paste_at_center
+from src.utils.similarity_judgment.misc import paste_at_center
 from src.utils.drawing_utils import (
     DrawStimuli,
     resize_image_keep_aspect_ratio,
@@ -134,7 +134,9 @@ def generate_all(
 
             # Crop the image using the bounding box coordinates
             cropped_image = image[min_row : max_row + 1, min_col : max_col + 1]
-            img = Image.fromarray(resize_image_keep_aspect_ratio(cropped_image, object_longest_side))
+            img = Image.fromarray(
+                resize_image_keep_aspect_ratio(cropped_image, object_longest_side)
+            )
             pil_img = paste_linedrawing_onto_canvas(img, ds.create_canvas(), ds.fill)
             path = pathlib.Path(categories[type]) / f"{main_obj_type}.png"
             output_path = pathlib.Path(output_folder) / path

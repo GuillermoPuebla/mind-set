@@ -1,0 +1,15 @@
+[basic_info]
+annotation_file_path = 'data/low_level_vision/contour_completion/annotation.csv'
+match_factors = ['SampleId', 'TopShape']
+#filter_factor_level = { Type = "linearity"}
+factor_variable = "Type"
+reference_level = "no_occlusion"
+
+[options]
+pretraining = "ImageNet"
+
+[saving_folders]
+result_folder = "results/similarity_judgments/contour_completion"
+
+[transformation]
+affine_transf_code = ""

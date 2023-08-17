@@ -1,22 +1,15 @@
+import re
 from IPython.display import display, Markdown
 import pandas as pd
 from pathlib import Path
 import matplotlib.pyplot as plt
 
 
-def open_df(dataset_name, pretraining):
-    folder = Path("results") / dataset_name / pretraining
-    df = pd.read_csv(folder / "dataframe.csv")
-    with open(folder / "layers.txt", "r") as f:
-        layers_names = f.readlines()
-    layers_names = [layer.strip() for layer in layers_names]
-    return df, layers_names
-
-
 def run_all_layers_analysis(
-    dataset_name, pretraining, list_comparison_levels=None, ylim=None, xlim=None
+    dataframe_path, list_comparison_levels=None, ylim=None, xlim=None
 ):
-    df, _ = open_df(dataset_name, pretraining)
+    df = pd.read_csv(dataframe_path)
+    pattern = re.compile(r"^\d+: .*$")
 
     if list_comparison_levels is not None:
         df = df[df["ComparisonLevel"].isin(list_comparison_levels)]
@@ -44,20 +37,20 @@ def run_all_layers_analysis(
 
 
 def run_standard_analysis_one_layer(
-    dataset_name: Path, pretraining, idx_layer_used, list_comparison_levels=None
+    dataframe_path: Path, idx_layer_used, list_comparison_levels=None
 ):
-    df, layers_names = open_df(dataset_name, pretraining)
+    df = pd.read_csv(dataframe_path)
+    pattern = re.compile(r"^\d+: .*$")
+    layers_names = [col for col in df.columns if pattern.match(col)]
+
     if list_comparison_levels is not None:
         df = df[df["ComparisonLevel"].isin(list_comparison_levels)]
-        # df.set_index("ComparisonLevel", inplace=True)
-        # df = df.reindex(list_comparison_levels)
-        # df.reset_index(inplace=True)
 
     num_layers = len(layers_names) - 1
 
     display(
         Markdown(
-            f"# Analysis for dataset ***{dataset_name}***\n## Pretraining: ***{pretraining}***, LayerIdx: ***{idx_layer_used}***"
+            f"# Analysis for dataset ***{dataframe_path}***\n, LayerIdx: ***{idx_layer_used}***"
         )
     )
 

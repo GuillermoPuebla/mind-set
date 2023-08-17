@@ -10,11 +10,11 @@ import os
 import pathlib
 import torchvision.transforms as transforms
 import torchvision
-from src.utils.compute_distance.misc import (
+from src.utils.similarity_judgment.misc import (
     has_subfolders,
     PasteOnCanvas,
 )
-from src.utils.compute_distance.activation_recorder import (
+from src.utils.similarity_judgment.activation_recorder import (
     RecordDistance,
 )
 import inspect
@@ -33,6 +33,9 @@ def compute_distance(
         )
     # update the toml_config file based on the input args to this function
     local_vars = locals()
+    if not transformation["affine_transf_code"]:
+        transformation["repetitions"] = 1
+
     update_dict(
         toml_config,
         {
@@ -40,6 +43,7 @@ def compute_distance(
             for i in inspect.getfullargspec(compute_distance)[0]
         },
     )
+    toml_config["transformation"]["affine_transf_code"]
 
     network, norm_values, resize_value = GrabNet.get_net(
         toml_config["options"]["network_name"],

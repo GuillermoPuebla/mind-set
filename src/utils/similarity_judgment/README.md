@@ -1,6 +1,7 @@
 
 ## Distance Similarity
-# NEEDS TO BE COMPLETELY REWRITTEN!!!
+-----THIS DOCUMENTATION IS NO LONGER VALID AND NEEDS TO BE REWRITTEN TO ACCOUNT FOR THE TOML CONFIG SETUP WE USE NOW. HOWEVER, TO GET STARTED, USE THE EXAMPLES iIN utils/similarity_judgment/examples. THEY ARE UP TO DATE!  
+
 [//]: # (All the relevant scripts are in `src/utils/compute_distance` and `src/utils`. Examples are in `src/utils/compute_distance/examples`.  )
 You can compute the distance between activation with `cosine similarity` or `euclideaen distance`. Use the command line argument `--distance_metric cossim` or `--distance_metric euclidean`. The latter is the default. 
 

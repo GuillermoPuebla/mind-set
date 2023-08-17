@@ -4,10 +4,11 @@ import toml
 import importlib
 import os
 
-DEFAULT = {"toml_file": "generate_all_datasets.toml"}
+DEFAULT = {"toml_file": "generate_all_datasets_lite.toml"}
 
 
 def generate_toml(toml_file):
+    print(toml_file)
     with open(toml_file, "r") as f:
         dataset_params = toml.load(f)
 

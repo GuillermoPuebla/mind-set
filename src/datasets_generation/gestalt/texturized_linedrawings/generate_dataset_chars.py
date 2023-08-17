@@ -17,7 +17,7 @@ from torchvision.transforms import InterpolationMode, transforms
 from PIL import Image, ImageDraw, ImageFont
 from tqdm import tqdm
 
-from src.utils.compute_distance.misc import get_new_affine_values, my_affine
+from src.utils.similarity_judgment.misc import get_new_affine_values, my_affine
 from src.utils.drawing_utils import (
     DrawStimuli,
     get_mask_from_linedrawing,

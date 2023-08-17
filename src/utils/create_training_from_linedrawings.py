@@ -8,7 +8,7 @@ import numpy as np
 from torchvision import transforms
 from torchvision.transforms import InterpolationMode
 import PIL.Image as Image
-from src.utils.compute_distance.misc import (
+from src.utils.similarity_judgment.misc import (
     my_affine,
     get_new_affine_values,
 )

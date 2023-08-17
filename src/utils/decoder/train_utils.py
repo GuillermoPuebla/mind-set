@@ -7,6 +7,48 @@ from copy import deepcopy
 import numpy as np
 from torch.nn import functional as F
 
+# if method == "regression":
+#     if train:
+#         [
+#             logs[f"{logs_prefix}ema_rmse_{idx}"].add(torch.sqrt(ms).item())
+#             for idx, ms in enumerate(loss_decoder)
+#         ]
+#     else:
+#         [
+#             logs[f"{logs_prefix}rmse_{idx}"].add(torch.sqrt(ms).item())
+#             for idx, ms in enumerate(loss_decoder)
+#         ]
+
+#         logs[f"{logs_prefix}rmse"].add(torch.sqrt(loss / num_decoders).item())
+
+# elif method == "classification":
+#     if train:
+#         [
+#             logs[f"{logs_prefix}ema_acc_{idx}"].add(
+#                 torch.mean((torch.argmax(out_dec[idx], 1) == labels).float()).item()
+#             )
+#             for idx in range(len(loss_decoder))
+#         ]
+#     else:
+#         [
+#             logs[f"{logs_prefix}acc_{idx}"].add(
+#                 torch.mean((torch.argmax(out_dec[idx], 1) == labels).float()).item()
+#             )
+#             for idx in range(len(loss_decoder))
+#         ]
+#         logs[f"{logs_prefix}acc"].add(
+#             torch.mean(
+#                 torch.tensor(
+#                     [
+#                         torch.mean(
+#                             (torch.argmax(out_dec[idx], 1) == labels).float()
+#                         ).item()
+#                         for idx in range(len(loss_decoder))
+#                     ]
+#                 )
+#             ).item()
+#         )
+
 
 def fix_dataset(dataset, name_ds=""):
     dataset.name_ds = name_ds
@@ -26,6 +68,34 @@ def fix_dataset(dataset, name_ds=""):
     if add_resize:
         dataset.transform.transforms.insert(0, torchvision.transforms.Resize(224))
     return dataset
+
+
+def update_logs(logs, loss_decoders, labels, method, logs_prefix, train=True):
+    logs[f"{logs_prefix}ema_loss"].add(sum(loss_decoders))
+    prefix = "ema_" if train else ""
+    if method == "regression":
+        for idx, ms in enumerate(loss_decoders):
+            logs[f"{logs_prefix}{prefix}rmse_{idx}"].add(torch.sqrt(ms).item())
+        if not train:
+            logs[f"{logs_prefix}rmse"].add(
+                torch.sqrt(sum(loss_decoders) / len(loss_decoders)).item()
+            )
+    elif method == "classification":
+        for idx in range(len(loss_decoders)):
+            acc = torch.mean(
+                (torch.argmax(loss_decoders[idx], 1) == labels).float()
+            ).item()
+            logs[f"{logs_prefix}{prefix}acc_{idx}"].add(acc)
+        average_acc = torch.mean(
+            torch.tensor(
+                [
+                    logs[f"{logs_prefix}{prefix}acc_{idx}"].value
+                    for idx in range(len(loss_decoders))
+                ]
+            )
+        ).item()
+        if not train:
+            logs[f"{logs_prefix}acc"].add(average_acc)
 
 
 def decoder_step(
@@ -48,58 +118,19 @@ def decoder_step(
     if train:
         [optimizers[i].zero_grad() for i in range(num_decoders)]
     out_dec = model(images)
-    loss = make_cuda(torch.tensor([0.0], requires_grad=True), use_cuda)
+    loss = make_cuda(
+        torch.tensor([0.0], dtype=torch.float, requires_grad=True), use_cuda
+    )
     loss_decoder = []
-    for idx, od in enumerate(out_dec):
+    for _, od in enumerate(out_dec):
         loss_decoder.append(loss_fn(od, labels))
         loss = loss + loss_decoder[-1]
 
-    logs[f"{logs_prefix}ema_loss"].add(loss.item())
-
-    if method == "regression":
-        if train:
-            [
-                logs[f"{logs_prefix}ema_rmse_{idx}"].add(torch.sqrt(ms).item())
-                for idx, ms in enumerate(loss_decoder)
-            ]
-        else:
-            [
-                logs[f"{logs_prefix}rmse_{idx}"].add(torch.sqrt(ms).item())
-                for idx, ms in enumerate(loss_decoder)
-            ]
-
-            logs[f"{logs_prefix}rmse"].add(torch.sqrt(loss / num_decoders).item())
-
-    elif method == "classification":
-        if train:
-            [
-                logs[f"{logs_prefix}ema_acc_{idx}"].add(
-                    torch.mean((torch.argmax(out_dec[idx], 1) == labels).float()).item()
-                )
-                for idx in range(len(loss_decoder))
-            ]
-        else:
-            [
-                logs[f"{logs_prefix}acc_{idx}"].add(
-                    torch.mean((torch.argmax(out_dec[idx], 1) == labels).float()).item()
-                )
-                for idx in range(len(loss_decoder))
-            ]
-            logs[f"{logs_prefix}acc"].add(
-                torch.mean(
-                    torch.tensor(
-                        [
-                            torch.mean(
-                                (torch.argmax(out_dec[idx], 1) == labels).float()
-                            ).item()
-                            for idx in range(len(loss_decoder))
-                        ]
-                    )
-                ).item()
-            )
+    update_logs(logs, loss_decoder, labels, method, logs_prefix, train)
 
     if "collect_data" in kwargs and kwargs["collect_data"]:
         logs["data"] = data
+
     if train:
         loss.backward()
         [optimizers[i].step() for i in range(num_decoders)]
@@ -388,26 +419,26 @@ class ResNet152decoders(nn.Module):
         x = self.net.maxpool(x)
 
         x = self.net.layer1(x)
-        out_dec_res.append(self.decoders[1](x).squeeze())
+        out_dec_res.append(self.decoders[1](x))
 
         x = self.net.layer2(x)
-        out_dec_res.append(self.decoders[2](x).squeeze())
+        out_dec_res.append(self.decoders[2](x))
 
         x = self.net.layer3(x)
-        out_dec_res.append(self.decoders[3](x).squeeze())
+        out_dec_res.append(self.decoders[3](x))
 
         x = self.net.layer4(x)
-        out_dec_res.append(self.decoders[4](x).squeeze())
+        out_dec_res.append(self.decoders[4](x))
 
         x = self.net.avgpool(x)
         x = torch.flatten(x, 1)
-        out_dec_res.append(self.decoders[5](x).squeeze())
+        out_dec_res.append(self.decoders[5](x))
 
         return out_dec_res
 
     def _forward(self, x):
         out_dec = []
-        out_dec.append(self.decoders[0](torch.flatten(x, 1)).squeeze())
+        out_dec.append(self.decoders[0](torch.flatten(x, 1)))
 
         x = self.net.conv1(x)
         x = self.net.bn1(x)
@@ -415,20 +446,20 @@ class ResNet152decoders(nn.Module):
         x = self.net.maxpool(x)
 
         x = self.net.layer1(x)
-        out_dec.append(self.decoders[1](torch.flatten(x, 1)).squeeze())
+        out_dec.append(self.decoders[1](torch.flatten(x, 1)))
 
         x = self.net.layer2(x)
-        out_dec.append(self.decoders[2](torch.flatten(x, 1)).squeeze())
+        out_dec.append(self.decoders[2](torch.flatten(x, 1)))
 
         x = self.net.layer3(x)
-        out_dec.append(self.decoders[3](torch.flatten(x, 1)).squeeze())
+        out_dec.append(self.decoders[3](torch.flatten(x, 1)))
 
         x = self.net.layer4(x)
-        out_dec.append(self.decoders[4](torch.flatten(x, 1)).squeeze())
+        out_dec.append(self.decoders[4](torch.flatten(x, 1)))
 
         x = self.net.avgpool(x)
         x = torch.flatten(x, 1)
-        out_dec.append(self.decoders[5](torch.flatten(x, 1)).squeeze())
+        out_dec.append(self.decoders[5](torch.flatten(x, 1)))
 
         return out_dec
 

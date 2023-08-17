@@ -1,0 +1,18 @@
+[basic_info]
+annotation_file_path = 'data/gestalt/thatcher_illusion/annotation.csv'
+match_factors = ["FaceId"]
+factor_variable = "Transformation"
+reference_level = "normal"
+
+[options]
+pretraining = "ImageNet"
+
+[saving_folders]
+result_folder = "results/similarity_judgment/thatcher_illusion"
+
+
+[transformation]
+affine_transf_code = "t[-0.2, 0.2]r[-50, 50]s[0.8, 1.2]"
+affine_transf_background = [0, 0, 0]
+matching_transform = true
+repetitions = 50

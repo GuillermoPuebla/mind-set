@@ -1,9 +1,7 @@
-["src/datasets_generation/low_level_vision/jastrow_illusion/generate_dataset.py"]
+["src/datasets_generation/coding_of_shapes/volumetric_vs_surface/generate_dataset.py"]
 canvas_size = [ 224, 224,]
 background_color = [ 0, 0, 0,]
 antialiasing = true
 regenerate = true
-num_illusory_samples = 500
-num_random_samples = 10000
-num_aligned_samples = 500
-output_folder = "data/low_level_vision/jastrow_illusion"
+object_longest_side = 100
+output_folder = "data/coding_of_shapes/volumetric_vs_surface"

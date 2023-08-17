@@ -72,55 +72,54 @@ class DrawJastrow(DrawStimuli):
     def generate_jastrow_illusion(
         self, arc, width, size_red, size_blue, top_color, type_stimulus
     ):
-        position_fun = lambda: (random.uniform(0.1, 0.9), random.uniform(0.1, 0.9))
-        rotation_fun = lambda: random.uniform(0, 360)
-        parent = JastrowParent(
-            target_image_size=self.canvas_size,
-            initial_expansion=4 if self.antialiasing else 1,
-        )
-        # With illusory or aligned, arc_1 is always the top 1. Then "on_top" decides it's color.
-        arcs_sizes = (
-            [size_red, size_blue] if top_color == "red" else [size_blue, size_red]
-        )
-        arc_1 = Shapes(parent=parent)
-        arc_1.add_arc(size=arcs_sizes[0], arc=arc, width=width)
-        arc_1.move_to(position_fun()).rotate(
-            rotation_fun()
-        ) if type_stimulus == "random" else None
+        correct_stimulus = False
+        while not correct_stimulus:
+            position_fun = lambda: (random.uniform(0.1, 0.9), random.uniform(0.1, 0.9))
+            rotation_fun = lambda: random.uniform(0, 360)
+            parent = JastrowParent(
+                target_image_size=self.canvas_size,
+                initial_expansion=4 if self.antialiasing else 1,
+            )
+            # With illusory or aligned, arc_1 is always the top 1. Then "on_top" decides it's color.
+            arcs_sizes = (
+                [size_red, size_blue] if top_color == "red" else [size_blue, size_red]
+            )
+            arc_1 = Shapes(parent=parent)
+            arc_1.add_arc(size=arcs_sizes[0], arc=arc, width=width)
+            arc_1.move_to(position_fun()).rotate(
+                rotation_fun()
+            ) if type_stimulus == "random" else None
 
-        arc_2 = Shapes(parent=parent)
-        arc_2.add_arc(size=arcs_sizes[1], arc=arc, width=width)
-        arc_2.move_to(position_fun()).rotate(
-            rotation_fun()
-        ) if type_stimulus == "random" else None
-        parent.center_shapes()
+            arc_2 = Shapes(parent=parent)
+            arc_2.add_arc(size=arcs_sizes[1], arc=arc, width=width)
+            arc_2.move_to(position_fun()).rotate(
+                rotation_fun()
+            ) if type_stimulus == "random" else None
+            parent.center_shapes()
 
-        if type_stimulus == "aligned" or type_stimulus == "illusory":
-            arc_1.move_next_to(arc_2, "UP")
-            arc_1.set_color(top_color).register()
-            arc_2.set_color({"red": "blue", "blue": "red"}[top_color]).register()
-        elif type_stimulus == "random":
-            image_ok = False
-            while not image_ok:
-                arc_1.move_to(position_fun()).rotate(rotation_fun())
-                arc_2.move_to(position_fun()).rotate(rotation_fun())
-                if not (
-                    arc_1.is_touching(arc_2)
-                    and parent.compute_jastrow_factor().round(3) > 0.7
-                ):
-                    image_ok = True
-            arc_1.set_color("red").register()
-            arc_2.set_color("blue").register()
+            if type_stimulus == "aligned" or type_stimulus == "illusory":
+                arc_1.move_next_to(arc_2, "UP")
+                arc_1.set_color(top_color).register()
+                arc_2.set_color({"red": "blue", "blue": "red"}[top_color]).register()
+            elif type_stimulus == "random":
+                image_ok = False
+                while not image_ok:
+                    arc_1.move_to(position_fun()).rotate(rotation_fun())
+                    arc_2.move_to(position_fun()).rotate(rotation_fun())
+                    if not (
+                        arc_1.is_touching(arc_2)
+                        and parent.compute_jastrow_factor().round(3) > 0.7
+                    ):
+                        image_ok = True
+                arc_1.set_color("red").register()
+                arc_2.set_color("blue").register()
 
-        self.create_canvas()  # dummy call to update the background for rnd-uniform mode
-        parent.add_background(self.background)
-        parent.shrink() if self.antialiasing else None
+            self.create_canvas()  # dummy call to update the background for rnd-uniform mode
+            parent.add_background(self.background)
+            parent.shrink() if self.antialiasing else None
 
-        try:
-            assert parent.count_pixels("red") > 0, "red pixels not found"
-            assert parent.count_pixels("blue") > 0, "blue pixels not found"
-        except AssertionError:
-            return
+            if parent.count_pixels("red") > 0 and parent.count_pixels("blue") > 0:
+                correct_stimulus = True
         return parent.canvas
 
 
@@ -191,6 +190,7 @@ def generate_all(
                 "SampleNum",
             ]
         )
+
         for type in tqdm(types):
             num_samples = {
                 "illusory": num_illusory_samples,
@@ -238,7 +238,6 @@ if __name__ == "__main__":
 
     add_general_args(parser)
     parser.set_defaults(output_folder=DEFAULTS["output_folder"])
-
 
     parser.add_argument(
         "--num_illusory_samples",

@@ -6,16 +6,43 @@ run_id = false
 
 [network]
 use_residual_decoder = false
+decoder_outputs = 1 # only used for regression method. For classification, the number of outputs is equal to the number of classes
+imagenet_pretrained = true
 
 [training]
-train_dataset = ""
-test_datasets = []
+type_training = "" # options: 'classification', 'regression'
 gpu_num = 0
 batch_size = 64
 learning_rate = 1e-5
 weight_decay = 0
 # If you want to continue training, set this flag to the path containing the pretraining file (the one generated in the model_output_path from this script).
 continue_train = false
+save_trained_model = true
+
+[datasets.training]
+name = "training"
+annotation_file = "path/to/annotation/file"
+img_path_col_name = "Path"
+label_cols = [""]
+filters = { Type = "random" }
+
+# Example of validation datasets.
+# [[datasets.validation]]
+# name = "name_val1"
+# annotation_file = ""
+# img_path_col_name = "Path"
+# label_cols = ["val1"]
+# filters = { Type = "blabla"}
+
+# You can use more than one validation dataset
+# [[datasets.validation]]
+# name = "name_val2"
+# annotation_file = ""
+# img_path_col_name = "Path"
+# label_cols = ["val2"]
+# filters = { Type = "blabla"}
+
+
 
 [stopping_conditions]
 stop_at_epoch = 50
@@ -24,9 +51,9 @@ stop_at_accuracy = false
 
 
 [saving_folders]
-# If result_folder == false, results/{run_id} willbe used. If you want to save the results in a different folder, specify the path here.
+# If result_folder/model_output_folde == false, results/{run_id} willbe used. If you want to save the results in a different folder, specify the path here.
 result_folder = false
-model_output_path = "./models/tmp"
+model_output_folder = false
 
 [monitoring]
 # If you want to log in neptune.ai, specify the project name. You need an account there + you need to have created a project with the correct name through their UI + You need to set up your API token: \nhttps://docs.neptune.ai/getting-started/installation. The API should be in an environmental variable called NEPTUNE_API_TOKEN.

@@ -34,8 +34,8 @@ class DrawDecomposition(DrawStimuli):
         shape_2_name,
         split_type,
         cut_rotation,
-        image_rotation,
-        image_position,
+        image_rotation=0,
+        image_position=(0.5, 0.5),
     ):
         parent = ParentStimuli(
             target_image_size=self.canvas_size,
@@ -84,18 +84,11 @@ class DrawDecomposition(DrawStimuli):
         return parent.canvas
 
 
-def get_random_params():
-    cut_rotation = random.uniform(0, 360)
-    rotation = random.uniform(0, 360)
-    position = (random.uniform(0.1, 0.9), random.uniform(0.1, 0.9))
-    return cut_rotation, rotation, position
-
-
 DEFAULTS.update(
     {
         "num_samples": 100,
         "moving_distance": 60,
-        "shape_color": (255, 0, 0),
+        "shape_color": (255, 255, 255),
         "output_folder": "data/high_level_vision/decomposition",
     }
 )
@@ -189,22 +182,18 @@ def generate_all(
                 "ShapeType",
                 "SplitType",
                 "CutRotation",
-                "Rotation",
-                "Position",
-                "SampleNum",
+                "SampleId",
             ]
         )
         for name_comb, combs in tqdm(shapes_types.items()):
             for idx, c in enumerate(tqdm(combs, leave=False)):
-                cut_rotation, rotation, position = get_random_params()
+                cut_rotation = random.uniform(0, 360)
                 for split_type in split_types:
                     img = ds.generate_canvas(
                         c["shape_1_name"],
                         c["shape_2_name"],
                         split_type=split_type,
                         cut_rotation=cut_rotation,
-                        image_rotation=rotation,
-                        image_position=position,
                     )
                     path = Path(name_comb) / split_type / f"{idx}.png"
                     img.save(output_folder / path)
@@ -215,8 +204,6 @@ def generate_all(
                             name_comb,
                             split_type,
                             cut_rotation,
-                            rotation,
-                            position,
                             idx,
                         ]
                     )

@@ -1,6 +1,6 @@
 import pathlib
 from pathlib import Path
-from src.utils.compute_distance.run import compute_distance
+from src.utils.similarity_judgment.run import compute_distance
 
 dataset_folder = "data/examples/CSE_CIE_dots_small/"
 
@@ -59,4 +59,4 @@ You can load the toml file yourself and pass it like this: (uncomment this if yo
 --------- APPROACH NUMBER 3: DO EVERYTHING THROUGH COMMAND LINE. --------- 
 Yet another way is to  call the script as a module and pass the toml file as a command line arg.
 """
-#       python -m src.utils.compute_distance.run --toml_config_filename src/utils/compute_distance/examples/CSE_CIE_dots_config.toml
+#       python -m src.utils.similarity_judgment.run --toml_config_filename src/utils/compute_distance/examples/CSE_CIE_dots_config.toml

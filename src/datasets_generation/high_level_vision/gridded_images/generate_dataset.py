@@ -18,7 +18,7 @@ from torchvision import transforms
 from torchvision.transforms import InterpolationMode
 from tqdm import tqdm
 
-from src.utils.compute_distance.misc import (
+from src.utils.similarity_judgment.misc import (
     paste_at_center,
 )
 from src.utils.drawing_utils import (

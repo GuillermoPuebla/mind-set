@@ -22,14 +22,18 @@ models/*
 results/*
 !results/.gitkeep
 
-data/*
-!data/.gitkeep
+datasets/*
+datasets_*/
+!datasets/.gitkeep
 
 private/*
 temp/*
 
 # specific files
 .bashrc*
+.env
 
 # macOS specific
 Icon*
+
+.vscode/*

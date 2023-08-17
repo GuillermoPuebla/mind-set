@@ -2,25 +2,11 @@
 This script draws two boxes with different shades of grey.ƒ
 """
 
-from PIL.Image import new
 from PIL import Image, ImageDraw
-from PIL.Image import Resampling
-import numpy as np
 from pathlib import Path
 
-
-# # configs
-# self.target_image_width = 224
-# self.initial_expansion = 4  # alias, larger the more aliasing
-# self.train_test_ratio = 0.8  # float between 0 and 1, larger the more training data
-# self.progress_refresh_probability = 1000  # the larger the less frequent the progress bar is updated
-
-# # configs for the arrow
-# self.arrow_line_length = 45  # pixels
-# self.triangle_height = 30  # pixels
-# self.triangle_width = 20  # pixels
-
-# on a image of size 224 * 4, the arrow line length is 45 pixels
+import os
+from tqdm import tqdm
 
 
 def add_arrow(canvas, coord: tuple[float, float], fill=255):
@@ -50,21 +36,14 @@ def add_arrow(canvas, coord: tuple[float, float], fill=255):
     return canvas
 
 
-if __name__ == "__main__":
-    import os
-    from PIL import Image, ImageDraw as Draw, ImageOps
-    from pathlib import Path
-    from tqdm import tqdm
-
-    save_path = Path("data", "checkerboard")
-    img = Image.open(Path("assets", "checkerboard.png"))
-
+def generate_arrow_data(
+    color_of_interest=(120, 120, 120),
+    img=Path("assets", "checkerboard.png"),
+    save_path: Path = Path("data", "checkerboard"),
+    output_size=(224, 224),
+):
+    img = Image.open(img)
     os.makedirs(save_path, exist_ok=True)
-    color_of_interest = (
-        120,
-        120,
-        120,
-    )  # get this from the image of interest using the color selector script under the same repository
 
     width, height = img.size
     coordinates = [
@@ -77,5 +56,9 @@ if __name__ == "__main__":
     for coordinate in tqdm(coordinates, colour="green"):
         img_copy = img.copy().convert("L")
         img_copy = add_arrow(img_copy, tuple(coordinate))
-        img_copy.thumbnail((224, 224), Image.Resampling.LANCZOS)
+        img_copy.thumbnail(output_size, Image.Resampling.LANCZOS)
         img_copy.save(save_path / f"{coordinates.index(coordinate)}.png")
+
+
+if __name__ == "__main__":
+    pass

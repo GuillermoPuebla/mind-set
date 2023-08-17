@@ -42,7 +42,7 @@ def color_selector(image_path):
 
         answer = messagebox.askokcancel(
             "Confirmation",
-            f"You selected color {color_of_interest}.\nIt will be printed out in your terminal.",
+            f"You selected color {color_of_interest}.\nWould you like to proceed?",
         )
         print(color_of_interest)
         if answer:

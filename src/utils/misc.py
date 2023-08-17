@@ -17,6 +17,11 @@ except:
     pass
 
 
+def assert_exists(path):
+    if not os.path.exists(path):
+        assert False, sty.fg.red + f"Path {path} doesn't exist!" + sty.rs.fg
+
+
 def conditional_tqdm(iterable, enable_tqdm, **kwargs):
     if enable_tqdm:
         return tqdm.tqdm(iterable, **kwargs)

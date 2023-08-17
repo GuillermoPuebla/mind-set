@@ -49,10 +49,14 @@ class ShapeConfigs:
         for key in self.frequency_ratio:
             self.frequency_ratio[key] /= sum_values
 
-        self.shape = np.random.choice(list(self.frequency_ratio.keys()), p=list(self.frequency_ratio.values()))
+        self.shape = np.random.choice(
+            list(self.frequency_ratio.keys()), p=list(self.frequency_ratio.values())
+        )
 
     def _refresh(self):
-        self.shape = np.random.choice(list(self.frequency_ratio.keys()), p=list(self.frequency_ratio.values()))
+        self.shape = np.random.choice(
+            list(self.frequency_ratio.keys()), p=list(self.frequency_ratio.values())
+        )
 
     def _return_shape_config(self):
         return {"shape": self.shape, "parameters": getattr(self, self.shape)()}
@@ -108,11 +112,16 @@ class ShapeConfigs:
         fill: the fill color of the chord
             (int: black-white; 0-254)
         """
-        target_area_size = np.random.uniform(min(self.range_area_coords), max(self.range_area_coords))
+        target_area_size = np.random.uniform(
+            min(self.range_area_coords), max(self.range_area_coords)
+        )
         coord_1 = (np.random.uniform(0.1, 1), np.random.uniform(0, 0.9))
         width = np.random.uniform(0.12, 1)
         height = target_area_size / width
-        coord_2 = (coord_1[0] + width * choice([-1, 1]), coord_1[1] + height * choice([-1, 1]))
+        coord_2 = (
+            coord_1[0] + width * choice([-1, 1]),
+            coord_1[1] + height * choice([-1, 1]),
+        )
         coord_1, coord_2 = tuple(coord_1), tuple(coord_2)
 
         # make sure the difference between the two angles is not too small
@@ -142,11 +151,16 @@ class ShapeConfigs:
             (float between 0 and 1, which will be scaled to the image size)
         """
 
-        target_area_size = np.random.uniform(min(self.range_area_coords), max(self.range_area_coords))
+        target_area_size = np.random.uniform(
+            min(self.range_area_coords), max(self.range_area_coords)
+        )
         coord_1 = (np.random.uniform(0, 1), np.random.uniform(0, 1))
         width = np.random.uniform(0, 1)
         height = target_area_size / width
-        coord_2 = (coord_1[0] + width * choice([-1, 1]), coord_1[1] + height * choice([-1, 1]))
+        coord_2 = (
+            coord_1[0] + width * choice([-1, 1]),
+            coord_1[1] + height * choice([-1, 1]),
+        )
         coord_1, coord_2 = tuple(coord_1), tuple(coord_2)
 
         fill = np.random.randint(1, 254)
@@ -170,11 +184,16 @@ class ShapeConfigs:
             (int: black-white; 0-254)
         """
 
-        target_area_size = np.random.uniform(min(self.range_area_coords), max(self.range_area_coords))
+        target_area_size = np.random.uniform(
+            min(self.range_area_coords), max(self.range_area_coords)
+        )
         coord_1 = (np.random.uniform(0.1, 1), np.random.uniform(0, 0.9))
         width = np.random.uniform(0.12, 1)
         height = target_area_size / width
-        coord_2 = (coord_1[0] + width * choice([-1, 1]), coord_1[1] + height * choice([-1, 1]))
+        coord_2 = (
+            coord_1[0] + width * choice([-1, 1]),
+            coord_1[1] + height * choice([-1, 1]),
+        )
         coord_1, coord_2 = tuple(coord_1), tuple(coord_2)
 
         starting_angle, ending_angle = np.random.rand(2) * 360
@@ -202,11 +221,17 @@ class ShapeConfigs:
         n_points = np.random.randint(3, 10)  # number of points between 3 and 10
 
         coordinates = np.random.rand(n_points, 2)  # n_points with 2 coordinates
-        angles = [self._calculate_angle(c1, c2, c3) for c1, c2, c3 in zip(coordinates[:-2], coordinates[1:-1], coordinates[2:])]
+        angles = [
+            self._calculate_angle(c1, c2, c3)
+            for c1, c2, c3 in zip(coordinates[:-2], coordinates[1:-1], coordinates[2:])
+        ]
         while any(angle < self.threshold_angle_polygon for angle in angles):
             coordinates = np.random.rand(n_points, 2)
             angles = [
-                self._calculate_angle(c1, c2, c3) for c1, c2, c3 in zip(coordinates[:-2], coordinates[1:-1], coordinates[2:])
+                self._calculate_angle(c1, c2, c3)
+                for c1, c2, c3 in zip(
+                    coordinates[:-2], coordinates[1:-1], coordinates[2:]
+                )
             ]
 
         coordinates = coordinates.tolist()
@@ -258,11 +283,16 @@ class ShapeConfigs:
             (int: black-white; 0-254)
         """
 
-        target_area_size = np.random.uniform(min(self.range_area_coords), max(self.range_area_coords))
+        target_area_size = np.random.uniform(
+            min(self.range_area_coords), max(self.range_area_coords)
+        )
         coord_1 = (np.random.uniform(0.1, 1), np.random.uniform(0, 0.9))
         width = np.random.uniform(0.12, 1)
         height = target_area_size / width
-        coord_2 = (coord_1[0] + width * choice([-1, 1]), coord_1[1] + height * choice([-1, 1]))
+        coord_2 = (
+            coord_1[0] + width * choice([-1, 1]),
+            coord_1[1] + height * choice([-1, 1]),
+        )
         coord_1, coord_2 = tuple(coord_1), tuple(coord_2)
 
         fill = np.random.randint(1, 254)
@@ -280,11 +310,16 @@ class ShapeConfigs:
             (int: black-white; 0-254)
         """
 
-        target_area_size = np.random.uniform(min(self.range_area_coords), max(self.range_area_coords))
+        target_area_size = np.random.uniform(
+            min(self.range_area_coords), max(self.range_area_coords)
+        )
         coord_1 = (np.random.uniform(0.1, 1), np.random.uniform(0, 0.9))
         width = np.random.uniform(0.12, 1)
         height = target_area_size / width
-        coord_2 = (coord_1[0] + width * choice([-1, 1]), coord_1[1] + height * choice([-1, 1]))
+        coord_2 = (
+            coord_1[0] + width * choice([-1, 1]),
+            coord_1[1] + height * choice([-1, 1]),
+        )
         coord_1, coord_2 = tuple(coord_1), tuple(coord_2)
 
         radius = np.random.rand() / 8
@@ -305,7 +340,9 @@ class ColorPickerStimuli:
         self.indicator_circle_radius = 20  # float between 0 and 1
         self.initial_image_width = self.target_image_width * self.initial_expansion
 
-        self.canvas = new("L", (self.initial_image_width, self.initial_image_width), color=0)
+        self.canvas = new(
+            "L", (self.initial_image_width, self.initial_image_width), color=0
+        )
         self.draw = Draw(self.canvas)
 
     def add_circles(self, x, y, r, fill):
@@ -371,11 +408,15 @@ class ColorPickerStimuli:
         self.draw.pieslice((coord_1, coord_2), starting_angle, ending_angle, fill=fill)
 
     def add_polygons(self, coordinates, fill):
-        coordinates = [tuple(map(self._multiply_by_canvas_size, coord)) for coord in coordinates]
+        coordinates = [
+            tuple(map(self._multiply_by_canvas_size, coord)) for coord in coordinates
+        ]
         self.draw.polygon(coordinates, fill=fill)
 
     def add_regular_polygons(self, bounding_circle_xyr, n_sides, rotation, fill):
-        bounding_circle_xyr = [i * self.initial_image_width for i in bounding_circle_xyr]
+        bounding_circle_xyr = [
+            i * self.initial_image_width for i in bounding_circle_xyr
+        ]
         self.draw.regular_polygon(bounding_circle_xyr, n_sides, rotation, fill=fill)
 
     def add_rectangles(self, coord_1, coord_2, fill):
@@ -424,11 +465,19 @@ class ColorPickerStimuli:
         coord_1 = coord
         coord_2 = (coord[0], coord[1] - self.arrow_line_length)
 
-        coord_triangle_left = (coord[0] - self.triangle_width, coord[1] - self.triangle_height)
-        coord_triangle_right = (coord[0] + self.triangle_width, coord[1] - self.triangle_height)
+        coord_triangle_left = (
+            coord[0] - self.triangle_width,
+            coord[1] - self.triangle_height,
+        )
+        coord_triangle_right = (
+            coord[0] + self.triangle_width,
+            coord[1] - self.triangle_height,
+        )
 
         self.draw.line((coord_1, coord_2), fill=fill, width=4)
-        self.draw.polygon((coord_1, coord_triangle_left, coord_triangle_right), fill=fill)
+        self.draw.polygon(
+            (coord_1, coord_triangle_left, coord_triangle_right), fill=fill
+        )
 
     def _add_indicator_circle(self, coord: tuple[float, float]):
         fill = None
@@ -457,13 +506,24 @@ class ColorPickerStimuli:
         """mutate all color of a given pixel in the canvas"""
         pixel_color = self._get_pixel_color(coord)
         # change all pixels of the same color to the target color
-        self.canvas.putdata([target_color if pixel_color == color else color for color in self.canvas.getdata()])
+        self.canvas.putdata(
+            [
+                target_color if pixel_color == color else color
+                for color in self.canvas.getdata()
+            ]
+        )
 
     def _count_colors_withing_circle(self, coord: tuple[float, float]) -> int:
         """get the pixel colors within a circle given its center and radius"""
         coord = tuple(map(self._multiply_by_canvas_size, coord))
-        coord_1 = (coord[0] - self.indicator_circle_radius, coord[1] - self.indicator_circle_radius)
-        coord_2 = (coord[0] + self.indicator_circle_radius, coord[1] + self.indicator_circle_radius)
+        coord_1 = (
+            coord[0] - self.indicator_circle_radius,
+            coord[1] - self.indicator_circle_radius,
+        )
+        coord_2 = (
+            coord[0] + self.indicator_circle_radius,
+            coord[1] + self.indicator_circle_radius,
+        )
         return len(self.canvas.crop((*coord_1, *coord_2)).getcolors())
 
     def _propose_arrow_coord(self) -> tuple[float, float]:
@@ -484,7 +544,10 @@ class ColorPickerStimuli:
         return coord
 
     def _shrink_and_save(self, save_as: Path):
-        self.canvas = self.canvas.resize((self.target_image_width, self.target_image_width), resample=Image.Resampling.LANCZOS)
+        self.canvas = self.canvas.resize(
+            (self.target_image_width, self.target_image_width),
+            resample=Image.Resampling.LANCZOS,
+        )
         self.canvas.save(save_as)
 
     def _check_undrawn_pixels(self):
@@ -537,7 +600,9 @@ class GenMain:
                 # get a new shape config
                 shape_configs._refresh()
                 random_shape_config = shape_configs._return_shape_config()
-                getattr(img, "add_" + random_shape_config["shape"])(**random_shape_config["parameters"])
+                getattr(img, "add_" + random_shape_config["shape"])(
+                    **random_shape_config["parameters"]
+                )
 
             # when the image is ready, find a good place for the arrow
             propose_coordinates = img._propose_arrow_coord()
@@ -549,12 +614,15 @@ class GenMain:
             # pixel_color = img._get_pixel_color((0.5, 0.5))  # for center
             img._add_indicator_arrow(propose_coordinates)
             # img._add_indicator_circle(propose_coordinates)
-            img._shrink_and_save(save_as=self.target_path / f"{pixel_color}_{i}_{np.random.randint(100000)}.png")
+            img._shrink_and_save(
+                save_as=self.target_path
+                / f"{pixel_color}_{i}_{np.random.randint(100000)}.png"
+            )
 
 
 def gen_main():
     # target_path = Path("E:\\") / "mindset_data" / "color_picker_centre_pixel"
-    target_path = Path("data") / "color_picker"
+    target_path = Path("data") / "color_picker_train"
     os.makedirs(target_path, exist_ok=True)
 
     total_images = 10000
