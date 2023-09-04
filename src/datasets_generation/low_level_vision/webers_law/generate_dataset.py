@@ -71,11 +71,14 @@ class DrawWeberLength(DrawStimuli):
         return img
 
 
-DEFAULTS["num_samples_per_length"] = 100
+category_folder = os.path.basename(os.path.dirname(os.path.dirname(__file__)))
+name_dataset = os.path.basename(os.path.dirname(__file__))
+
+DEFAULTS["num_samples_per_length"] = 1000
 DEFAULTS["max_line_length"] = 50
 DEFAULTS["min_line_length"] = 5
 DEFAULTS["interval_line_length"] = 1
-DEFAULTS["output_folder"] = "data/low_level_vision/webers_law_length"
+DEFAULTS["output_folder"] = f"data/{category_folder}/{name_dataset}"
 
 
 def generate_all(

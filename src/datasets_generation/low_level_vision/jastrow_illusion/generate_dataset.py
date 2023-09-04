@@ -1,6 +1,7 @@
 import argparse
 import csv
 import math
+import os
 import pathlib
 
 import sty
@@ -123,20 +124,23 @@ class DrawJastrow(DrawStimuli):
         return parent.canvas
 
 
+category_folder = os.path.basename(os.path.dirname(os.path.dirname(__file__)))
+name_dataset = os.path.basename(os.path.dirname(__file__))
+
 DEFAULTS.update(
     {
-        "num_illusory_samples": 50,
-        "num_random_samples": 50,
-        "num_aligned_samples": 50,
-        "output_folder": "data/low_level_vision/jastrow_illusion",
+        "num_samples_illusory": 500,
+        "num_samples_random": 5000,
+        "num_samples_aligned": 1000,
+        "output_folder": f"data/{category_folder}/{name_dataset}",
     }
 )
 
 
 def generate_all(
-    num_illusory_samples=DEFAULTS["num_illusory_samples"],
-    num_random_samples=DEFAULTS["num_random_samples"],
-    num_aligned_samples=DEFAULTS["num_aligned_samples"],
+    num_samples_illusory=DEFAULTS["num_samples_illusory"],
+    num_samples_random=DEFAULTS["num_samples_random"],
+    num_samples_aligner=DEFAULTS["num_samples_aligned"],
     output_folder=DEFAULTS["output_folder"],
     canvas_size=DEFAULTS["canvas_size"],
     background_color=DEFAULTS["background_color"],
@@ -193,9 +197,9 @@ def generate_all(
 
         for type in tqdm(types):
             num_samples = {
-                "illusory": num_illusory_samples,
-                "aligned": num_aligned_samples,
-                "random": num_random_samples,
+                "illusory": num_samples_illusory,
+                "aligned": num_samples_aligner,
+                "random": num_samples_random,
             }[type]
             for idx in tqdm(range(num_samples), leave=False):
                 for top_color in on_top_cols:
@@ -240,21 +244,21 @@ if __name__ == "__main__":
     parser.set_defaults(output_folder=DEFAULTS["output_folder"])
 
     parser.add_argument(
-        "--num_illusory_samples",
+        "--num_samples_illusory",
         "-nis",
-        default=DEFAULTS["num_illusory_samples"],
+        default=DEFAULTS["num_samples_illusory"],
         type=int,
     )
     parser.add_argument(
-        "--num_aligned_samples",
+        "--num_samples_aligned",
         "-nas",
-        default=DEFAULTS["num_aligned_samples"],
+        default=DEFAULTS["num_samples_aligned"],
         type=int,
     )
     parser.add_argument(
-        "--num_random_samples",
+        "--num_samples_random",
         "-nrs",
-        default=DEFAULTS["num_random_samples"],
+        default=DEFAULTS["num_samples_random"],
         type=int,
     )
     args = parser.parse_known_args()[0]

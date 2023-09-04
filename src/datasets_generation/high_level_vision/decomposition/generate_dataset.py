@@ -4,6 +4,7 @@ import pathlib
 
 import sty
 from tqdm import tqdm
+import os
 
 from src.utils.drawing_utils import DrawStimuli
 from src.utils.misc import DEFAULTS, add_general_args, delete_and_recreate_path
@@ -84,12 +85,15 @@ class DrawDecomposition(DrawStimuli):
         return parent.canvas
 
 
+category_folder = os.path.basename(os.path.dirname(os.path.dirname(__file__)))
+name_dataset = os.path.basename(os.path.dirname(__file__))
+
 DEFAULTS.update(
     {
-        "num_samples": 100,
+        "num_samples": 5000,
         "moving_distance": 60,
         "shape_color": (255, 255, 255),
-        "output_folder": "data/high_level_vision/decomposition",
+        "output_folder": f"data/{category_folder}/{name_dataset}",
     }
 )
 

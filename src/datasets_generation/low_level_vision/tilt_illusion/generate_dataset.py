@@ -72,18 +72,21 @@ class DrawTiltIllusion(DrawStimuli):
         return apply_antialiasing(context) if self.antialiasing else context
 
 
+category_folder = os.path.basename(os.path.dirname(os.path.dirname(__file__)))
+name_dataset = os.path.basename(os.path.dirname(__file__))
+
 DEFAULTS.update(
     {
-        "num_only_center_samples": 100,
-        "num_center_context_samples": 100,
-        "output_folder": "data/low_level_vision/tilt_illusion",
+        "num_samples_only_center": 1000,
+        "num_samples_center_context": 1000,
+        "output_folder": f"data/{category_folder}/{name_dataset}",
     }
 )
 
 
 def generate_all(
-    num_only_center_samples=DEFAULTS["num_only_center_samples"],
-    num_center_context_samples=DEFAULTS["num_center_context_samples"],
+    num_samples_only_center=DEFAULTS["num_samples_only_center"],
+    num_samples_center_context=DEFAULTS["num_samples_center_context"],
     output_folder=DEFAULTS["output_folder"],
     canvas_size=DEFAULTS["canvas_size"],
     background_color=DEFAULTS["background_color"],
@@ -136,7 +139,7 @@ def generate_all(
                 "IterNum",
             ]
         )
-        for i in tqdm(range(num_only_center_samples)):
+        for i in tqdm(range(num_samples_only_center)):
             theta_center, radius, _, freq = get_random_values()
             path = Path("only_center") / f"{-theta_center:.3f}__0_{i}.png"
             img = ds.generate_illusion(theta_center, radius, (0.5, 0.5), freq)
@@ -145,7 +148,7 @@ def generate_all(
                 [path, "only_center", ds.background, theta_center, radius, freq, "", i]
             )
 
-        all_thetas = np.linspace(-np.pi / 2, np.pi / 2, num_center_context_samples)
+        all_thetas = np.linspace(-np.pi / 2, np.pi / 2, num_samples_center_context)
         for i, theta_context in enumerate(tqdm(all_thetas)):
             _, radius, _, freq = get_random_values()
             img = ds.generate_illusion(0, radius, (0.5, 0.5), freq, theta_context)
@@ -175,16 +178,16 @@ if __name__ == "__main__":
     parser.set_defaults(output_folder=DEFAULTS["output_folder"])
 
     parser.add_argument(
-        "--num_only_center_samples",
+        "--num_samples_only_center",
         "-ncenter",
         help="Number of samples with only the center gabor patch",
-        default=DEFAULTS["num_only_center_samples"],
+        default=DEFAULTS["num_samples_only_center"],
         type=int,
     )
     parser.add_argument(
-        "--num_center_context_samples",
+        "--num_samples_center_context",
         "-ncontext",
-        default=DEFAULTS["num_center_context_samples"],
+        default=DEFAULTS["num_samples_center_context"],
         help="Number of samples for center and context gabor patches",
         type=int,
     )

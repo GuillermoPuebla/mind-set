@@ -364,9 +364,12 @@ class DrawUncrowding(DrawStimuli):
 
         return patch
 
-    def draw_vernier(self, offset=None, offset_size=None):
+    def draw_vernier_in_patch(
+        self, full_patch: np.array = None, offset=None, offset_size=None
+    ):
         if offset_size is None:
             offset_size = random.randint(1, int(self.bar_height / 2.0))
+
         patch = np.array(
             self.create_canvas(
                 size=(
@@ -386,12 +389,12 @@ class DrawUncrowding(DrawStimuli):
                 patch = np.fliplr(patch)
         elif offset == 1:
             patch = np.fliplr(patch)
-
-        full_patch = np.array(
-            self.create_canvas(
-                size=(self.shape_size, self.shape_size), background=self.background
+        if full_patch is None:
+            full_patch = np.array(
+                self.create_canvas(
+                    size=(self.shape_size, self.shape_size), background=self.background
+                )
             )
-        )
         first_row = int((self.shape_size - patch.shape[0]) / 2)
         first_col = int((self.shape_size - patch.shape[1]) / 2)
         full_patch[
@@ -493,10 +496,15 @@ class DrawUncrowding(DrawStimuli):
                 (patch.shape[0] - self.shape_size) / 2
             )  # + 1  # small adjustments may be needed depending on precise image size
             first_col = int((patch.shape[1] - self.shape_size) / 2)  # + 1
+            target_patch = patch[
+                first_row : (first_row + self.shape_size),
+                first_col : first_col + self.shape_size,
+            ]
+
             patch[
                 first_row : (first_row + self.shape_size),
                 first_col : first_col + self.shape_size,
-            ] += self.draw_vernier(offset, offset_size)
+            ] = self.draw_vernier_in_patch(target_patch, offset, offset_size)
             # patch[patch > 1.0] = 1.0
 
         if fixed_position is None:
@@ -527,7 +535,7 @@ class DrawUncrowding(DrawStimuli):
 
         if vernier_ext:
             ver_size = self.shape_size
-            ver_patch = self.draw_vernier(offset, offset_size)
+            ver_patch = self.draw_vernier_in_patch(None, offset, offset_size)
             x = first_row
             y = first_col
 
@@ -563,12 +571,15 @@ class DrawUncrowding(DrawStimuli):
 
 random_pixels = 0
 
+category_folder = os.path.basename(os.path.dirname(os.path.dirname(__file__)))
+name_dataset = os.path.basename(os.path.dirname(__file__))
+
 DEFAULTS.update(
     {
-        "num_samples_vernier_inside": 100,
-        "num_samples_vernier_outside": 100,
+        "num_samples_vernier_inside": 5000,
+        "num_samples_vernier_outside": 5000,
         "random_size": True,
-        "output_folder": "data/gestalt/un_crowding",
+        "output_folder": f"data/{category_folder}/{name_dataset}",
         "antialiasing": False,
     }
 )

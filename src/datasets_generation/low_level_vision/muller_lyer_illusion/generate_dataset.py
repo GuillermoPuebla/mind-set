@@ -1,6 +1,7 @@
 import argparse
 import csv
 import math
+import os
 import random
 from pathlib import Path
 
@@ -98,7 +99,7 @@ class DrawMullerLyer(DrawStimuli):
             draw_arrow(
                 d,
                 (line_position[0] - line_length // 2, line_position[1]),
-                theta=(180 if type == "test_outward" else 0),
+                theta=(180 if type == "outward" else 0),
                 angle_arrow=arrow_cap_angle,
                 arrow_length=arrow_length,
                 color=self.fill,
@@ -107,7 +108,7 @@ class DrawMullerLyer(DrawStimuli):
             draw_arrow(
                 d,
                 (line_position[0] + line_length // 2, line_position[1]),
-                theta=(0 if type == "test_outward" else 180),
+                theta=(0 if type == "outward" else 180),
                 angle_arrow=arrow_cap_angle,
                 arrow_length=arrow_length,
                 color=self.fill,
@@ -116,18 +117,21 @@ class DrawMullerLyer(DrawStimuli):
         return apply_antialiasing(img) if self.antialiasing else img
 
 
+category_folder = os.path.basename(os.path.dirname(os.path.dirname(__file__)))
+name_dataset = os.path.basename(os.path.dirname(__file__))
+
 DEFAULTS.update(
     {
-        "num_scrambled_samples": 100,
-        "num_illusory_samples": 100,
-        "output_folder": "data/low_level_vision/muller_lyer_illusion",
+        "num_samples_scrambled": 5000,
+        "num_samples_illusory": 500,
+        "output_folder": f"data/{category_folder}/{name_dataset}",
     }
 )
 
 
 def generate_all(
-    num_scrambled_samples=DEFAULTS["num_scrambled_samples"],
-    num_illusory_samples=DEFAULTS["num_illusory_samples"],
+    num_samples_scrambled=DEFAULTS["num_samples_scrambled"],
+    num_samples_illusory=DEFAULTS["num_samples_illusory"],
     output_folder=DEFAULTS["output_folder"],
     canvas_size=DEFAULTS["canvas_size"],
     background_color=DEFAULTS["background_color"],
@@ -144,7 +148,7 @@ def generate_all(
         return str(output_folder)
 
     delete_and_recreate_path(output_folder)
-    conditions = ["scrambled", "mulllyer_inward", "mulllyer_outward"]
+    conditions = ["scrambled", "inward", "outward"]
     [(output_folder / i).mkdir(exist_ok=True, parents=True) for i in conditions]
 
     ds = DrawMullerLyer(
@@ -199,7 +203,7 @@ def generate_all(
         )
         for c in tqdm(conditions):
             num_samples = (
-                num_scrambled_samples if c == "scrambled" else num_illusory_samples
+                num_samples_scrambled if c == "scrambled" else num_samples_illusory
             )
             for i in tqdm(range(num_samples), leave=False):
                 (
@@ -216,7 +220,7 @@ def generate_all(
                     arrow_angle=arrow_angle,
                     arrow_cap_angle=cap_arrow_angle,
                     arrow_length=arrow_length,
-                    type="scrambled",
+                    type=c,
                 )
                 path = Path(c) / f"{line_length}__{i}.png"
                 img.save(str(output_folder / path))
@@ -245,15 +249,15 @@ if __name__ == "__main__":
     parser.set_defaults(output_folder=DEFAULTS["output_folder"])
 
     parser.add_argument(
-        "--num_scrambled_samples",
-        "-nscrambled",
-        default=DEFAULTS["num_scrambled_samples"],
+        "--num_samples_scrambled",
+        "-nscr",
+        default=DEFAULTS["num_samples_scrambled"],
         type=int,
     )
     parser.add_argument(
-        "--num_illusory_samples",
+        "--num_samples_illusory",
         "-nill",
-        default=DEFAULTS["num_illusory_samples"],
+        default=DEFAULTS["num_samples_illusory"],
         type=int,
     )
     parser.set_defaults(antialiasing=False)

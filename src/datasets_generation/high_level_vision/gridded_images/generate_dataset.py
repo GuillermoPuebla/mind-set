@@ -88,6 +88,9 @@ class DrawGriddedImages(DrawStimuli):
         return apply_antialiasing(img) if self.antialiasing else img
 
 
+category_folder = os.path.basename(os.path.dirname(os.path.dirname(__file__)))
+name_dataset = os.path.basename(os.path.dirname(__file__))
+
 DEFAULTS.update(
     {
         "linedrawing_input_folder": "assets/baker_2018/outline_images_fix",
@@ -95,7 +98,7 @@ DEFAULTS.update(
         "grid_degree": 45,
         "grid_size": 8,
         "grid_thickness": 4,
-        "output_folder": "data/high_level_vision/gridded_images",
+        "output_folder": f"data/{category_folder}/{name_dataset}",
         "antialiasing": False,
     }
 )

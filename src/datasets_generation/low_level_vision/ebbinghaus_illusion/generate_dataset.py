@@ -21,9 +21,12 @@ from src.utils.misc import (
 from src.utils.misc import DEFAULTS as BASE_DEFAULTS
 
 DEFAULTS = BASE_DEFAULTS.copy()
+category_folder = os.path.basename(os.path.dirname(os.path.dirname(__file__)))
+name_dataset = os.path.basename(os.path.dirname(__file__))
 
-DEFAULTS["num_samples"] = 100
-DEFAULTS["output_folder"] = "data/low_level_vision/ebbinghaus_illusion"
+
+DEFAULTS["num_samples"] = 5000
+DEFAULTS["output_folder"] = f"data/{category_folder}/{name_dataset}"
 
 
 def generate_all(

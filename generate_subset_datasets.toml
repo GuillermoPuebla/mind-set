@@ -1,7 +1,8 @@
-["src/datasets_generation/coding_of_shapes/volumetric_vs_surface/generate_dataset.py"]
+["src/datasets_generation/low_level_vision/muller_lyer_illusion/generate_dataset.py"]
 canvas_size = [ 224, 224,]
 background_color = [ 0, 0, 0,]
 antialiasing = true
 regenerate = true
-object_longest_side = 100
-output_folder = "data/coding_of_shapes/volumetric_vs_surface"
+num_samples_scrambled = 100
+num_samples_illusory = 100
+output_folder = "data/low_level_vision/muller_lyer_illusion"

@@ -6,6 +6,7 @@ import PIL.Image as Image
 import sty
 from tqdm import tqdm
 
+import os
 from src.utils.drawing_utils import DrawStimuli
 from src.utils.misc import (
     add_general_args,
@@ -16,7 +17,9 @@ from src.utils.misc import (
 from src.utils.misc import DEFAULTS as BASE_DEFAULTS
 
 DEFAULTS = BASE_DEFAULTS.copy()
-DEFAULTS["output_folder"] = "data/coding_of_shapes/NAPvsMP_2D_lines"
+category_folder = os.path.basename(os.path.dirname(os.path.dirname(__file__)))
+name_dataset = os.path.basename(os.path.dirname(__file__))
+DEFAULTS["output_folder"] = f"data/{category_folder}/{name_dataset}"
 
 
 class DrawLines(DrawStimuli):

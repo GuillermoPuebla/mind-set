@@ -19,6 +19,7 @@ from src.utils.misc import (
 )
 
 from src.utils.misc import DEFAULTS as BASE_DEFAULTS
+import os
 
 DEFAULTS = BASE_DEFAULTS.copy()
 from tqdm import tqdm
@@ -62,13 +63,16 @@ class DrawDottedImage(DrawStimuli):
         return apply_antialiasing(canvas) if self.antialiasing else canvas
 
 
+category_folder = os.path.basename(os.path.dirname(os.path.dirname(__file__)))
+name_dataset = os.path.basename(os.path.dirname(__file__))
+
 DEFAULTS.update(
     {
         "object_longest_side": 100,
         "linedrawing_input_folder": "assets/baker_2018/outline_images_fix/",
         "dot_distance": 5,
         "dot_size": 1,
-        "output_folder": "data/gestalt/dotted_linedrawings",
+        "output_folder": f"data/{category_folder}/{name_dataset}",
         "antialiasing": False,
     }
 )

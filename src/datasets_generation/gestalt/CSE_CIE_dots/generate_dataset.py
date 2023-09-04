@@ -9,11 +9,13 @@ import pathlib
 from src.utils.misc import add_general_args, delete_and_recreate_path
 
 from src.utils.misc import DEFAULTS as BASE_DEFAULTS
+import os 
 
 DEFAULTS = BASE_DEFAULTS.copy()
-DEFAULTS["num_samples"] = 100
-DEFAULTS["output_folder"] = "data/gestalt/CSE_CIE_dots"
-
+DEFAULTS["num_samples"] = 1000
+category_folder = os.path.basename(os.path.dirname(os.path.dirname(__file__)))
+name_dataset = os.path.basename(os.path.dirname(__file__))
+DEFAULTS["output_folder"] = f"data/{category_folder}/{name_dataset}"
 
 def generate_all(
     output_folder=DEFAULTS["output_folder"],

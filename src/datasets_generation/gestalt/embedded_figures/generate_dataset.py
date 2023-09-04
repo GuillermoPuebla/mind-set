@@ -74,20 +74,22 @@ polys = [
     ],
 ]
 
+
+category_folder = os.path.basename(os.path.dirname(os.path.dirname(__file__)))
+name_dataset = os.path.basename(os.path.dirname(__file__))
+
 DEFAULTS.update(
     {
-        "num_samples_polygons": 100,
-        "num_samples_embedded_polygons": 100,
+        "num_samples": 5000,
         "shape_size": 45,
         "debug_mode": False,
-        "output_folder": "data/gestalt/embedded_figures",
+        "output_folder": f"data/{category_folder}/{name_dataset}",
     }
 )
 
 
 def generate_all(
-    num_samples_polygons=DEFAULTS["num_samples_polygons"],
-    num_samples_embedded_polygons=DEFAULTS["num_samples_embedded_polygons"],
+    num_samples=DEFAULTS["num_samples"],
     shape_size=DEFAULTS["shape_size"],
     debug_mode=DEFAULTS["debug_mode"],
     output_folder=DEFAULTS["output_folder"],
@@ -120,11 +122,7 @@ def generate_all(
             antialiasing=antialiasing,
         )
         for cond in tqdm(["polygons", "embedded_polygons"]):
-            N = (
-                num_samples_polygons
-                if cond == "train"
-                else num_samples_embedded_polygons
-            )
+            N = 1 if cond == "polygons" else num_samples
 
             for s in tqdm(shapes, leave=False):
                 shape_name, shape_points = str(s[0]), s[1]
@@ -133,7 +131,7 @@ def generate_all(
                 class_folder.mkdir(parents=True, exist_ok=True)
                 for i in tqdm(range(N)):
                     if cond == "polygons":
-                        main_image = ds.draw_shape(
+                        img = ds.draw_shape(
                             shape_points,
                             extend_lines=False,
                             num_shift_lines=0,
@@ -142,24 +140,13 @@ def generate_all(
                         )
 
                     else:
-                        main_image = ds.draw_shape(
+                        img = ds.draw_shape(
                             shape_points,
                             extend_lines=True,
                             num_shift_lines=10,
                             num_rnd_lines=10,
                             debug=debug_mode,
                         )
-                    af = get_new_affine_values("r[-180, 180]t[-0.1, 0.1]s[0.5, 2]")
-                    img = my_affine(
-                        main_image,
-                        translate=af["tr"],
-                        angle=af["rt"],
-                        scale=af["sc"],
-                        shear=af["sh"],
-                        interpolation=InterpolationMode.BILINEAR,
-                        fill=ds.background,
-                    )
-                    img = transforms.CenterCrop((canvas_size[1], canvas_size[0]))(img)
                     img.save(class_folder / f"{i}.png")
                     writer.writerow([img_path, cond, ds.background, i])
     return str(output_folder)
@@ -174,19 +161,12 @@ if __name__ == "__main__":
     parser.set_defaults(output_folder=DEFAULTS["output_folder"])
 
     parser.add_argument("--debug_mode", "-debug", action="store_true")
-    parser.add_argument(
-        "--num_samples_polygons",
-        "-nsp",
-        help="The number of samples to generate for each (non-embedded) polygons",
-        default=DEFAULTS["num_samples_polygons"],
-        type=int,
-    )
 
     parser.add_argument(
-        "--num_samples_embedded_polygons",
-        "-nsep",
+        "--num_samples",
+        "-ns",
         help="The number of samples to generate for each (embedded) polygons",
-        default=DEFAULTS["num_samples_embedded_polygons"],
+        default=DEFAULTS["num_samples"],
         type=int,
     )
 

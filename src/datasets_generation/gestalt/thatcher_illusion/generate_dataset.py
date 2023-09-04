@@ -19,10 +19,14 @@ from src.utils.misc import (
     delete_and_recreate_path,
 )
 
+category_folder = os.path.basename(os.path.dirname(os.path.dirname(__file__)))
+name_dataset = os.path.basename(os.path.dirname(__file__))
+
+
 DEFAULTS = {
     "canvas_size": (224, 224),
     "face_folder": "assets/celebA_sample/normal",
-    "output_folder": "data/gestalt/thatcher_illusion",
+    "output_folder": f"data/{category_folder}/{name_dataset}",
     "regenerate": True,
 }
 

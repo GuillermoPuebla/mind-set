@@ -352,7 +352,7 @@ get_closed_squares = lambda ds, label, **kwargs: ds.make_connected_open_squares(
 )
 
 
-DEFAULTS.update({"num_samples": 100, "type_dataset": "all", "size_shapes": 20})
+DEFAULTS.update({"num_samples": 5000, "type_dataset": "all", "size_shapes": 20})
 
 
 def is_integer(n):
@@ -363,7 +363,9 @@ def is_integer(n):
         return False
 
 
-DEFAULTS["output_folder"] = "data/high_level_vision/same_different_task"
+category_folder = os.path.basename(os.path.dirname(os.path.dirname(__file__)))
+name_dataset = os.path.basename(os.path.dirname(__file__))
+DEFAULTS["output_folder"] = f"data/{category_folder}/{name_dataset}"
 
 
 def generate_all(
@@ -486,7 +488,6 @@ if __name__ == "__main__":
     )
     add_general_args(parser)
     parser.set_defaults(output_folder=DEFAULTS["output_folder"])
-
 
     parser.add_argument(
         "--num_samples",

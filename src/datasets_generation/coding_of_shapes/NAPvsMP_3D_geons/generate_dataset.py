@@ -10,6 +10,7 @@ from tqdm import tqdm
 from src.datasets_generation.gestalt.CSE_CIE_dots.utils import DrawCSE_CIEdots
 import pathlib
 import PIL.Image as Image
+import os
 
 from src.utils.drawing_utils import DrawStimuli
 from src.utils.misc import (
@@ -22,7 +23,9 @@ from src.utils.misc import DEFAULTS as BASE_DEFAULTS
 
 DEFAULTS = BASE_DEFAULTS.copy()
 DEFAULTS["stroke_color"] = ""
-DEFAULTS["output_folder"] = "data/coding_of_shapes/NAPvsMP_3D_geons"
+category_folder = os.path.basename(os.path.dirname(os.path.dirname(__file__)))
+name_dataset = os.path.basename(os.path.dirname(__file__))
+DEFAULTS["output_folder"] = f"data/{category_folder}/{name_dataset}"
 
 
 class DrawLines(DrawStimuli):

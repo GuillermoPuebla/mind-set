@@ -132,12 +132,15 @@ class DrawCompletion(DrawStimuli):
         return apply_antialiasing(img) if self.antialiasing else img
 
 
+category_folder = os.path.basename(os.path.dirname(os.path.dirname(__file__)))
+name_dataset = os.path.basename(os.path.dirname(__file__))
+
 DEFAULTS.update(
     {
-        "num_samples": 100,
+        "num_samples": 5000,
         "circle_color": (255, 255, 255),
         "square_color": (0, 0, 0),
-        "output_folder": "data/low_level_vision/contour_completion",
+        "output_folder": f"data/{category_folder}/{name_dataset}",
         "background_color": (100, 100, 100),
     }
 )

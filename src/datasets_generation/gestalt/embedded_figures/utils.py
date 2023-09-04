@@ -89,7 +89,7 @@ class DrawEmbeddedFigures(DrawStimuli):
         debug=False,
     ):
         original_canvas_size = self.canvas_size
-        self.canvas_size = tuple(np.array(self.canvas_size) * 3)
+        self.canvas_size = tuple(np.array(self.canvas_size))
         canvas = self.create_canvas()
         draw = ImageDraw.Draw(canvas)
         points = center_and_scale(original_points, self.canvas_size, self.shape_size)

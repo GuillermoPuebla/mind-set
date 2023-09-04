@@ -60,7 +60,10 @@ def load_and_invert(path, canvas_size, background, antialiasing):
     return apply_antialiasing(img) if antialiasing else img
 
 
-DEFAULTS["output_folder"] = "data/gestalt/leuven_embedded_figures_test"
+category_folder = os.path.basename(os.path.dirname(os.path.dirname(__file__)))
+name_dataset = os.path.basename(os.path.dirname(__file__))
+
+DEFAULTS["output_folder"] = f"data/{category_folder}/{name_dataset}"
 
 
 def generate_all(

@@ -37,13 +37,15 @@ from src.utils.misc import (
     add_general_args,
     delete_and_recreate_path,
 )
+import os 
 
 from src.utils.misc import DEFAULTS as BASE_DEFAULTS
 
 DEFAULTS = BASE_DEFAULTS.copy()
 DEFAULTS["object_longest_side"] = 100
-DEFAULTS["output_folder"] = "data/coding_of_shapes/volumetric_vs_surface"
-
+category_folder = os.path.basename(os.path.dirname(os.path.dirname(__file__)))
+name_dataset = os.path.basename(os.path.dirname(__file__))
+DEFAULTS["output_folder"] = f"data/{category_folder}/{name_dataset}"
 
 def generate_all(
     object_longest_side=DEFAULTS["object_longest_side"],
