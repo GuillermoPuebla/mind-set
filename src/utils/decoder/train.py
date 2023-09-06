@@ -39,12 +39,10 @@ def decoder_train(
     task_type=None,
     gpu_num=None,
     train_info=None,
-    datasets=None,
+    eval=None,
     network=None,
     training=None,
-    stopping_conditions=None,
     saving_folders=None,
-    monitoring=None,
 ):
     with open(os.path.dirname(__file__) + "/default_decoder_config.toml", "r") as f:
         toml_config = toml.load(f)
@@ -76,11 +74,11 @@ def decoder_train(
     model_output_folder_id.mkdir(parents=True, exist_ok=True)
 
     weblogger = False
-    if toml_config["monitoring"]["neptune_proj_name"]:
+    if toml_config["training"]["monitoring"]["neptune_proj_name"]:
         try:
             neptune_run = neptune.init_run(
                 api_token=os.environ["NEPTUNE_API_TOKEN"],
-                project=toml_config["monitoring"]["neptune_proj_name"],
+                project=toml_config["training"]["monitoring"]["neptune_proj_name"],
             )
             weblogger = neptune_run
             print(sty.fg.blue + "~~ NEPTUNE LOGGING ACTIVE ~~" + sty.rs.fg)
@@ -112,11 +110,11 @@ def decoder_train(
             )
         return fix_dataset(ds, name_ds=ds_config["name"])
 
-    train_dataset = load_dataset(toml_config["datasets"]["training"])
+    train_dataset = load_dataset(toml_config["training"]["dataset"])
 
     test_datasets = (
-        [load_dataset(i) for i in toml_config["datasets"]["validation"]]
-        if "validation" in toml_config["datasets"]
+        [load_dataset(i) for i in toml_config["eval"]["datasets"]]
+        if "eval" in toml_config
         else []
     )
 
@@ -260,11 +258,13 @@ def decoder_train(
         TriggerActionWhenReachingValue(
             mode="max",
             patience=1,
-            value_to_reach=toml_config["stopping_conditions"]["stop_at_epoch"],
+            value_to_reach=toml_config["training"]["stopping_conditions"][
+                "stop_at_epoch"
+            ],
             check_after_batch=False,
             metric_name="epoch",
             action=stop,
-            action_name=f"{toml_config['stopping_conditions']['stop_at_epoch']} epochs",
+            action_name=f"{toml_config['training']['stopping_conditions']['stop_at_epoch']} epochs",
         ),
         *[
             DuringTrainingTest(
@@ -330,13 +330,15 @@ def decoder_train(
         TriggerActionWhenReachingValue(
             mode="min",
             patience=20,
-            value_to_reach=toml_config["stopping_conditions"]["stop_at_loss"],
+            value_to_reach=toml_config["training"]["stopping_conditions"][
+                "stop_at_loss"
+            ],
             check_every=10,
             metric_name="ema_loss",
             action=stop,
-            action_name=f"goal [{toml_config['stopping_conditions']['stop_at_loss']}]",
+            action_name=f"goal [{toml_config['training']['stopping_conditions']['stop_at_loss']}]",
         )
-    ) if toml_config["stopping_conditions"]["stop_at_loss"] else None
+    ) if toml_config["training"]["stopping_conditions"]["stop_at_loss"] else None
 
     net, logs = call_run(train_loader, True, all_callbacks, toml_config["task_type"])
     weblogger.stop() if weblogger else None

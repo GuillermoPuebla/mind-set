@@ -1,8 +1,10 @@
-["src/datasets_generation/low_level_vision/muller_lyer_illusion/generate_dataset.py"]
-canvas_size = [ 224, 224,]
-background_color = [ 0, 0, 0,]
+
+["src/datasets_generation/low_level_vision/jastrow_illusion/generate_dataset.py"]
+canvas_size = [224, 224]
+background_color = [0, 0, 0]
 antialiasing = true
 regenerate = true
-num_samples_scrambled = 100
-num_samples_illusory = 100
-output_folder = "data/low_level_vision/muller_lyer_illusion"
+num_samples_illusory = 50
+num_samples_random = 50
+num_samples_aligned = 50
+output_folder = "datasets/low_level_vision/jastrow_illusion"

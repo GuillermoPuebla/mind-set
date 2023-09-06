@@ -26,7 +26,7 @@ save_trained_model = true
 evaluate_during_training = false
 
 # Note: for a classification task, we expect ALL datasets (training and validation) to have the same number of classes.
-[datasets.training]
+[training.datasets]
 name = "training"
 annotation_file = "path/to/annotation/file.csv"
 img_path_col_name = "Path"
@@ -35,7 +35,7 @@ filters = { Type = "random" }
 
 # Example of validation datasets.
 
-# [[datasets.validation]]
+# [[eval.datasets]]
 # name = "name_val1"
 # annotation_file = ""
 # img_path_col_name = "Path"
@@ -43,7 +43,7 @@ filters = { Type = "random" }
 # filters = { Type = "blabla"}
 
 # You can use more than one validation dataset
-# [[datasets.validation]]
+# [[eval.datasets]]
 # name = "name_val2"
 # annotation_file = ""
 # img_path_col_name = "Path"
@@ -51,18 +51,18 @@ filters = { Type = "random" }
 # filters = { Type = "blabla"}
 
 
-[stopping_conditions]
+[training.stopping_conditions]
 stop_at_epoch = 50
 stop_at_loss = false
 stop_at_accuracy = false
+
+[training.monitoring]
+# If you want to log in neptune.ai, specify the project name. You need an account there + you need to have created a project with the correct name through their UI + You need to set up your API token: \nhttps://docs.neptune.ai/getting-started/installation. The API should be in an environmental variable called NEPTUNE_API_TOKEN.
+# If everything is setup correctly, put your project name here, and you should get a lot of good logging for your training session'
+neptune_proj_name = false
 
 
 [saving_folders]
 # The paths for saving the results and the model. If false, no saving will occur. Notice that, during training, the `train_id` will be appended to these folders. 
 results_folder = 'results/decoder/'
 model_output_folder = 'models/decoder'
-
-[monitoring]
-# If you want to log in neptune.ai, specify the project name. You need an account there + you need to have created a project with the correct name through their UI + You need to set up your API token: \nhttps://docs.neptune.ai/getting-started/installation. The API should be in an environmental variable called NEPTUNE_API_TOKEN.
-# If everything is setup correctly, put your project name here, and you should get a lot of good logging for your training session'
-neptune_proj_name = false

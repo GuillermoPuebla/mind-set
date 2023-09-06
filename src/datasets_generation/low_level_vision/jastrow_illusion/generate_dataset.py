@@ -140,7 +140,7 @@ DEFAULTS.update(
 def generate_all(
     num_samples_illusory=DEFAULTS["num_samples_illusory"],
     num_samples_random=DEFAULTS["num_samples_random"],
-    num_samples_aligner=DEFAULTS["num_samples_aligned"],
+    num_samples_aligned=DEFAULTS["num_samples_aligned"],
     output_folder=DEFAULTS["output_folder"],
     canvas_size=DEFAULTS["canvas_size"],
     background_color=DEFAULTS["background_color"],
@@ -198,7 +198,7 @@ def generate_all(
         for type in tqdm(types):
             num_samples = {
                 "illusory": num_samples_illusory,
-                "aligned": num_samples_aligner,
+                "aligned": num_samples_aligned,
                 "random": num_samples_random,
             }[type]
             for idx in tqdm(range(num_samples), leave=False):

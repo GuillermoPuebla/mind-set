@@ -36,14 +36,14 @@ class Shapes(ShapeCoreFunctions):
         canvas_outer = new("RGBA", self.initial_image_size, (0, 0, 0, 0))
         draw_inner = Draw(canvas_inner)
         draw_outer = Draw(canvas_outer)
-        x0_inner = center[0] - r_inner
-        y0_inner = center[1] - r_inner
-        x1_inner = center[0] + r_inner
-        y1_inner = center[1] + r_inner
-        x0_outer = center[0] - r_outer
-        y0_outer = center[1] - r_outer
-        x1_outer = center[0] + r_outer
-        y1_outer = center[1] + r_outer
+        x0_inner = min(center[0] - r_inner, center[0] + r_inner)
+        y0_inner = min(center[1] - r_inner, center[1] + r_inner)
+        x1_inner = max(center[0] - r_inner, center[0] + r_inner)
+        y1_inner = max(center[1] - r_inner, center[1] + r_inner)
+        x0_outer = min(center[0] - r_outer, center[0] + r_outer)
+        y0_outer = min(center[1] - r_outer, center[1] + r_outer)
+        x1_outer = max(center[0] - r_outer, center[0] + r_outer)
+        y1_outer = max(center[1] - r_outer, center[1] + r_outer)
 
         draw_inner.ellipse(
             (x0_inner, y0_inner, x1_inner, y1_inner), fill=self.color, width=1

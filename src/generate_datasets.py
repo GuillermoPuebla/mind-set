@@ -4,7 +4,7 @@ import toml
 import importlib
 import os
 
-DEFAULT = {"toml_file": "generate_all_datasets_lite.toml"}
+DEFAULT = {"toml_file": "generate_subset_datasets.toml"}
 
 
 def generate_toml(toml_file):

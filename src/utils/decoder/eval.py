@@ -2,7 +2,8 @@ import json
 import os
 import torch
 import torch.backends.cudnn as cudnn
-from rich import print
+
+# from rich import print
 from src.utils.callbacks import *
 from src.utils.decoder.data_utils import ImageRegressionDataset
 from src.utils.decoder.train_utils import ResNet152decoders, fix_dataset
@@ -18,11 +19,7 @@ import inspect
 
 
 def decoder_evaluate(
-    task_type=None,
-    gpu_num=None,
-    datasets=None,
-    network=None,
-    saving_folders=None,
+    task_type=None, gpu_num=None, eval=None, network=None, saving_folders=None, **kwargs
 ):
     with open(os.path.dirname(__file__) + "/default_decoder_config.toml", "r") as f:
         toml_config = toml.load(f)
@@ -49,7 +46,7 @@ def decoder_evaluate(
             )
         return fix_dataset(ds, name_ds=ds_config["name"])
 
-    test_datasets = [load_dataset(i) for i in toml_config["datasets"]["validation"]]
+    test_datasets = [load_dataset(i) for i in toml_config["eval"]["datasets"]]
 
     net = ResNet152decoders(
         imagenet_pt=toml_config["network"]["imagenet_pretrained"],
@@ -83,31 +80,12 @@ def decoder_evaluate(
     ]
     net.cuda() if use_cuda else None
 
-    results_final = []
-
-    def decoder_test(data, model, use_cuda):
-        images, labels = data
-        images = make_cuda(images, use_cuda)
-        labels = make_cuda(labels, use_cuda)
-        out_dec = model(images)
-        for decoder_idx in range(num_decoders):
-            for i in range(len(labels)):
-                try:
-                    prediction = out_dec[decoder_idx][i].item()
-                except IndexError:
-                    prediction = [o.item() for o in out_dec][decoder_idx]
-                results_final.append(
-                    {
-                        "decoder": decoder_idx,
-                        "label": labels[i].item(),
-                        "prediction": prediction,
-                    }
-                )
-
     results_folder = pathlib.Path(toml_config["saving_folders"]["results_folder"])
-    results_folder.mkdir(parents=True, exist_ok=True)
 
     def evaluate_one_dataloader(dataloader):
+        results_final = []
+        (results_folder / dataloader.dataset.name).mkdir(parents=True, exist_ok=True)
+
         print(
             f"Evaluating Dataset "
             + sty.fg.green
@@ -116,11 +94,28 @@ def decoder_evaluate(
         )
 
         for _, data in enumerate(tqdm(dataloader, colour="yellow")):
-            decoder_test(data, net, use_cuda)
+            images, labels = data
+            images = make_cuda(images, use_cuda)
+            labels = make_cuda(labels, use_cuda)
+            out_dec = net(images)
+            for decoder_idx in range(num_decoders):
+                for i in range(len(labels)):
+                    try:
+                        prediction = out_dec[decoder_idx][i].item()
+                    except IndexError:
+                        prediction = [o.item() for o in out_dec][decoder_idx]
+                    results_final.append(
+                        {
+                            "decoder": decoder_idx,
+                            "label": labels[i].item(),
+                            "prediction": prediction,
+                        }
+                    )
 
-            results_final_pandas = pandas.DataFrame(results_final)
-            results_final_pandas.to_csv(
-                str(results_folder / dataloader.name / "predictions.csv"), index=False
-            )
+        results_final_pandas = pandas.DataFrame(results_final)
+        results_final_pandas.to_csv(
+            str(results_folder / dataloader.dataset.name / "predictions.csv"),
+            index=False,
+        )
 
     [evaluate_one_dataloader(dataloader) for dataloader in test_loaders]
