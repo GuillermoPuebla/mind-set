@@ -37,7 +37,7 @@ for p in pretraining:
         ),
         options=dict(pretraining=p),
         saving_folders=dict(
-            result_folder=f"results/examples/distance_similarity/{p}/high_level_vision/CSE_CIE_dots"
+            results_folder=f"results/examples/distance_similarity/{p}/high_level_vision/CSE_CIE_dots"
         ),
         transformation=dict(affine_transf_code=""),
     )

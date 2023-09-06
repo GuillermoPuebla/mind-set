@@ -1,6 +1,6 @@
 [basic_info]
 annotation_file_path = 'data/high_level_vision/decomposition/annotation.csv'
-filter_factor_level = { ShapeType = "unfamiliar"}
+filter_factor_level = { ShapeType = "unfamiliar" }
 match_factors = ['SampleId']
 factor_variable = "SplitType"
 reference_level = "no_split"

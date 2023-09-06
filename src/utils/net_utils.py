@@ -184,34 +184,37 @@ def prepare_network(net, pretraining, optimizer=None, train=True):
     # print_net_info(net) if config.verbose else None
 
 
-def load_pretraining(net, pretraining, optimizer=None, use_cuda=None):
+def load_pretraining(
+    net=None, optimizers=None, network_path=None, optimizers_path=None, use_cuda=None
+):
     if use_cuda is None:
         use_cuda = torch.cuda.is_available()
-    if pretraining != "vanilla":
-        if os.path.isfile(pretraining):
-            print(fg.red + f"Loading full model from {pretraining}..." + rs.fg, end="")
-            ww = torch.load(
-                pretraining,
+    if optimizers_path:
+        print(
+            fg.red
+            + f"Loading all decoders optimizers from {optimizers_path}..."
+            + rs.fg,
+            end="",
+        )
+        opts_state = torch.load(
+            optimizers_path,
+            map_location=torch.device("cuda") if use_cuda else torch.device("cpu"),
+        )
+        [opt.load_state_dict(lopt) for opt, lopt in zip(optimizers, opts_state)]
+        print(fg.red + " Done." + rs.fg)
+
+    if network_path:
+        print(
+            fg.red + f"Loading full model from {network_path}..." + rs.fg,
+            end="",
+        )
+        net.load_state_dict(
+            torch.load(
+                network_path,
                 map_location=torch.device("cuda") if use_cuda else torch.device("cpu"),
             )
-            net.load_state_dict(ww["model"])
-            print(fg.red + " Done." + rs.fg)
-
-            if ww["optimizer"] and optimizer:
-                print(
-                    fg.red + f"Loading optimizer state from {pretraining}..." + rs.fg,
-                    end="",
-                )
-                optimizer.load_state_dict(ww["optimizer"])
-                if use_cuda:
-                    for state in optimizer.state.values():
-                        for k, v in state.items():
-                            if isinstance(v, torch.Tensor):
-                                state[k] = v.cuda()
-                print(fg.red + " Done." + rs.fg)
-
-        else:
-            assert False, f"Pretraining path not found {pretraining}"
+        )
+        print(fg.red + " Done." + rs.fg)
 
 
 def print_net_info(net):

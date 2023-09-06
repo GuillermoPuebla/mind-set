@@ -5,12 +5,12 @@ Before running this example, generate the ebbinghaus_illusion dataset in this wa
 """
 import os
 import toml
-from src.utils.decoder.train import run_train
+from src.utils.decoder.train import decoder_train
 
 ##
 # Firstly, we can use just few training options. The options in "default_train_config" will be used for all other options.
 data_folder = "data/examples/ebbinghaus_illusion"
-run_train(
+decoder_train(
     training=dict(
         train_dataset=f"{data_folder}/random_data_n100/train",
         test_datasets=[
@@ -19,7 +19,7 @@ run_train(
             f"{data_folder}/small_flankers_data_n20/test",
         ],
     ),
-    saving_folders=dict(result_folder="results/examples/decoder/ebbinghaus_illusion"),
+    saving_folders=dict(results_folder="results/examples/decoder/ebbinghaus_illusion"),
 )
 
 ##
@@ -27,7 +27,7 @@ run_train(
 # You can load the toml file yourself and pass it like this:
 with open(os.path.dirname(__file__) + "/regression_train.toml", "r") as f:
     toml_config = toml.load(f)
-run_train(**toml_config)
+decoder_train(**toml_config)
 
 # Or you can call the script as a module and pass the toml file as a command line arg.
 #       python -m src.utils.decoder.train --toml_config_filename src/utils/decoder/examples/regression_train.toml

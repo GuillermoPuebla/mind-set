@@ -55,7 +55,7 @@ def compute_distance(
         toml_config["options"]["gpu_num"]
     ) if torch.cuda.is_available() else None
 
-    pathlib.Path(toml_config["saving_folders"]["result_folder"]).mkdir(
+    pathlib.Path(toml_config["saving_folders"]["results_folder"]).mkdir(
         parents=True, exist_ok=True
     )
 
@@ -88,7 +88,7 @@ def compute_distance(
     transform = torchvision.transforms.Compose(transf_list)
 
     delete_and_recreate_path(
-        pathlib.Path(toml_config["saving_folders"]["result_folder"])
+        pathlib.Path(toml_config["saving_folders"]["results_folder"])
     )
 
     toml.dump(
@@ -107,11 +107,17 @@ def compute_distance(
                 ),
             },
         },
-        open(toml_config["saving_folders"]["result_folder"] + "/config.toml", "w"),
+        open(toml_config["saving_folders"]["results_folder"] + "/config.toml", "w"),
     )
 
-    debug_image_path = toml_config["saving_folders"]["result_folder"] + "/debug_img/"
-    pathlib.Path(os.path.dirname(debug_image_path)).mkdir(parents=True, exist_ok=True)
+    debug_image_path = toml_config["saving_folders"]["results_folder"] + "/debug_img/"
+    save_debug_images = toml_config["saving_folders"]["save_debug_images"]
+
+    if save_debug_images:
+        pathlib.Path(os.path.dirname(debug_image_path)).mkdir(
+            parents=True, exist_ok=True
+        )
+
     recorder = RecordDistance(
         annotation_filepath=toml_config["basic_info"]["annotation_file_path"],
         match_factors=toml_config["basic_info"]["match_factors"],
@@ -130,13 +136,10 @@ def compute_distance(
         fill_bk=toml_config["transformation"]["affine_transf_background"],
         affine_transf=toml_config["transformation"]["affine_transf_code"],
         transformed_repetition=toml_config["transformation"]["repetitions"],
-        path_save_fig=debug_image_path,
+        path_save_fig=debug_image_path if save_debug_images else None,
     )
-    save_folder = pathlib.Path(toml_config["saving_folders"]["result_folder"])
+    save_folder = pathlib.Path(toml_config["saving_folders"]["results_folder"])
     distance_df.to_csv(save_folder / "dataframe.csv", index=False)
-    with open(save_folder / "layers.txt", "w") as f:
-        for layer in layers_names:
-            f.write(f"{layer}\n")
 
     print(
         fg.red

@@ -1,7 +1,7 @@
 [basic_info]
 annotation_file_path = 'data/gestalt/CSE_CIE_dots/annotation.csv'
 match_factors = ['SampleId']
-filter_factor_level = { Type = "proximity"}
+filter_factor_level = { Type = "proximity" }
 factor_variable = "PairA/B"
 reference_level = "a"
 

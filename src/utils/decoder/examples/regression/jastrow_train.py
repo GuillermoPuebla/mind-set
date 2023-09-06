@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 import toml
-from src.utils.decoder.train import run_train
+from src.utils.decoder.train import decoder_train
 import pathlib
 
 
@@ -22,7 +22,10 @@ def adjust_csv(csv_file_path: str, col1: str, col2: str, new_col_name: str):
 
 
 annotation_file = (
-    pathlib.Path("data") / "low_level_vision" / "jastrow_illusion" / "annotation.csv"
+    pathlib.Path("datasets")
+    / "low_level_vision"
+    / "jastrow_illusion"
+    / "annotation.csv"
 )
 new_ann_path = annotation_file.parent / "annotation_w_diff.csv"
 if not new_ann_path.exists():
@@ -34,8 +37,8 @@ if not new_ann_path.exists():
     )
     difference_df.to_csv(new_ann_path, index=False)
 
-with open(os.path.dirname(__file__) + "/train.toml", "r") as f:
+with open(os.path.dirname(__file__) + "/jastrow_regression_train.toml", "r") as f:
     toml_config = toml.load(f)
-run_train(**toml_config)
+decoder_train(**toml_config)
 
 ##

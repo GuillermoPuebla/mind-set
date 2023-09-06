@@ -1,0 +1,35 @@
+type_training = "regression"
+
+
+[training]
+evaluate_during_training = false
+
+[saving_folders]
+result_folder = "results/jastrow_regression"
+model_output_folder = "models/jastrow_regression"
+
+[datasets.training]
+name = "train_random"
+annotation_file = "datasets/low_level_vision/jastrow_illusion/annotation_w_diff.csv"
+img_path_col_name = "Path"
+label_cols = ["DiffSizeTopBottom"]
+filters = { Type = "random" }
+
+[[datasets.validation]]
+name = "eval_aligned"
+annotation_file = "datasets/low_level_vision/jastrow_illusion/annotation_w_diff.csv"
+img_path_col_name = "Path"
+label_cols = ["DiffSizeTopBottom"]
+filters = { Type = "aligned" }
+
+
+[[datasets.validation]]
+name = "val_illusory"
+annotation_file = "datasets/low_level_vision/jastrow_illusion/annotation_w_diff.csv"
+img_path_col_name = "Path"
+label_cols = ["DiffSizeTopBottom"]
+filters = { Type = "illusory" }
+
+
+[monitoring]
+neptune_proj_name = false

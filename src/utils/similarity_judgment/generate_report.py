@@ -11,13 +11,13 @@ dataframe_path = "results/similarity_judgments/contour_completion/dataframe.csv"
 DEFAULT = {"dataframe_path": None}
 
 
-def generate_report(dataframe_path=None):
-    if dataframe_path is None:
+def generate_report(results_csv_path=None):
+    if results_csv_path is None:
         all_dataframes_files = glob.glob(
             "results/similarity_judgments/**/*dataframe.csv", recursive=True
         )
     else:
-        all_dataframes_files = [dataframe_path]
+        all_dataframes_files = [results_csv_path]
 
     for df_path in tqdm(all_dataframes_files):
         parameters = {
@@ -39,10 +39,10 @@ def generate_report(dataframe_path=None):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--dataframe_path",
+        "--results_csv_path",
         "-dfp",
-        default=DEFAULT["dataframe_path"],
-        help="The path to the dataframe that we want to generate the report of. If not given, we will look for all */dataframe.csv files in the results/similarity_judgments folder",
+        default=DEFAULT["results_csv_path"],
+        help="The path to the dataframe that we want to generate the report of. If not given, it will look for all */dataframe.csv files in the results/similarity_judgments folder",
     )
 
     args = parser.parse_known_args()[0]

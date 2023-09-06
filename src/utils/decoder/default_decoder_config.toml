@@ -1,0 +1,71 @@
+# options: 'classification', 'regression'
+task_type = ""
+gpu_num = 0
+
+[train_info]
+# If run_id == false, then run_id will be set equal to current date and time.
+# Other key value pairs will be added in `run_info` by the train script.
+
+
+[network]
+use_residual_decoder = false
+# TODO: Is this still true??? Only used for regression method. For classification, the number of outputs is equal to the number of classes
+decoder_outputs = 1
+# Whether to use the ResNet152 version pretrained with ImageNet.
+imagenet_pretrained = true
+# If you want to load a state_dict of a pretrained ResNet152 with decoders, specify the path here. If you use this, "imagenet_pretraing" will be ignored. 
+load_path = false
+batch_size = 64
+
+
+[training]
+train_id = false
+learning_rate = 1e-5
+weight_decay = 0
+# If you want to continue training from a previous session, set this flag to the path of the optimizer (e.g. "models/decoder/id/checkpoint_optimizer.pt"). You also might want to change the network.load_model above. Note that if you haven't saved the optimizer state, you can still continue training with a loaded model (but it won't start training exactly from the same point as before). 
+optimizers_path = false
+save_trained_model = true
+# If True, it will evaluate the datasets specified as [[datasets.validation]] at some intervals during training
+evaluate_during_training = false
+
+# Note: for a classification task, we expect ALL datasets (training and validation) to have the same number of classes.
+[datasets.training]
+name = "training"
+annotation_file = "path/to/annotation/file.csv"
+img_path_col_name = "Path"
+label_cols = [""]
+filters = { Type = "random" }
+
+# Example of validation datasets.
+
+# [[datasets.validation]]
+# name = "name_val1"
+# annotation_file = ""
+# img_path_col_name = "Path"
+# label_cols = ["val1"]
+# filters = { Type = "blabla"}
+
+# You can use more than one validation dataset
+# [[datasets.validation]]
+# name = "name_val2"
+# annotation_file = ""
+# img_path_col_name = "Path"
+# label_cols = ["val2"]
+# filters = { Type = "blabla"}
+
+
+[stopping_conditions]
+stop_at_epoch = 50
+stop_at_loss = false
+stop_at_accuracy = false
+
+
+[saving_folders]
+# The paths for saving the results and the model. If false, no saving will occur. Notice that, during training, the `train_id` will be appended to these folders. 
+results_folder = 'results/decoder/'
+model_output_folder = 'models/decoder'
+
+[monitoring]
+# If you want to log in neptune.ai, specify the project name. You need an account there + you need to have created a project with the correct name through their UI + You need to set up your API token: \nhttps://docs.neptune.ai/getting-started/installation. The API should be in an environmental variable called NEPTUNE_API_TOKEN.
+# If everything is setup correctly, put your project name here, and you should get a lot of good logging for your training session'
+neptune_proj_name = false

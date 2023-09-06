@@ -83,7 +83,7 @@ if __name__ == "__main__":
     #         use_residual_decoder=True,
     #     )
 
-    json_results_folder_base = Path("results", "jastrow_illusion")
+    json_results_folder_base = Path("results", "decoder", "jastrow_illusion")
     json_results_files = os.listdir(json_results_folder_base)
     json_results_files = [i for i in json_results_files if i.endswith(".json")]
 

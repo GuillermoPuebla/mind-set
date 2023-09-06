@@ -289,8 +289,10 @@ class RecordDistance(RecordActivations):
                                     for i in images
                                 ]
                             )
-                            if len(save_sets) == min(
-                                [save_num_image_sets, transformed_repetition]
+                            if (
+                                len(save_sets)
+                                == min([save_num_image_sets, transformed_repetition])
+                                and path_save_fig
                             ):
                                 save_figs(
                                     path_save_fig

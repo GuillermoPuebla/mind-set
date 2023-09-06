@@ -375,14 +375,14 @@ class StopWhenMetricIs(Callback):
             self.check_and_stop(logs)
 
 
-class SaveModel(Callback):
+class SaveModelAndOpt(Callback):
     def __init__(
         self,
         net,
         output_folder,
         loss_metric_name="loss",
         print_save=False,
-        optimizer=None,
+        optimizers=None,  # a list of Optimizers
         epsilon_loss=0.1,
         min_iter=np.inf,
         max_iter=np.inf,
@@ -396,7 +396,7 @@ class SaveModel(Callback):
         self.last_iter = 0
         self.min_iter = min_iter
         self.epsilone_loss = epsilon_loss
-        self.optimizer = optimizer
+        self.optimizers = optimizers
         self.loss_metric_name = loss_metric_name
         self.max_iter = max_iter
         super().__init__()
@@ -406,21 +406,36 @@ class SaveModel(Callback):
         print(
             fg.yellow
             + ef.inverse
-            + "Saving model in {}".format(path)
+            + "Saving MODEL in {}".format(path)
             + rs.fg
             + rs.inverse
         ) if print_it else None
         torch.save(
-            {
-                "model": self.net.state_dict(),
-                "optimizer": self.optimizer.state_dict() if self.optimizer else None,
-            },
+            self.net.state_dict() if self.optimizers else None,
+            path,
+        )
+
+    def save_optimizers(self, path: pathlib.Path, print_it=True):
+        # pathlib.Path(os.path.dirname(path)).mkdir(parents=True, exist_ok=True)
+        print(
+            fg.yellow
+            + ef.inverse
+            + "Saving ALL OPTIMIZERS in {}".format(path)
+            + rs.fg
+            + rs.inverse
+        ) if print_it else None
+        torch.save(
+            [opt.state_dict() for opt in self.optimizers],
             path,
         )
 
     def on_epoch_begin(self, epoch, logs=None):
         if self.epoch_end:
-            self.save_model(pathlib.Path(self.output_folder) / "checkpoint.pt")
+            self.save_model(pathlib.Path(self.output_folder) / "checkpoint_model.pt")
+            if self.optimizers:
+                self.save_optimizers(
+                    pathlib.Path(self.output_folder) / "checkpoint_optimizers.pt"
+                )
 
     def on_batch_end(self, batch, logs=None):
         if self.output_folder is not None:
@@ -434,14 +449,26 @@ class SaveModel(Callback):
                     self.loss_metric_name
                 ]  # .value  ## ouch! You cannot overload assignment operator :( ! Nope!
                 self.save_model(
-                    pathlib.Path(self.output_folder) / "checkpoint.pt",
+                    pathlib.Path(self.output_folder) / "checkpoint_model.pt",
+                    print_it=self.print_save,
+                )
+                self.save_optimizers(
+                    pathlib.Path(self.output_folder) / "checkpoint_optimizers.pt",
                     print_it=self.print_save,
                 )
 
     def on_train_end(self, logs=None):
         if self.output_folder is not None:
-            self.save_model(pathlib.Path(self.output_folder) / "checkpoint.py")
-            self.save_model(self.output_folder / "finished.pt", print_it=True)
+            self.save_model(
+                str(pathlib.Path(self.output_folder) / "checkpoint_model.pt")
+            )
+            self.save_model(str(pathlib.Path(self.output_folder) / "finished_model.pt"))
+            self.save_optimizers(
+                str(pathlib.Path(self.output_folder) / "checkpoint_optimizers.pt")
+            )
+            self.save_optimizers(
+                str(pathlib.Path(self.output_folder) / "finished_optimizers.pt")
+            )
 
 
 class PrintLogs(Callback, ABC):
