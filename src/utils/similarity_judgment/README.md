@@ -18,4 +18,4 @@ An explanation of each single parameter can be found in the [`default_distance_c
 
 ## Create a Report
 
-To generate a succinct report based on the data collated in the `dataframe.csv` file, execute the command `src/utils/generate_report.py --results_csv_path path/to/dataframe.csv`. If the `--result_csv_path` parameter is omitted, the script defaults to identifying all `*/dataframe.csv` files in the `results/similarity_judgments` folder, generating individual reports for each. These reports comprise a set of images and a `.ipynb` file, conveniently stored in the same directory as the respective `dataframe.csv` file.
+To generate a succinct report based on the data collated in the `dataframe.csv` file, execute the command `src/utils/generate_report.py --results_csv_path path/to/dataframe.csv`. If the `--results_csv_path` parameter is omitted, the script defaults to identifying all `*/dataframe.csv` files in the `results/similarity_judgments` folder, generating individual reports for each. These reports comprise a set of images and a `.ipynb` file, conveniently stored in the same directory as the respective `dataframe.csv` file.

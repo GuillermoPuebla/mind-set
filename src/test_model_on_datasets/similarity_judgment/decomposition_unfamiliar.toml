@@ -9,7 +9,7 @@ reference_level = "no_split"
 pretraining = "ImageNet"
 
 [saving_folders]
-result_folder = "results/similarity_judgments/decomposition/unfamiliar"
+results_folder = "results/similarity_judgments/decomposition/unfamiliar"
 
 [transformation]
 affine_transf_code = "t[-0.2, 0.2]r[-50, 50]s[0.8, 1.2]"

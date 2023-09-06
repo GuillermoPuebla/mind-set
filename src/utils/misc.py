@@ -114,7 +114,7 @@ def weblog_dataset_info(
         plotter = simple_plotter
     if "stats" in dir(dataloader.dataset):
         dataset = dataloader.dataset
-        dataset_name = dataset.name_ds
+        dataset_name = dataset.name
         stats = dataloader.dataset.stats
     else:
         dataset_name = "no_name" if dataset_name is None else dataset_name
@@ -258,10 +258,14 @@ def add_general_args(parser):
     )
 
 
-def pretty_print_dict(dictionary, indent=0):
+def pretty_print_dict(dictionary, indent=0, name=None):
     key_color = sty.fg.blue
     value_color = sty.fg.green
+    name_color = sty.fg.red
     reset_color = sty.rs.fg
+
+    if name is not None:
+        print(name_color + f"~~~ {name} ~~~" + reset_color)
 
     for key, value in sorted(dictionary.items()):
         print(" " * indent + key_color + key + reset_color, end=": ")
@@ -273,26 +277,50 @@ def pretty_print_dict(dictionary, indent=0):
 
 
 def update_dict(dictA, dictB, replace=True):
+    key_color = sty.fg.blue
+    old_value_color = sty.fg.red
+    new_value_color = sty.fg.green
+    reset_color = sty.rs.fg
+
     for key in dictB:
-        if (
-            key in dictA
-            and isinstance(dictA[key], dict)
-            and isinstance(dictB[key], dict)
-        ):
-            # if the value in dictA is a dict and the value in dictB is a dict, recursively update the nested dict
-            update_dict(dictA[key], dictB[key], replace)
-        else:
-            # otherwise, simply update the value in dictA with the value in dictB
-            if replace or (not replace and key not in dictA):
-                old_value = dictA[key] if key in dictA else "none"
-                dictA[key] = dictB[key]
-                print(
-                    f"Updated {key} : {old_value} => {key}: {dictB[key]}"
-                ) if old_value != dictB[key] else None
+        if dictB[key] is not None:
+            if (
+                key in dictA
+                and isinstance(dictA[key], dict)
+                and isinstance(dictB[key], dict)
+            ):
+                # if the value in dictA is a dict and the value in dictB is a dict, recursively update the nested dict
+                update_dict(dictA[key], dictB[key], replace)
             else:
-                print(
-                    f"Value {key} not replaced as already present ({dictA[key]}) and 'replace=False'"
-                )
+                # otherwise, simply update the value in dictA with the value in dictB
+                if replace or (not replace and key not in dictA):
+                    old_value = dictA[key] if key in dictA else "none"
+                    dictA[key] = dictB[key]
+                    print(
+                        key_color
+                        + f"Updated {key} : "
+                        + reset_color
+                        + old_value_color
+                        + f"{old_value} => "
+                        + reset_color
+                        + key_color
+                        + f"{key}: "
+                        + reset_color
+                        + new_value_color
+                        + f"{dictB[key]}"
+                        + reset_color
+                    ) if old_value != dictB[key] else None
+                else:
+                    print(
+                        key_color
+                        + f"Value {key} "
+                        + reset_color
+                        + "not replaced as already present ("
+                        + old_value_color
+                        + f"{dictA[key]}"
+                        + reset_color
+                        + ") and 'replace=False'"
+                    )
     return dictA
 
 

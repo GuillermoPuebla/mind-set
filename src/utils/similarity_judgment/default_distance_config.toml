@@ -30,8 +30,8 @@ pretraining = "ImageNet"
 
 [saving_folders]
 # Where to save the results of the analysis. 
-result_folder = "results/similarity_judgment/tmp"
-# Whether we want to create a folder inside the result_folder containing debugging images.
+results_folder = "results/similarity_judgment/tmp"
+# Whether we want to create a folder inside the results_folder containing debugging images.
 save_debug_images = true
 
 [transformation]

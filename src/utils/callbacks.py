@@ -411,7 +411,7 @@ class SaveModelAndOpt(Callback):
             + rs.inverse
         ) if print_it else None
         torch.save(
-            self.net.state_dict() if self.optimizers else None,
+            self.net.state_dict(),
             path,
         )
 
@@ -675,7 +675,7 @@ class DuringTrainingTest(Callback):
         print(
             f"\n## Testing "
             + fg.green
-            + f"[{self.testing_loader.dataset.name_ds}]"
+            + f"[{self.testing_loader.dataset.name}]"
             + ((" in ~EVAL~ mode") if self.eval_mode else (" in ~TRAIN~ mode"))
             + " ##"
         )
@@ -698,7 +698,7 @@ class DuringTrainingTest(Callback):
             self.model.eval()
             test(
                 self.testing_loader,
-                log=f" EVALmode [{self.testing_loader.dataset.name_ds}]",
+                log=f" EVALmode [{self.testing_loader.dataset.name}]",
                 last_test=last_test,
             )
 
@@ -706,7 +706,7 @@ class DuringTrainingTest(Callback):
             self.model.train()
             test(
                 self.testing_loader,
-                log=f" TRAINmode [{self.testing_loader.dataset.name_ds}]",
+                log=f" TRAINmode [{self.testing_loader.dataset.name}]",
                 last_test=last_test,
             )
 

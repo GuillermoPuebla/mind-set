@@ -31,12 +31,9 @@ def decoder_evaluate(
     local_vars = locals()
     update_dict(
         toml_config,
-        {
-            i: local_vars[i] if local_vars[i] is not None else {}
-            for i in inspect.getfullargspec(decoder_evaluate)[0]
-        },
+        {i: local_vars[i] for i in inspect.getfullargspec(decoder_evaluate)[0]},
     )
-    pretty_print_dict(toml_config)
+    pretty_print_dict(toml_config, name="PARAMETERS")
     use_cuda = torch.cuda.is_available()
     torch.cuda.set_device(toml_config["gpu_num"]) if torch.cuda.is_available() else None
 
@@ -84,9 +81,9 @@ def decoder_evaluate(
         )
         for td in test_datasets
     ]
-    print("STARTING EVALUATION")
+    net.cuda() if use_cuda else None
 
-    result_final = []
+    results_final = []
 
     def decoder_test(data, model, use_cuda):
         images, labels = data
@@ -99,7 +96,7 @@ def decoder_evaluate(
                     prediction = out_dec[decoder_idx][i].item()
                 except IndexError:
                     prediction = [o.item() for o in out_dec][decoder_idx]
-                result_final.append(
+                results_final.append(
                     {
                         "decoder": decoder_idx,
                         "label": labels[i].item(),
@@ -111,11 +108,18 @@ def decoder_evaluate(
     results_folder.mkdir(parents=True, exist_ok=True)
 
     def evaluate_one_dataloader(dataloader):
+        print(
+            f"Evaluating Dataset "
+            + sty.fg.green
+            + f"{dataloader.dataset.name}"
+            + sty.rs.fg
+        )
+
         for _, data in enumerate(tqdm(dataloader, colour="yellow")):
             decoder_test(data, net, use_cuda)
 
-            result_final_pandas = pandas.DataFrame(result_final)
-            result_final_pandas.to_csv(
+            results_final_pandas = pandas.DataFrame(results_final)
+            results_final_pandas.to_csv(
                 str(results_folder / dataloader.name / "predictions.csv"), index=False
             )
 

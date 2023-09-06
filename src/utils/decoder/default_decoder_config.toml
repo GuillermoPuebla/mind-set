@@ -2,11 +2,6 @@
 task_type = ""
 gpu_num = 0
 
-[train_info]
-# If run_id == false, then run_id will be set equal to current date and time.
-# Other key value pairs will be added in `run_info` by the train script.
-
-
 [network]
 use_residual_decoder = false
 # TODO: Is this still true??? Only used for regression method. For classification, the number of outputs is equal to the number of classes
@@ -19,6 +14,8 @@ batch_size = 64
 
 
 [training]
+# If train_id == false, then run_id will be set equal to current date and time.
+# Other key value pairs will be added in `run_info` by the train script.
 train_id = false
 learning_rate = 1e-5
 weight_decay = 0

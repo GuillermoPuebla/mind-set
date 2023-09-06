@@ -38,10 +38,7 @@ def compute_distance(
 
     update_dict(
         toml_config,
-        {
-            i: local_vars[i] if local_vars[i] else {}
-            for i in inspect.getfullargspec(compute_distance)[0]
-        },
+        {i: local_vars[i] for i in inspect.getfullargspec(compute_distance)[0]},
     )
     toml_config["transformation"]["affine_transf_code"]
 

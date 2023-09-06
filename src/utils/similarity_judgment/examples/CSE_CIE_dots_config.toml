@@ -13,7 +13,7 @@ Type = "single"
 pretraining = "ImageNet'"
 
 [saving_folders]
-result_folder = "results/examples/distance_similarity/high_level_vision/CSE_CIE_dots"
+results_folder = "results/examples/distance_similarity/high_level_vision/CSE_CIE_dots"
 
 [transformation]
 affine_transf_code = ""

@@ -303,7 +303,7 @@ class RecordDistance(RecordActivations):
 
                                 save_fig = False
                                 save_sets = []
-        result_df = pd.DataFrame(df_rows)
+        results_df = pd.DataFrame(df_rows)
 
         all_layers = list(layers_distances.keys())
-        return result_df, all_layers
+        return results_df, all_layers

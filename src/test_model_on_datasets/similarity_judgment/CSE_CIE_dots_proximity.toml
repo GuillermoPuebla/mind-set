@@ -9,7 +9,7 @@ reference_level = "a"
 pretraining = "ImageNet"
 
 [saving_folders]
-result_folder = "results/similarity_judgments/CSE_CIE_dots/proximity"
+results_folder = "results/similarity_judgments/CSE_CIE_dots/proximity"
 
 [transformation]
 affine_transf_code = ""

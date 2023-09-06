@@ -7,51 +7,9 @@ from copy import deepcopy
 import numpy as np
 from torch.nn import functional as F
 
-# if method == "regression":
-#     if train:
-#         [
-#             logs[f"{logs_prefix}ema_rmse_{idx}"].add(torch.sqrt(ms).item())
-#             for idx, ms in enumerate(loss_decoder)
-#         ]
-#     else:
-#         [
-#             logs[f"{logs_prefix}rmse_{idx}"].add(torch.sqrt(ms).item())
-#             for idx, ms in enumerate(loss_decoder)
-#         ]
-
-#         logs[f"{logs_prefix}rmse"].add(torch.sqrt(loss / num_decoders).item())
-
-# elif method == "classification":
-#     if train:
-#         [
-#             logs[f"{logs_prefix}ema_acc_{idx}"].add(
-#                 torch.mean((torch.argmax(out_dec[idx], 1) == labels).float()).item()
-#             )
-#             for idx in range(len(loss_decoder))
-#         ]
-#     else:
-#         [
-#             logs[f"{logs_prefix}acc_{idx}"].add(
-#                 torch.mean((torch.argmax(out_dec[idx], 1) == labels).float()).item()
-#             )
-#             for idx in range(len(loss_decoder))
-#         ]
-#         logs[f"{logs_prefix}acc"].add(
-#             torch.mean(
-#                 torch.tensor(
-#                     [
-#                         torch.mean(
-#                             (torch.argmax(out_dec[idx], 1) == labels).float()
-#                         ).item()
-#                         for idx in range(len(loss_decoder))
-#                     ]
-#                 )
-#             ).item()
-#         )
-
 
 def fix_dataset(dataset, name_ds=""):
-    dataset.name_ds = name_ds
+    dataset.name = name_ds
     dataset.stats = {"mean": [0.491, 0.482, 0.44], "std": [0.247, 0.243, 0.262]}
     add_resize = False
     if next(iter(dataset))[0].size[0] != 244:

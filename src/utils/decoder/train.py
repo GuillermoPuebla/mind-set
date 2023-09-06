@@ -53,17 +53,16 @@ def decoder_train(
     local_vars = locals()
     update_dict(
         toml_config,
-        {
-            i: local_vars[i] if local_vars[i] else {}
-            for i in inspect.getfullargspec(decoder_train)[0]
-        },
+        {i: local_vars[i] for i in inspect.getfullargspec(decoder_train)[0]},
     )
-    toml_config["training"] = {
-        "train_id": datetime.now().strftime("%d%m%Y_%H%M%S")
-        if not toml_config["training"]["train_id"]
-        else toml_config["training"]["train_id"],
-        "completed": False,
-    }
+    toml_config["training"].update(
+        {
+            "train_id": datetime.now().strftime("%d%m%Y_%H%M%S")
+            if not toml_config["training"]["train_id"]
+            else toml_config["training"]["train_id"],
+            "completed": False,
+        }
+    )
 
     results_folder_id = (
         pathlib.Path(toml_config["saving_folders"]["results_folder"])
@@ -96,7 +95,7 @@ def decoder_train(
         toml_config,
         open(str(results_folder_id / "train_config.toml"), "w"),
     )
-    pretty_print_dict(toml_config)
+    pretty_print_dict(toml_config, name="PARAMETERS")
 
     use_cuda = torch.cuda.is_available()
     torch.cuda.set_device(toml_config["gpu_num"]) if torch.cuda.is_available() else None
@@ -276,7 +275,7 @@ def decoder_train(
                 weblogger=weblogger,
                 log_text="test during train TRAINmode",
                 use_cuda=use_cuda,
-                logs_prefix=f"{tl.dataset.name_ds}/",
+                logs_prefix=f"{tl.dataset.name}/",
                 call_run=partial(call_run, method=toml_config["task_type"]),
                 plot_samples_corr_incorr=False,
                 callbacks=[
@@ -284,28 +283,28 @@ def decoder_train(
                         log_names=[
                             "epoch",
                             *[
-                                f"{tl.dataset.name_ds}/{log_type}_{i}"
+                                f"{tl.dataset.name}/{log_type}_{i}"
                                 for i in range(num_decoders)
                             ],
                         ],
-                        path=str(results_folder_id / f"{tl.dataset.name_ds}.csv"),
+                        path=str(results_folder_id / f"{tl.dataset.name}.csv"),
                     ),
                     # if you don't use neptune, this will be ignored
                     PrintNeptune(
-                        id=f"{tl.dataset.name_ds}/{log_type}",
+                        id=f"{tl.dataset.name}/{log_type}",
                         plot_every=np.inf,
                         log_prefix="test_TRAIN",
                         weblogger=weblogger,
                     ),
                     PrintConsole(
-                        id=f"{tl.dataset.name_ds}/{log_type}",
+                        id=f"{tl.dataset.name}/{log_type}",
                         endln=" -- ",
                         plot_every=np.inf,
                         plot_at_end=True,
                     ),
                     *[
                         PrintConsole(
-                            id=f"{tl.dataset.name_ds}/{log_type}_{i}",
+                            id=f"{tl.dataset.name}/{log_type}_{i}",
                             endln=" " "/ ",
                             plot_every=np.inf,
                             plot_at_end=True,

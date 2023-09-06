@@ -1,12 +1,11 @@
-type_training = "regression"
-
+task_type = "regression"
 
 [training]
-evaluate_during_training = false
+evaluate_during_training = true
 
 [saving_folders]
-result_folder = "results/jastrow_regression"
-model_output_folder = "models/jastrow_regression"
+results_folder = "results/decoder/jastrow_regression"
+model_output_folder = "models/decoder/jastrow_regression"
 
 [datasets.training]
 name = "train_random"
