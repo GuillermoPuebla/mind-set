@@ -5,7 +5,7 @@ import torch.backends.cudnn as cudnn
 
 # from rich import print
 from src.utils.callbacks import *
-from src.utils.decoder.data_utils import ImageRegressionDataset
+from src.utils.decoder.data_utils import ImageDatasetAnnotations
 from src.utils.decoder.train_utils import ResNet152decoders, fix_dataset
 from src.utils.misc import pretty_print_dict, update_dict
 from src.utils.net_utils import load_pretraining, make_cuda
@@ -35,15 +35,13 @@ def decoder_evaluate(
     torch.cuda.set_device(toml_config["gpu_num"]) if torch.cuda.is_available() else None
 
     def load_dataset(ds_config):
-        if toml_config["task_type"] == "classification":
-            ds = ImageFolder(root=...)  # TODO: CLASSIFICATION!
-        elif toml_config["task_type"] == "regression":
-            ds = ImageRegressionDataset(
-                csv_file=ds_config["annotation_file"],
-                img_path_col=ds_config["img_path_col_name"],
-                label_cols=ds_config["label_cols"],
-                filters=ds_config["filters"],
-            )
+        ds = ImageDatasetAnnotations(
+            task_type=toml_config["task_type"]
+            csv_file=ds_config["annotation_file"],
+            img_path_col=ds_config["img_path_col_name"],
+            label_cols=ds_config["label_cols"],
+            filters=ds_config["filters"],
+        )
         return fix_dataset(ds, name_ds=ds_config["name"])
 
     test_datasets = [load_dataset(i) for i in toml_config["eval"]["datasets"]]

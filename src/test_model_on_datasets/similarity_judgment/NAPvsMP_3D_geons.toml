@@ -1,5 +1,5 @@
 [basic_info]
-annotation_file_path = 'data/coding_of_shapes/NAPvsMP_3D_geons/annotation.csv'
+annotation_file_path = 'datasets/coding_of_shapes/NAPvsMP_3D_geons/annotation.csv'
 match_factors = ["SampleName"]
 factor_variable = "Type"
 reference_level = "reference"
@@ -11,7 +11,11 @@ pretraining = "ImageNet"
 results_folder = "results/similarity_judgments/NAPvsMP_3D_geons"
 
 [transformation]
-affine_transf_code = "t[-0.2, 0.2]r[-50, 50]s[0.8, 1.2]"
 affine_transf_background = [0, 0, 0]
 matching_transform = true
 repetitions = 50
+
+[transformation.values]
+translation = [-0.2, 0.2]
+scale = [0.8, 1.2]
+rotation = [-50, 50]

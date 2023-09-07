@@ -1,3 +1,3 @@
 [training]
-train_dataset = "data/examples/miniMNIST/training"
+train_dataset = "datasets/examples/miniMNIST/training"
 test_datasets = []

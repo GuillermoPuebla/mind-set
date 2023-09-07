@@ -30,6 +30,7 @@ evaluate_during_training = false
 name = "training"
 annotation_file = "path/to/annotation/file.csv"
 img_path_col_name = "Path"
+# Use either a string or a list of string for a regression task. For a classification task, only a single string is permitted. 
 label_cols = [""]
 filters = { Type = "random" }
 

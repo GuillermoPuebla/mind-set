@@ -5,7 +5,7 @@ evaluate_during_training = false
 
 [training.dataset]
 name = "train_random"
-annotation_file = "datasets/low_level_vision/jastrow_illusion/annotation_w_diff.csv"
+annotation_file = "datasets_examples/low_level_vision/jastrow_illusion/annotation_w_diff.csv"
 img_path_col_name = "Path"
 label_cols = ["DiffSizeTopBottom"]
 filters = { Type = "random" }
@@ -14,13 +14,13 @@ filters = { Type = "random" }
 neptune_proj_name = false
 
 [saving_folders]
-results_folder = "results/decoder/jastrow_regression"
-model_output_folder = "models/decoder/jastrow_regression"
+results_folder = "results/examples/decoder/jastrow_regression"
+model_output_folder = "models/examples/decoder/jastrow_regression"
 
-
+# Since training.evaluate_during_training is false, these two datasets won't be evaluated. 
 [[eval.datasets]]
 name = "eval_aligned"
-annotation_file = "datasets/low_level_vision/jastrow_illusion/annotation_w_diff.csv"
+annotation_file = "datasets_examples/jastrow_illusion/annotation_w_diff.csv"
 img_path_col_name = "Path"
 label_cols = ["DiffSizeTopBottom"]
 filters = { Type = "aligned" }
@@ -28,7 +28,7 @@ filters = { Type = "aligned" }
 
 [[eval.datasets]]
 name = "val_illusory"
-annotation_file = "datasets/low_level_vision/jastrow_illusion/annotation_w_diff.csv"
+annotation_file = "datasets_examples/jastrow_illusion/annotation_w_diff.csv"
 img_path_col_name = "Path"
 label_cols = ["DiffSizeTopBottom"]
 filters = { Type = "illusory" }

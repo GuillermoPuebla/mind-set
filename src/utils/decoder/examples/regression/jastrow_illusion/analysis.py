@@ -76,7 +76,7 @@ if __name__ == "__main__":
     #     decoder_evaluate(
     #         save_name=folder,
     #         results_folder="./results/jastrow_illusion/",
-    #         dataset_folder=f"data/low_level_vision/jastrow_test/{folder}/",
+    #         dataset_folder=f"datasets/low_level_vision/jastrow_test/{folder}/",
     #         pretraining="models/jastrow_illusion/linear_decoder.pt",
     #         gpu_num=0,
     #         batch_size=32,

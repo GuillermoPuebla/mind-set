@@ -43,5 +43,5 @@ def normalize_folder(input_folder: Path):
 
 
 if __name__ == "__main__":
-    input_folder = Path("data", "jastrow_train")
+    input_folder = Path("datasets", "jastrow_train")
     normalize_folder(input_folder)

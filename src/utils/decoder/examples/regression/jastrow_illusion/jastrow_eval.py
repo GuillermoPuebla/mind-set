@@ -27,6 +27,6 @@ if not new_ann_path.exists():
     difference_df.to_csv(new_ann_path, index=False)
 
 
-with open(os.path.dirname(__file__) + "/jastrow_regression_train.toml", "r") as f:
+with open(os.path.dirname(__file__) + "/jastrow_eval.toml", "r") as f:
     toml_config = toml.load(f)
 decoder_evaluate(**toml_config)

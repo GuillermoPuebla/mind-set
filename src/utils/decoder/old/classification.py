@@ -9,7 +9,7 @@ from src.utils.decoder.train import decoder_train
 
 ##
 # Firstly, we can use just few training options. The options in "default_train_config" will be used for all other options.
-data_folder = "data/examples/miniMNIST"
+data_folder = "datasets/examples/miniMNIST"
 decoder_train(
     training=dict(
         train_dataset=f"{data_folder}/training",

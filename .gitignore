@@ -22,7 +22,6 @@ models/*
 results/*
 !results/.gitkeep
 
-data/*
 datasets/*
 datasets_*/
 !datasets/.gitkeep

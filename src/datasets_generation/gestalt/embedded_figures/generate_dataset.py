@@ -114,20 +114,19 @@ def generate_all(
 
     with open(output_folder / "annotation.csv", "w", newline="") as annfile:
         writer = csv.writer(annfile)
-        writer.writerow(["Path", "Type", "Background", "IterNum"])
+        writer.writerow(["Path", "Type", "PolygonId", "Background", "IterNum"])
         ds = DrawEmbeddedFigures(
             shape_size=shape_size,
             canvas_size=canvas_size,
             background=background_color,
             antialiasing=antialiasing,
         )
-        for cond in tqdm(["polygons", "embedded_polygons"]):
+        for cond in tqdm(["polygon", "embedded_polygon"]):
             N = 1 if cond == "polygons" else num_samples
 
             for s in tqdm(shapes, leave=False):
                 shape_name, shape_points = str(s[0]), s[1]
-                img_path = pathlib.Path(cond) / shape_name
-                class_folder = output_folder / img_path
+                class_folder = output_folder / cond / shape_name
                 class_folder.mkdir(parents=True, exist_ok=True)
                 for i in tqdm(range(N)):
                     if cond == "polygons":
@@ -147,8 +146,9 @@ def generate_all(
                             num_rnd_lines=10,
                             debug=debug_mode,
                         )
-                    img.save(class_folder / f"{i}.png")
-                    writer.writerow([img_path, cond, ds.background, i])
+                    img_path = pathlib.Path(cond) / shape_name / f"{i}.png"
+                    img.save(output_folder / img_path)
+                    writer.writerow([img_path, cond, shape_name, ds.background, i])
     return str(output_folder)
 
 
