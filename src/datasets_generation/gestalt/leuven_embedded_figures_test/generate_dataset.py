@@ -8,7 +8,7 @@ import sty
 from PIL.ImageOps import invert
 from PIL import Image
 from torchvision.transforms import InterpolationMode
-from src.utils.similarity_judgment.misc import get_new_affine_values, my_affine
+from src.utils.similarity_judgment.misc import get_affine_rnd_fun_from_code, my_affine
 import re
 from tqdm import tqdm
 from src.utils.misc import (

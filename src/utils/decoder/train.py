@@ -1,9 +1,8 @@
-"""
-General training script for decoder approach. The only thing you need to change is the loading `DATASET` variable. Note that in this case the EbbinghausTrain dataset is always generated on the fly (but you could specify the kwarg "path" to save/load it on disk).
-"""
-
+from typing import Any
+import torchvision
 import toml
 from datetime import datetime
+from src.utils.decoder.misc_utils import AffineTransform
 
 from src.utils.decoder.train_utils import (
     decoder_step,
@@ -41,6 +40,7 @@ def decoder_train(
     train_info=None,
     eval=None,
     network=None,
+    transformation=None,
     training=None,
     saving_folders=None,
 ):
@@ -107,14 +107,18 @@ def decoder_train(
                 img_path_col=ds_config["img_path_col_name"],
                 label_cols=ds_config["label_cols"],
                 filters=ds_config["filters"],
+                transform=None,  # transform is added in fix_dataset
             )
-        return fix_dataset(ds, name_ds=ds_config["name"])
+
+        return fix_dataset(
+            ds, transf_values=toml_config["transformation"], name_ds=ds_config["name"]
+        )
 
     train_dataset = load_dataset(toml_config["training"]["dataset"])
 
     test_datasets = (
         [load_dataset(i) for i in toml_config["eval"]["datasets"]]
-        if "eval" in toml_config
+        if training["evaluate_during_training"] in toml_config
         else []
     )
 
@@ -140,7 +144,6 @@ def decoder_train(
         for i in range(num_decoders)
     ]
 
-    # pretraining = toml_config["training"]["continue_train"]
     load_pretraining(
         net=net,
         optimizers=optimizers,

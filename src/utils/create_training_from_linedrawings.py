@@ -10,7 +10,7 @@ from torchvision.transforms import InterpolationMode
 import PIL.Image as Image
 from src.utils.similarity_judgment.misc import (
     my_affine,
-    get_new_affine_values,
+    get_affine_rnd_fun_from_code,
 )
 from src.utils.drawing_utils import (
     DrawStimuli,
@@ -42,7 +42,7 @@ class DrawTrainingImages(DrawStimuli):
 
         self.canvas_size = original_canvas_size
         if self.transform_code:
-            af = get_new_affine_values(self.transform_code)
+            af = get_affine_rnd_fun_from_code(self.transform_code)
             img = my_affine(
                 img,
                 translate=list(np.array(af["tr"]) / expand_factor),

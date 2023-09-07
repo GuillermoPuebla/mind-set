@@ -1,6 +1,7 @@
 import torch
 import torchvision
 from torch import nn as nn
+from src.utils.decoder.misc_utils import AffineTransform
 from src.utils.net_utils import make_cuda
 from src.utils.misc import imshow_batch, convert_lists_to_strings
 from copy import deepcopy
@@ -8,7 +9,7 @@ import numpy as np
 from torch.nn import functional as F
 
 
-def fix_dataset(dataset, name_ds=""):
+def fix_dataset(dataset, transf_values, name_ds=""):
     dataset.name = name_ds
     dataset.stats = {"mean": [0.491, 0.482, 0.44], "std": [0.247, 0.243, 0.262]}
     add_resize = False
@@ -20,6 +21,13 @@ def fix_dataset(dataset, name_ds=""):
             torchvision.transforms.ToTensor(),
             torchvision.transforms.Normalize(
                 mean=dataset.stats["mean"], std=dataset.stats["std"]
+            ),
+            AffineTransform(
+                transf_values["translation"]
+                if transf_values["translation"]
+                else (0, 0),
+                transf_values["rotation"] if transf_values["rotation"] else (0, 0),
+                transf_values["scale"] if transf_values["scale"] else (1, 1),
             ),
         ]
     )

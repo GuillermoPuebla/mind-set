@@ -15,7 +15,7 @@ from tqdm import tqdm
 
 from src.utils.similarity_judgment.misc import (
     my_affine,
-    get_new_affine_values,
+    get_affine_rnd_fun_from_code,
     save_figs,
 )
 from src.utils.misc import conditional_tqdm, conver_tensor_to_plot
@@ -152,10 +152,11 @@ class RecordDistance(RecordActivations):
         transform,
         matching_transform=False,
         fill_bk=None,
-        affine_transf="",
+        transf_boundaries="",
         transformed_repetition=5,
         path_save_fig=None,
     ):
+        affine_rnd_fun = get_affine_rnd_fun_from_code(transf_boundaries)
         norm = [i for i in transform.transforms if isinstance(i, transforms.Normalize)][
             0
         ]
@@ -170,7 +171,8 @@ class RecordDistance(RecordActivations):
         if self.match_factors:
             matching_levels = df[self.match_factors].drop_duplicates().values.tolist()
         else:
-            matching_levels = df.values.tolist()
+            matching_levels = [False]
+            # df.values.tolist()
             print(
                 sty.fg.red
                 + "No MATCHING LEVELS. Are you sure this is correct?"
@@ -194,17 +196,19 @@ class RecordDistance(RecordActivations):
             pbar2 = tqdm(matching_levels, desc="matching samples", leave=False)
 
             for mm in pbar2:
-                pbar2.set_postfix(
-                    {
-                        sty.fg.blue + f"{k}" + sty.rs.fg: v
-                        for k, v in zip(self.match_factors, mm)
-                    },
-                    refresh=True,
-                )
                 mask = pd.Series([True] * len(df), index=df.index)
 
-                for col, val in zip(self.match_factors, mm):
-                    mask = mask & (df[col] == val)
+                if self.match_factors:
+                    pbar2.set_postfix(
+                        {
+                            sty.fg.blue + f"{k}" + sty.rs.fg: v
+                            for k, v in zip(self.match_factors, mm)
+                        },
+                        refresh=True,
+                    )
+
+                    for col, val in zip(self.match_factors, mm):
+                        mask = mask & (df[col] == val)
 
                 comparison_paths = np.random.permutation(
                     df[df[self.factor_variable] == comparison_level]
@@ -224,7 +228,7 @@ class RecordDistance(RecordActivations):
                         + sty.rs.fg
                     )
 
-                for sample_num, selected_paths in conditional_tqdm(
+                for _, selected_paths in conditional_tqdm(
                     enumerate(zip(reference_paths, comparison_paths)),
                     len(reference_paths) > 1,
                     desc="nth matching sample",
@@ -248,9 +252,9 @@ class RecordDistance(RecordActivations):
                         im_0 = Image.open(reference_path).convert("RGB")
                         im_i = Image.open(comp_path).convert("RGB")
                         af = (
-                            [get_new_affine_values(affine_transf) for i in [im_0, im_i]]
+                            [affine_rnd_fun() for i in [im_0, im_i]]
                             if not matching_transform
-                            else [get_new_affine_values(affine_transf)] * 2
+                            else [affine_rnd_fun()] * 2
                         )
                         images = [
                             my_affine(
@@ -277,7 +281,11 @@ class RecordDistance(RecordActivations):
                                 "ReferenceLevel": self.reference_level,
                                 "ComparisonLevel": comparison_level,
                                 "MatchingLevels": mm,
-                                **{f"{i}": j for i, j in zip(self.match_factors, mm)},
+                                **(
+                                    {f"{i}": j for i, j in zip(self.match_factors, mm)}
+                                    if mm is not False
+                                    else {}
+                                ),
                                 "TransformerRep": transform_idx,
                                 **layers_distances,
                             }
@@ -295,10 +303,17 @@ class RecordDistance(RecordActivations):
                                 and path_save_fig
                             ):
                                 save_figs(
-                                    path_save_fig
-                                    + f"[{self.reference_level}]_{comparison_level}_{'-'.join([str(i) for i in mm])}",
+                                    os.path.join(
+                                        path_save_fig,
+                                        f"[{self.reference_level}]_{comparison_level}"
+                                        + (
+                                            f"_{'-'.join([str(i) for i in mm])}"
+                                            if mm
+                                            else ""
+                                        ),
+                                    ),
                                     save_sets,
-                                    extra_info=affine_transf,
+                                    extra_info=transf_boundaries,
                                 )
 
                                 save_fig = False

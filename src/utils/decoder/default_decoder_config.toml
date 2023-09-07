@@ -26,7 +26,7 @@ save_trained_model = true
 evaluate_during_training = false
 
 # Note: for a classification task, we expect ALL datasets (training and validation) to have the same number of classes.
-[training.datasets]
+[training.dataset]
 name = "training"
 annotation_file = "path/to/annotation/file.csv"
 img_path_col_name = "Path"
@@ -66,3 +66,10 @@ neptune_proj_name = false
 # The paths for saving the results and the model. If false, no saving will occur. Notice that, during training, the `train_id` will be appended to these folders. 
 results_folder = 'results/decoder/'
 model_output_folder = 'models/decoder'
+
+[transformation]
+# TODO: Fix Documentation. 
+# Set it to "false" to not apply the respective transformation. 
+translation = [-0.2, 0.2] 
+scale = [0.7, 1.3]
+rotation = [0, 360]

@@ -22,3 +22,9 @@ annotation_file = "datasets/low_level_vision/jastrow_illusion/annotation_w_diff.
 img_path_col_name = "Path"
 label_cols = ["DiffSizeTopBottom"]
 filters = { Type = "illusory" }
+
+
+[transformation]
+translation = false
+scale = false
+rotation = false

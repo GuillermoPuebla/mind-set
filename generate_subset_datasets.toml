@@ -1,10 +1,8 @@
 
-["src/datasets_generation/low_level_vision/jastrow_illusion/generate_dataset.py"]
-canvas_size = [224, 224]
-background_color = [0, 0, 0]
+["src/datasets_generation/gestalt/CSE_CIE_dots/generate_dataset.py"]
+canvas_size = [ 224, 224,]
+background_color = [ 0, 0, 0,]
 antialiasing = true
 regenerate = true
-num_samples_illusory = 50
-num_samples_random = 50
-num_samples_aligned = 50
-output_folder = "datasets/low_level_vision/jastrow_illusion"
+num_samples = 100
+output_folder = "datasets_lite/gestalt/CSE_CIE_dots"

@@ -1,7 +1,7 @@
 # See src/utils/compute_distance/default_distance_config.toml for a detailed explanation of the options.
 [basic_info]
-annotation_file_path = "datasets/gestalt/CSE_CIE_dots/annotation.csv"
-match_facotrs = ["IterNum"]
+annotation_file_path = "datasets_examples/CSE_CIE_dots_small/annotation.csv"
+match_factors = "" # ["SampleId"]
 factor_variable = "PairA/B"
 reference_level = "a"
 
@@ -16,4 +16,7 @@ pretraining = "ImageNet'"
 results_folder = "results/examples/distance_similarity/high_level_vision/CSE_CIE_dots"
 
 [transformation]
-affine_transf_code = ""
+[transformation.values]
+translation = false
+rotation = false
+scale = false

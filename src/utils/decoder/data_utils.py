@@ -5,8 +5,6 @@ import torch
 from typing import List, Optional, Union, Dict
 import pathlib
 
-a= ['prova']
-
 
 class ImageRegressionDataset(Dataset):
     def __init__(

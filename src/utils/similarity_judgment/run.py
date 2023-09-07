@@ -33,14 +33,13 @@ def compute_distance(
         )
     # update the toml_config file based on the input args to this function
     local_vars = locals()
-    if not transformation["affine_transf_code"]:
+    if not all(transformation["values"].values()):
         transformation["repetitions"] = 1
 
     update_dict(
         toml_config,
         {i: local_vars[i] for i in inspect.getfullargspec(compute_distance)[0]},
     )
-    toml_config["transformation"]["affine_transf_code"]
 
     network, norm_values, resize_value = GrabNet.get_net(
         toml_config["options"]["network_name"],
@@ -131,7 +130,7 @@ def compute_distance(
         transform=transform,
         matching_transform=toml_config["transformation"]["matching_transform"],
         fill_bk=toml_config["transformation"]["affine_transf_background"],
-        affine_transf=toml_config["transformation"]["affine_transf_code"],
+        transf_boundaries=toml_config["transformation"]["values"],
         transformed_repetition=toml_config["transformation"]["repetitions"],
         path_save_fig=debug_image_path if save_debug_images else None,
     )

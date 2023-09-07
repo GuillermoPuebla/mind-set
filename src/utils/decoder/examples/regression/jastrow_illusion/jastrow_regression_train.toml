@@ -33,4 +33,7 @@ img_path_col_name = "Path"
 label_cols = ["DiffSizeTopBottom"]
 filters = { Type = "illusory" }
 
-
+[transformation]
+translation = [-0.2, 0.2] 
+scale = [0.7, 1.3]
+rotation = [0, 360]

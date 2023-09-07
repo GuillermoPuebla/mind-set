@@ -28,33 +28,29 @@ class PasteOnCanvas(torch.nn.Module):
         return canvas
 
 
-def get_new_affine_values(transf_code):
-    # Example transf_code = 's[0.2, 0.3]tr[0,90]'  -> s is within 0.2, 0.3, t is default, r is between 0 and 90 degrees
-    def get_values(code):
-        real_num = r"[-+]?[0-9]*\.?[0-9]+"
-        try:
-            return [
-                float(i)
-                for i in re.search(
-                    f"{code}\[({real_num}),\s?({real_num})]", transf_code
-                ).groups()
-            ]
-        except AttributeError:
-            if code == "t":
-                return [-0.2, 0.2]
-            if code == "s":
-                return [0.7, 1.3]
-            if code == "r":
-                return [0, 360]
-
+def get_affine_rnd_fun_from_code(transf_values):
     tr = (
-        [np.random.uniform(*get_values("t")), np.random.uniform(*get_values("t"))]
-        if "t" in transf_code
-        else (0, 0)
+        (
+            lambda: [
+                np.random.uniform(*transf_values["translation"]),
+                np.random.uniform(*transf_values["translation"]),
+            ]
+        )
+        if transf_values["translation"]
+        else lambda: (0, 0)
     )
-    scale = np.random.uniform(*get_values("s")) if "s" in transf_code else 1.0
-    rot = np.random.uniform(*get_values("r")) if "r" in transf_code else 0
-    return {"rt": rot, "tr": tr, "sc": scale, "sh": 0.0}
+
+    scale = (
+        (lambda: np.random.uniform(*transf_values["scale"]))
+        if transf_values["scale"]
+        else lambda: 1.0
+    )
+    rot = (
+        (lambda: np.random.uniform(*transf_values["rotation"]))
+        if transf_values["rotation"]
+        else lambda: 0
+    )
+    return lambda: {"rt": rot(), "tr": tr(), "sc": scale(), "sh": 0.0}
 
 
 def my_affine(img, translate, **kwargs):
