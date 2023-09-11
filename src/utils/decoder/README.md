@@ -28,7 +28,7 @@ We provide two examples, one with a regression task, and one with a classificati
 In [`jastrow_eval.py`](./examples/regression/jastrow_illusion/jastrow_eval.py) we load the trained model (specified in the  [`jastrow_regression_eval.toml`](./examples/regression/jastrow_illusion/jastrow_regression_eval.toml)[`network`][`load_path`]) and test it on the illusory stimuli. 
 - ### Classification ### 
 Whereas for classification is quite common to exploit the `PyTorch` `ImageFolder` class, here we don't use it, relying on the `annotation.csv` file instead to obtain images. This is done in order to be agnostic to the folder-structure you decide to use, and to be consistent with the rest of the codebase (which also uses the `annotation.csv` file). 
-TODO: More details after finishing implementation
+We use the `Embedded_figures` dataset as an example for classification. First run [`examples/classificaiton/embedded_figures_train.py`](./examples/classification/embedded_figures_train.py). Then, when it's finished, run [`examples/classification/embedded_figures_eval.py`](./examples/classification/embedded_figures_eval.py).
 
 
 

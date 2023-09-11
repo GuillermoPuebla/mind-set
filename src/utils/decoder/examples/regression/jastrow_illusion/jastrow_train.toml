@@ -1,6 +1,7 @@
 task_type = "regression"
 
 [training]
+train_id = "trained_model"
 evaluate_during_training = false
 
 [training.dataset]
