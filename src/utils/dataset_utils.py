@@ -3,6 +3,7 @@ import pathlib
 import pickle
 from pathlib import Path
 from time import time
+from typing import Dict, List, Optional, Union
 
 import numpy as np
 import torch
@@ -11,6 +12,9 @@ import random
 from PIL import ImageStat
 from sty import fg, rs
 from torchvision import transforms as tf
+
+from PIL import Image
+from torchvision.transforms import functional as F
 
 
 def add_compute_stats(obj_class):
@@ -174,3 +178,124 @@ def compute_mean_and_std_from_dataset(
             pickle.dump(stats, f)
 
     return stats
+
+
+def fix_dataset(dataset, transf_values, fill_color, name_ds=""):
+    dataset.name = name_ds
+    dataset.stats = {"mean": [0.491, 0.482, 0.44], "std": [0.247, 0.243, 0.262]}
+    add_resize = False
+    if next(iter(dataset))[0].size[0] != 244:
+        add_resize = True
+
+    dataset.transform = torchvision.transforms.Compose(
+        [
+            AffineTransform(
+                transf_values["translation"]
+                if transf_values["translation"]
+                else (0, 0),
+                transf_values["rotation"] if transf_values["rotation"] else (0, 0),
+                transf_values["scale"] if transf_values["scale"] else (1, 1),
+                fill_color=fill_color,
+            ),
+            torchvision.transforms.ToTensor(),
+            torchvision.transforms.Normalize(
+                mean=dataset.stats["mean"], std=dataset.stats["std"]
+            ),
+        ]
+    )
+    if add_resize:
+        dataset.transform.transforms.insert(0, torchvision.transforms.Resize(224))
+    return dataset
+
+
+def load_dataset(task_type, ds_config, transf_config):
+    ds = ImageDatasetAnnotations(
+        task_type=task_type,
+        csv_file=ds_config["annotation_file"],
+        img_path_col=ds_config["img_path_col_name"],
+        label_cols=ds_config["label_cols"],
+        filters=ds_config["filters"],
+        transform=None,  # transform is added in fix_dataset
+    )
+
+    return fix_dataset(
+        ds,
+        transf_values=transf_config["values"],
+        fill_color=transf_config["fill_color"],
+        name_ds=ds_config["name"],
+    )
+
+
+from torch.utils.data import Dataset
+import pandas as pd
+
+
+class ImageDatasetAnnotations(Dataset):
+    def __init__(
+        self,
+        task_type: str,
+        csv_file: str,
+        img_path_col: str,
+        label_cols: Union[List[str], str],
+        filters: Optional[Dict[str, Union[str, int]]] = None,
+        transform=None,
+    ):
+        self.task_type = task_type
+        self.dataframe = pd.read_csv(csv_file)
+        if filters:
+            for key, value in filters.items():
+                self.dataframe = self.dataframe[self.dataframe[key] == value]
+        self.img_path_col = img_path_col
+        self.root_path = pathlib.Path(csv_file).parent
+        self.label_cols = label_cols
+
+        if isinstance(self.label_cols, str):
+            self.label_cols = [self.label_cols]
+
+        if self.task_type == "classification":
+            assert (
+                len(self.label_cols) == 1
+            ), "With a classification task, the dataset.label_cols must be a single string or one-element list"
+            self.label_cols = self.label_cols[0]
+            self.classes = self.dataframe[self.label_cols].unique()
+
+        self.transform = transform
+        self.dataframe = self.dataframe.reset_index(drop=True)
+
+    def __len__(self) -> int:
+        return len(self.dataframe)
+
+    def __getitem__(self, idx: int) -> tuple:
+        img_path = self.root_path / self.dataframe.loc[idx, self.img_path_col]
+        if self.task_type == "classification":
+            labels = self.dataframe.loc[idx, self.label_cols]
+            label_tensor_dtype = torch.long
+        else:
+            labels = self.dataframe.loc[idx, self.label_cols].values.astype(float)
+            label_tensor_dtype = torch.float32
+        image: Image.Image = Image.open(img_path).convert("RGB")
+
+        if self.transform:
+            image = self.transform(image)
+        return image, torch.tensor(labels, dtype=label_tensor_dtype)
+
+
+class AffineTransform:
+    def __init__(self, translate_b, rotate_b, scale_b, fill_color=None) -> None:
+        self.translate_b = translate_b
+        self.rotate_b = rotate_b
+        self.scale_b = scale_b
+        self.fill_color = [0, 0, 0] if fill_color is None else fill_color
+
+    def __call__(self, img):
+        return F.affine(
+            img,
+            angle=random.uniform(*self.rotate_b),
+            translate=(
+                random.uniform(*self.translate_b),
+                random.uniform(*self.translate_b),
+            ),
+            scale=random.uniform(*self.scale_b),
+            shear=0,
+            fill=self.fill_color,
+        )

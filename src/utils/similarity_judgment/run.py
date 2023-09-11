@@ -42,7 +42,7 @@ def compute_distance(
     )
 
     network, norm_values, resize_value = GrabNet.get_net(
-        toml_config["options"]["network_name"],
+        toml_config["options"]["architecture_name"],
         imagenet_pt=True
         if toml_config["options"]["pretraining"] == "ImageNet"
         else False,

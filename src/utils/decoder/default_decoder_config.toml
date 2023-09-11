@@ -3,8 +3,9 @@ task_type = ""
 gpu_num = 0
 
 [network]
-use_residual_decoder = false
-# TODO: Is this still true??? Only used for regression method. For classification, the number of outputs is equal to the number of classes
+# Use either "resnet152_decoder" or "resnet_152_decoder_residual" for a deeper decoder with three pre-activation residual blocks, each containing two convolutional layers. . 
+architecture_name = "resnet152_decoder" 
+# Only used for regression method, and should be equal to the number of values the network should predict (generally this is 1). For classification, the number of outputs is set equal to the number of classes
 decoder_outputs = 1
 # Whether to use the ResNet152 version pretrained with ImageNet.
 imagenet_pretrained = true

@@ -2,15 +2,13 @@ from typing import Any
 import torchvision
 import toml
 from datetime import datetime
-from src.utils.decoder.misc_utils import AffineTransform
+from src.utils.dataset_utils import load_dataset
 
 from src.utils.decoder.train_utils import (
     decoder_step,
-    ResNet152decoders,
-    fix_dataset,
     log_neptune_init_info,
 )
-from src.utils.net_utils import ExpMovingAverage, CumulativeAverage, run
+from src.utils.net_utils import ExpMovingAverage, CumulativeAverage, GrabNet, run
 from torch.utils.data import DataLoader
 from src.utils.misc import (
     assert_exists,
@@ -19,7 +17,6 @@ from src.utils.misc import (
     update_dict,
 )
 from src.utils.callbacks import *
-from src.utils.decoder.data_utils import ImageDatasetAnnotations, load_dataset
 import argparse
 import torch.backends.cudnn as cudnn
 from src.utils.net_utils import load_pretraining
@@ -116,14 +113,19 @@ def decoder_train(
         if toml_config["training"]["evaluate_during_training"] in toml_config
         else []
     )
+    assert toml_config["network"]["architecture_name"] in [
+        "resnet152_decoder",
+        "resnet152_decoder_residual",
+    ], f"Network.name needs to be either `resnet152_decoder` or `resnet152_decoder_residual`. You used {toml_config['network']['name']}"
 
-    net = ResNet152decoders(
-        imagenet_pt=toml_config["network"]["imagenet_pretrained"],
-        num_outputs=toml_config["network"]["decoder_outputs"]
+    net, _, _ = GrabNet.get_net(
+        toml_config["network"]["architecture_name"],
+        imagenet_pt=True if toml_config["network"]["imagenet_pretrained"] else False,
+        num_classes=toml_config["network"]["decoder_outputs"]
         if toml_config["task_type"] == "regression"
         else len(train_dataset.classes),
-        use_residual_decoder=toml_config["network"]["use_residual_decoder"],
     )
+
     num_decoders = len(net.decoders)
     loss_fn = (
         torch.nn.MSELoss()

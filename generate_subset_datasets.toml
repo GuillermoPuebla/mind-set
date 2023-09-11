@@ -1,8 +1,11 @@
-
-["src/datasets_generation/gestalt/CSE_CIE_dots/generate_dataset.py"]
+["src/datasets_generation/high_level_vision/gridded_images/generate_dataset.py"]
 canvas_size = [ 224, 224,]
 background_color = [ 0, 0, 0,]
-antialiasing = true
+antialiasing = false
 regenerate = true
-num_samples = 100
-output_folder = "datasets_lite/gestalt/CSE_CIE_dots"
+linedrawing_input_folder = "assets/baker_2018/outline_images_fix"
+object_longest_side = 100
+grid_degree = 45
+grid_size = 8
+grid_thickness = 4
+output_folder = "datasets/high_level_vision/gridded_images"

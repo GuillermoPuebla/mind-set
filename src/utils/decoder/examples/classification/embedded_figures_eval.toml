@@ -1,7 +1,7 @@
 task_type = "classification"
 
 [network]
-load_path = "models/examples/decoder/embedded_figures_classification/08092023_101744/checkpoint_model.pt"
+load_path = "models/examples/decoder/embedded_figures_classification/trained_model/checkpoint_model.pt"
 batch_size=16
 
 [saving_folders]

@@ -5,10 +5,9 @@ import torch.backends.cudnn as cudnn
 
 # from rich import print
 from src.utils.callbacks import *
-from src.utils.decoder.data_utils import ImageDatasetAnnotations, load_dataset
-from src.utils.decoder.train_utils import ResNet152decoders, fix_dataset
+from src.utils.dataset_utils import load_dataset
 from src.utils.misc import pretty_print_dict, update_dict
-from src.utils.net_utils import load_pretraining, make_cuda
+from src.utils.net_utils import load_pretraining, make_cuda, GrabNet, ResNet152decoders
 from torch.utils.data import DataLoader
 from torchvision.datasets import ImageFolder
 from tqdm import tqdm
@@ -43,14 +42,18 @@ def decoder_evaluate(
         for i in toml_config["eval"]["datasets"]
     ]
 
-    net = ResNet152decoders(
-        imagenet_pt=toml_config["network"]["imagenet_pretrained"],
-        num_outputs=toml_config["network"]["decoder_outputs"]
+    assert toml_config["network"]["architecture_name"] in [
+        "resnet152_decoder",
+        "resnet152_decoder_residual",
+    ], f"Network.name needs to be either `resnet152_decoder` or `resnet152_decoder_residual`. You used {toml_config['network']['name']}"
+
+    net, _, _ = GrabNet.get_net(
+        toml_config["network"]["architecture_name"],
+        imagenet_pt=True if toml_config["network"]["imagenet_pretrained"] else False,
+        num_classes=toml_config["network"]["decoder_outputs"]
         if toml_config["task_type"] == "regression"
         else len(test_datasets[0].classes),
-        use_residual_decoder=toml_config["network"]["use_residual_decoder"],
     )
-    num_decoders = len(net.decoders)
 
     load_pretraining(
         net=net,
@@ -76,6 +79,7 @@ def decoder_evaluate(
     net.cuda() if use_cuda else None
 
     results_folder = pathlib.Path(toml_config["saving_folders"]["results_folder"])
+    num_decoders = len(net.decoders)
 
     def evaluate_one_dataloader(dataloader):
         results_final = []

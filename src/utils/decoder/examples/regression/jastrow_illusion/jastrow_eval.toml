@@ -2,8 +2,8 @@ task_type = "regression"
 
 
 [network]
-load_path = "models/examples/decoder/jastrow_regression/06092023_132242/checkpoint_model.pt"
-batch_size = 64
+load_path = "models/examples/decoder/jastrow_regression/trained_model/checkpoint_model.pt"
+batch_size = 16
 
 [saving_folders]
 results_folder = "results/examples/decoder/jastrow_regression/test"
