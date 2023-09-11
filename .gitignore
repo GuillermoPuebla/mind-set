@@ -25,6 +25,7 @@ results/*
 datasets/*
 datasets_*/
 !datasets/.gitkeep
+data/*
 
 private/*
 temp/*
