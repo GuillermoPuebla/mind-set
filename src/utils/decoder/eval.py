@@ -5,7 +5,7 @@ import torch.backends.cudnn as cudnn
 
 # from rich import print
 from src.utils.callbacks import *
-from src.utils.decoder.data_utils import ImageDatasetAnnotations
+from src.utils.decoder.data_utils import ImageDatasetAnnotations, load_dataset
 from src.utils.decoder.train_utils import ResNet152decoders, fix_dataset
 from src.utils.misc import pretty_print_dict, update_dict
 from src.utils.net_utils import load_pretraining, make_cuda
@@ -34,17 +34,14 @@ def decoder_evaluate(
     use_cuda = torch.cuda.is_available()
     torch.cuda.set_device(toml_config["gpu_num"]) if torch.cuda.is_available() else None
 
-    def load_dataset(ds_config):
-        ds = ImageDatasetAnnotations(
-            task_type=toml_config["task_type"]
-            csv_file=ds_config["annotation_file"],
-            img_path_col=ds_config["img_path_col_name"],
-            label_cols=ds_config["label_cols"],
-            filters=ds_config["filters"],
+    test_datasets = [
+        load_dataset(
+            toml_config["task_type"],
+            ds_config=i,
+            transf_config=toml_config["transformation"],
         )
-        return fix_dataset(ds, name_ds=ds_config["name"])
-
-    test_datasets = [load_dataset(i) for i in toml_config["eval"]["datasets"]]
+        for i in toml_config["eval"]["datasets"]
+    ]
 
     net = ResNet152decoders(
         imagenet_pt=toml_config["network"]["imagenet_pretrained"],
@@ -98,10 +95,13 @@ def decoder_evaluate(
             out_dec = net(images)
             for decoder_idx in range(num_decoders):
                 for i in range(len(labels)):
-                    try:
-                        prediction = out_dec[decoder_idx][i].item()
-                    except IndexError:
-                        prediction = [o.item() for o in out_dec][decoder_idx]
+                    if task_type == "classification":
+                        prediction = torch.argmax(out_dec[decoder_idx][i]).item()
+                    else:
+                        try:
+                            prediction = out_dec[decoder_idx][i].item()
+                        except IndexError:
+                            prediction = [o.item() for o in out_dec][decoder_idx]
                     results_final.append(
                         {
                             "decoder": decoder_idx,

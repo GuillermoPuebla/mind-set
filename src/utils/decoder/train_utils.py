@@ -9,7 +9,7 @@ import numpy as np
 from torch.nn import functional as F
 
 
-def fix_dataset(dataset, transf_values, name_ds=""):
+def fix_dataset(dataset, transf_values, fill_color, name_ds=""):
     dataset.name = name_ds
     dataset.stats = {"mean": [0.491, 0.482, 0.44], "std": [0.247, 0.243, 0.262]}
     add_resize = False
@@ -18,16 +18,17 @@ def fix_dataset(dataset, transf_values, name_ds=""):
 
     dataset.transform = torchvision.transforms.Compose(
         [
-            torchvision.transforms.ToTensor(),
-            torchvision.transforms.Normalize(
-                mean=dataset.stats["mean"], std=dataset.stats["std"]
-            ),
             AffineTransform(
                 transf_values["translation"]
                 if transf_values["translation"]
                 else (0, 0),
                 transf_values["rotation"] if transf_values["rotation"] else (0, 0),
                 transf_values["scale"] if transf_values["scale"] else (1, 1),
+                fill_color=fill_color,
+            ),
+            torchvision.transforms.ToTensor(),
+            torchvision.transforms.Normalize(
+                mean=dataset.stats["mean"], std=dataset.stats["std"]
             ),
         ]
     )
@@ -36,7 +37,9 @@ def fix_dataset(dataset, transf_values, name_ds=""):
     return dataset
 
 
-def update_logs(logs, loss_decoders, labels, method, logs_prefix, train=True):
+def update_logs(
+    logs, loss_decoders, output_decoders, labels, method, logs_prefix, train=True
+):
     logs[f"{logs_prefix}ema_loss"].add(sum(loss_decoders))
     prefix = "ema_" if train else ""
     if method == "regression":
@@ -49,7 +52,7 @@ def update_logs(logs, loss_decoders, labels, method, logs_prefix, train=True):
     elif method == "classification":
         for idx in range(len(loss_decoders)):
             acc = torch.mean(
-                (torch.argmax(loss_decoders[idx], 1) == labels).float()
+                (torch.argmax(output_decoders[idx], 1) == labels).float()
             ).item()
             logs[f"{logs_prefix}{prefix}acc_{idx}"].add(acc)
         average_acc = torch.mean(
@@ -62,6 +65,10 @@ def update_logs(logs, loss_decoders, labels, method, logs_prefix, train=True):
         ).item()
         if not train:
             logs[f"{logs_prefix}acc"].add(average_acc)
+
+
+# import torchvision
+# p = torchvision.transforms.transforms.ToPILImage()(images[0])
 
 
 def decoder_step(
@@ -92,7 +99,7 @@ def decoder_step(
         loss_decoder.append(loss_fn(od, labels))
         loss = loss + loss_decoder[-1]
 
-    update_logs(logs, loss_decoder, labels, method, logs_prefix, train)
+    update_logs(logs, loss_decoder, out_dec, labels, method, logs_prefix, train)
 
     if "collect_data" in kwargs and kwargs["collect_data"]:
         logs["data"] = data

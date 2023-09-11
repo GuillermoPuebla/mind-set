@@ -40,13 +40,13 @@ save_debug_images = true
 # affine_transf_code = "t[-0.2, 0.2]r[-50, 50]"
 
 # When rotating/scaling the image, a "fill in" background will be used. Specify it here with a tuple of ints from 0 to 255. Default is black: (0, 0, 0). 
-affine_transf_background = [0, 0, 0]
+fill_color = [0, 0, 0]
 # We always compare "pairs" of images. With this parameter, specify whether the _same_ transformation  should be applied to both images of a comparion pair (e.g. rotate and translate both images by exactly the same amount). If affine_transf_code == "", this will be ignored.
 matching_transform = true
 # How many times do we need to repeat a transformed sample. Only applies when you use some type of transformation: if affine_transf_code == "", this will be set to 1
 repetitions = 50
 
-# Whether we want to copy the images found in the folders onto a bigger canvas. The canvas background will be `affine_transf_background`. The canvas will be `canvas_to_image_ratio` along the horizontal dimension, and it will be a square. For example, if the image is 100x50 pixels, it will be pasted onto a canvas large 300x300 pixels. 
+# Whether we want to copy the images found in the folders onto a bigger canvas. The canvas background will be `fill_color`. The canvas will be `canvas_to_image_ratio` along the horizontal dimension, and it will be a square. For example, if the image is 100x50 pixels, it will be pasted onto a canvas large 300x300 pixels. 
 copy_on_bigger_canvas = false
 canvas_to_image_ratio = 3
 

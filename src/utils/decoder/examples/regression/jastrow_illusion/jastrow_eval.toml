@@ -2,11 +2,11 @@ task_type = "regression"
 
 
 [network]
-load_path = "models/decoder/examples/jastrow_regression/06092023_132242/checkpoint_model.pt"
+load_path = "models/examples/decoder/jastrow_regression/06092023_132242/checkpoint_model.pt"
 batch_size = 64
 
 [saving_folders]
-results_folder = "results/decoder/examples/jastrow_regression/test"
+results_folder = "results/examples/decoder/jastrow_regression/test"
 
 [[eval.datasets]]
 name = "eval_aligned"

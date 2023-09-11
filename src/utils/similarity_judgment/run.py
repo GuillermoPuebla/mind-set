@@ -28,8 +28,8 @@ def compute_distance(
 ):
     with open(os.path.dirname(__file__) + "/default_distance_config.toml", "r") as f:
         toml_config = toml.load(f)
-        toml_config["transformation"]["affine_transf_background"] = tuple(
-            toml_config["transformation"]["affine_transf_background"]
+        toml_config["transformation"]["fill_color"] = tuple(
+            toml_config["transformation"]["fill_color"]
         )
     # update the toml_config file based on the input args to this function
     local_vars = locals()
@@ -69,7 +69,7 @@ def compute_distance(
             (
                 PasteOnCanvas(
                     toml_config["transformation"]["canvas_to_image_ratio"],
-                    toml_config["transformation"]["affine_transf_background"],
+                    toml_config["transformation"]["fill_color"],
                 )
                 if toml_config["transformation"]["copy_on_bigger_canvas"]
                 else None
@@ -92,9 +92,7 @@ def compute_distance(
             **toml_config,
             "transformation": {
                 **toml_config["transformation"],
-                "affine_transf_background": list(
-                    toml_config["transformation"]["affine_transf_background"]
-                ),
+                "fill_color": list(toml_config["transformation"]["fill_color"]),
             },
             "basic_info": {
                 **toml_config["basic_info"],
@@ -129,7 +127,7 @@ def compute_distance(
     distance_df, layers_names = recorder.compute_from_annotation(
         transform=transform,
         matching_transform=toml_config["transformation"]["matching_transform"],
-        fill_bk=toml_config["transformation"]["affine_transf_background"],
+        fill_bk=toml_config["transformation"]["fill_color"],
         transf_boundaries=toml_config["transformation"]["values"],
         transformed_repetition=toml_config["transformation"]["repetitions"],
         path_save_fig=debug_image_path if save_debug_images else None,

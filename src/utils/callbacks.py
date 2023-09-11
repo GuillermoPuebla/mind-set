@@ -386,10 +386,10 @@ class SaveModelAndOpt(Callback):
         epsilon_loss=0.1,
         min_iter=np.inf,
         max_iter=np.inf,
-        epoch_end=True,
+        at_epoch_end=True,
     ):
         self.print_save = print_save
-        self.epoch_end = epoch_end
+        self.epoch_end = at_epoch_end
         self.output_folder = output_folder
         self.net = net
         self.last_loss = np.inf

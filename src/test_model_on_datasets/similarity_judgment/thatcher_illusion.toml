@@ -12,7 +12,7 @@ results_folder = "results/similarity_judgment/thatcher_illusion"
 
 
 [transformation]
-affine_transf_background = [0, 0, 0]
+fill_color = [0, 0, 0]
 matching_transform = true
 repetitions = 50
 

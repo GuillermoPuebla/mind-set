@@ -19,7 +19,7 @@ from src.utils.misc import (
     update_dict,
 )
 from src.utils.callbacks import *
-from src.utils.decoder.data_utils import ImageDatasetAnnotations
+from src.utils.decoder.data_utils import ImageDatasetAnnotations, load_dataset
 import argparse
 import torch.backends.cudnn as cudnn
 from src.utils.net_utils import load_pretraining
@@ -98,24 +98,21 @@ def decoder_train(
     use_cuda = torch.cuda.is_available()
     torch.cuda.set_device(toml_config["gpu_num"]) if torch.cuda.is_available() else None
 
-    def load_dataset(ds_config):
-        ds = ImageDatasetAnnotations(
-            task_type=toml_config["task_type"],
-            csv_file=ds_config["annotation_file"],
-            img_path_col=ds_config["img_path_col_name"],
-            label_cols=ds_config["label_cols"],
-            filters=ds_config["filters"],
-            transform=None,  # transform is added in fix_dataset
-        )
-
-        return fix_dataset(
-            ds, transf_values=toml_config["transformation"], name_ds=ds_config["name"]
-        )
-
-    train_dataset = load_dataset(toml_config["training"]["dataset"])
+    train_dataset = load_dataset(
+        toml_config["task_type"],
+        ds_config=toml_config["training"]["dataset"],
+        transf_config=toml_config["transformation"],
+    )
 
     test_datasets = (
-        [load_dataset(i) for i in toml_config["eval"]["datasets"]]
+        [
+            load_dataset(
+                toml_config["task_type"],
+                ds_config=i,
+                transf_config=toml_config["transformation"],
+            )
+            for i in toml_config["eval"]["datasets"]
+        ]
         if toml_config["training"]["evaluate_during_training"] in toml_config
         else []
     )
@@ -242,7 +239,7 @@ def decoder_train(
         "acc" if toml_config["task_type"] == "classification" else "rmse"
     )  # rmse: Root Mean Square Error : sqrt(MSE)
     all_callbacks = [
-        StopFromUserInput(),
+        # StopFromUserInput(),
         ProgressBar(
             l=len(train_dataset),
             batch_size=toml_config["network"]["batch_size"],
@@ -324,6 +321,7 @@ def decoder_train(
             str(model_output_folder_id),
             loss_metric_name="ema_loss",
             optimizers=optimizers,
+            at_epoch_end=toml_config["training"]["save_at_epoch_end"],
         )
     ) if toml_config["training"]["save_trained_model"] else None
 

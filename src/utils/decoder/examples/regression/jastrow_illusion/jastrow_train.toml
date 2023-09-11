@@ -5,7 +5,7 @@ evaluate_during_training = false
 
 [training.dataset]
 name = "train_random"
-annotation_file = "datasets_examples/low_level_vision/jastrow_illusion/annotation_w_diff.csv"
+annotation_file = "datasets_examples/jastrow_illusion/annotation_w_diff.csv"
 img_path_col_name = "Path"
 label_cols = ["DiffSizeTopBottom"]
 filters = { Type = "random" }

@@ -122,14 +122,14 @@ def generate_all(
             antialiasing=antialiasing,
         )
         for cond in tqdm(["polygon", "embedded_polygon"]):
-            N = 1 if cond == "polygons" else num_samples
+            N = 1 if cond == "polygon" else num_samples
 
             for s in tqdm(shapes, leave=False):
                 shape_name, shape_points = str(s[0]), s[1]
                 class_folder = output_folder / cond / shape_name
                 class_folder.mkdir(parents=True, exist_ok=True)
                 for i in tqdm(range(N)):
-                    if cond == "polygons":
+                    if cond == "polygon":
                         img = ds.draw_shape(
                             shape_points,
                             extend_lines=False,

@@ -384,7 +384,6 @@ def run(
     callbacks = CallbackList(callbacks)
     callbacks.set_model(net)
     callbacks.set_loss_fn(loss_fn)
-
     callbacks.on_train_begin()
 
     tot_iter = 0
@@ -406,10 +405,6 @@ def run(
             )
             logs.update({"stop": False})
             logs[f"{logs_prefix}tot_iter"] += 1
-            # logs.update({
-            #     'loss': loss.item(),
-            #     'tot_iter': tot_iter,
-            #     'stop': False})
 
             callbacks.on_training_step_end(batch_index, logs)
             callbacks.on_batch_end(batch_index, logs)

@@ -22,6 +22,8 @@ weight_decay = 0
 # If you want to continue training from a previous session, set this flag to the path of the optimizer (e.g. "models/decoder/id/checkpoint_optimizer.pt"). You also might want to change the network.load_model above. Note that if you haven't saved the optimizer state, you can still continue training with a loaded model (but it won't start training exactly from the same point as before). 
 optimizers_path = false
 save_trained_model = true
+# If the following is false, a model and optimizer will be only saved at the end of the training session, not at every epoch
+save_at_epoch_end = true  
 # If True, it will evaluate the datasets specified as [[datasets.validation]] at some intervals during training
 evaluate_during_training = false
 
@@ -53,6 +55,7 @@ filters = { Type = "random" }
 
 
 [training.stopping_conditions]
+# TODO: Explain this!
 stop_at_epoch = 50
 stop_at_loss = false
 stop_at_accuracy = false
@@ -69,6 +72,9 @@ results_folder = 'results/decoder/'
 model_output_folder = 'models/decoder'
 
 [transformation]
+fill_color = [0, 0, 0]
+
+[transformation.values]
 # TODO: Fix Documentation. 
 # Set it to "false" to not apply the respective transformation. 
 translation = [-0.2, 0.2] 

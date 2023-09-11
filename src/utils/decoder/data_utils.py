@@ -5,6 +5,26 @@ import torch
 from typing import List, Optional, Union, Dict
 import pathlib
 
+from src.utils.decoder.train_utils import fix_dataset
+
+
+def load_dataset(task_type, ds_config, transf_config):
+    ds = ImageDatasetAnnotations(
+        task_type=task_type,
+        csv_file=ds_config["annotation_file"],
+        img_path_col=ds_config["img_path_col_name"],
+        label_cols=ds_config["label_cols"],
+        filters=ds_config["filters"],
+        transform=None,  # transform is added in fix_dataset
+    )
+
+    return fix_dataset(
+        ds,
+        transf_values=transf_config["values"],
+        fill_color=transf_config["fill_color"],
+        name_ds=ds_config["name"],
+    )
+
 
 class ImageDatasetAnnotations(Dataset):
     def __init__(
@@ -53,5 +73,4 @@ class ImageDatasetAnnotations(Dataset):
 
         if self.transform:
             image = self.transform(image)
-
         return image, torch.tensor(labels, dtype=label_tensor_dtype)
