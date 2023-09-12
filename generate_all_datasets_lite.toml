@@ -1,4 +1,4 @@
-["src/datasets_generation/coding_of_shapes/volumetric_vs_surface/generate_dataset.py"]
+["src/generate_datasets/coding_of_shapes/volumetric_vs_surface/generate_dataset.py"]
 canvas_size = [ 224, 224,]
 background_color = [ 0, 0, 0,]
 antialiasing = true
@@ -6,14 +6,14 @@ regenerate = true
 object_longest_side = 100
 output_folder = "datasets_lite/coding_of_shapes/volumetric_vs_surface"
 
-["src/datasets_generation/coding_of_shapes/NAPvsMP_2D_lines/generate_dataset.py"]
+["src/generate_datasets/coding_of_shapes/NAPvsMP_2D_lines/generate_dataset.py"]
 canvas_size = [ 224, 224,]
 background_color = [ 0, 0, 0,]
 antialiasing = true
 regenerate = true
 output_folder = "datasets_lite/coding_of_shapes/NAPvsMP_2D_lines"
 
-["src/datasets_generation/coding_of_shapes/NAPvsMP_3D_geons/generate_dataset.py"]
+["src/generate_datasets/coding_of_shapes/NAPvsMP_3D_geons/generate_dataset.py"]
 canvas_size = [ 224, 224,]
 background_color = [ 0, 0, 0,]
 antialiasing = true
@@ -21,7 +21,7 @@ regenerate = true
 stroke_color = ""
 output_folder = "datasets_lite/coding_of_shapes/NAPvsMP_3D_geons"
 
-["src/datasets_generation/high_level_vision/decomposition/generate_dataset.py"]
+["src/generate_datasets/high_level_vision/decomposition/generate_dataset.py"]
 canvas_size = [ 224, 224,]
 background_color = [ 0, 0, 0,]
 antialiasing = true
@@ -31,7 +31,7 @@ moving_distance = 60
 shape_color = [ 255, 255, 255,]
 output_folder = "datasets_lite/high_level_vision/decomposition"
 
-["src/datasets_generation/high_level_vision/same_different_task/generate_dataset.py"]
+["src/generate_datasets/high_level_vision/same_different_task/generate_dataset.py"]
 canvas_size = [ 224, 224,]
 background_color = [ 0, 0, 0,]
 antialiasing = true
@@ -41,7 +41,7 @@ type_dataset = "all"
 size_shapes = 20
 output_folder = "datasets_lite/high_level_vision/same_different_task"
 
-["src/datasets_generation/high_level_vision/gridded_images/generate_dataset.py"]
+["src/generate_datasets/high_level_vision/gridded_images/generate_dataset.py"]
 canvas_size = [ 224, 224,]
 background_color = [ 0, 0, 0,]
 antialiasing = false
@@ -53,7 +53,7 @@ grid_size = 8
 grid_thickness = 4
 output_folder = "datasets_lite/high_level_vision/gridded_images"
 
-["src/datasets_generation/low_level_vision/ebbinghaus_illusion/generate_dataset.py"]
+["src/generate_datasets/low_level_vision/ebbinghaus_illusion/generate_dataset.py"]
 canvas_size = [ 224, 224,]
 background_color = [ 0, 0, 0,]
 antialiasing = true
@@ -61,7 +61,7 @@ regenerate = true
 num_samples = 100
 output_folder = "datasets_lite/low_level_vision/ebbinghaus_illusion"
 
-["src/datasets_generation/low_level_vision/size_constancy_ponzo/generate_dataset.py"]
+["src/generate_datasets/low_level_vision/size_constancy_ponzo/generate_dataset.py"]
 canvas_size = [ 224, 224,]
 background_color = [ 0, 0, 0,]
 antialiasing = true
@@ -72,7 +72,7 @@ num_rail_lines = 5
 train_with_rnd_col_lines = false
 output_folder = "datasets_lite/low_level_vision/size_constancy_ponzo"
 
-["src/datasets_generation/low_level_vision/contour_completion/generate_dataset.py"]
+["src/generate_datasets/low_level_vision/contour_completion/generate_dataset.py"]
 canvas_size = [ 224, 224,]
 background_color = [ 100, 100, 100,]
 antialiasing = true
@@ -82,7 +82,7 @@ circle_color = [ 255, 255, 255,]
 square_color = [ 0, 0, 0,]
 output_folder = "datasets_lite/low_level_vision/contour_completion"
 
-["src/datasets_generation/low_level_vision/tilt_illusion/generate_dataset.py"]
+["src/generate_datasets/low_level_vision/tilt_illusion/generate_dataset.py"]
 canvas_size = [ 224, 224,]
 background_color = [ 0, 0, 0,]
 antialiasing = true
@@ -91,7 +91,7 @@ num_samples_only_center = 100
 num_samples_center_context = 100
 output_folder = "datasets_lite/low_level_vision/tilt_illusion"
 
-["src/datasets_generation/low_level_vision/webers_law/generate_dataset.py"]
+["src/generate_datasets/low_level_vision/webers_law/generate_dataset.py"]
 canvas_size = [ 224, 224,]
 background_color = [ 0, 0, 0,]
 antialiasing = true
@@ -102,7 +102,7 @@ min_line_length = 5
 interval_line_length = 1
 output_folder = "datasets_lite/low_level_vision/webers_law"
 
-["src/datasets_generation/low_level_vision/muller_lyer_illusion/generate_dataset.py"]
+["src/generate_datasets/low_level_vision/muller_lyer_illusion/generate_dataset.py"]
 canvas_size = [ 224, 224,]
 background_color = [ 0, 0, 0,]
 antialiasing = true
@@ -111,7 +111,7 @@ num_samples_scrambled = 100
 num_samples_illusory = 50
 output_folder = "datasets_lite/low_level_vision/muller_lyer_illusion"
 
-["src/datasets_generation/low_level_vision/jastrow_illusion/generate_dataset.py"]
+["src/generate_datasets/low_level_vision/jastrow_illusion/generate_dataset.py"]
 canvas_size = [ 224, 224,]
 background_color = [ 0, 0, 0,]
 antialiasing = true
@@ -121,13 +121,13 @@ num_samples_random = 50
 num_samples_aligned = 50
 output_folder = "datasets_lite/low_level_vision/jastrow_illusion"
 
-["src/datasets_generation/gestalt/thatcher_illusion/generate_dataset.py"]
+["src/generate_datasets/gestalt/thatcher_illusion/generate_dataset.py"]
 canvas_size = [ 224, 224,]
 face_folder = "assets/celebA_sample/normal"
 output_folder = "datasets_lite/gestalt/thatcher_illusion"
 regenerate = true
 
-["src/datasets_generation/gestalt/dotted_linedrawings/generate_dataset.py"]
+["src/generate_datasets/gestalt/dotted_linedrawings/generate_dataset.py"]
 canvas_size = [ 224, 224,]
 background_color = [ 0, 0, 0,]
 antialiasing = false
@@ -138,7 +138,7 @@ dot_distance = 5
 dot_size = 1
 output_folder = "datasets_lite/gestalt/dotted_linedrawings"
 
-["src/datasets_generation/gestalt/texturized_linedrawings_chars/generate_dataset.py"]
+["src/generate_datasets/gestalt/texturized_linedrawings_chars/generate_dataset.py"]
 canvas_size = [ 224, 224,]
 background_color = [ 0, 0, 0,]
 antialiasing = false
@@ -150,14 +150,14 @@ background_char = "\\"
 foreground_char = "."
 output_folder = "datasets_lite/gestalt/texturized_linedrawings_chars"
 
-["src/datasets_generation/gestalt/leuven_embedded_figures_test/generate_dataset.py"]
+["src/generate_datasets/gestalt/leuven_embedded_figures_test/generate_dataset.py"]
 canvas_size = [ 224, 224,]
 background_color = [ 0, 0, 0,]
 antialiasing = true
 regenerate = true
 output_folder = "datasets_lite/gestalt/leuven_embedded_figures_test"
 
-["src/datasets_generation/gestalt/CSE_CIE_dots/generate_dataset.py"]
+["src/generate_datasets/gestalt/CSE_CIE_dots/generate_dataset.py"]
 canvas_size = [ 224, 224,]
 background_color = [ 0, 0, 0,]
 antialiasing = true
@@ -165,7 +165,7 @@ regenerate = true
 num_samples = 100
 output_folder = "datasets_lite/gestalt/CSE_CIE_dots"
 
-["src/datasets_generation/gestalt/un_crowding/generate_dataset.py"]
+["src/generate_datasets/gestalt/un_crowding/generate_dataset.py"]
 canvas_size = [ 224, 224,]
 background_color = [ 0, 0, 0,]
 antialiasing = false
@@ -175,7 +175,7 @@ num_samples_vernier_outside = 100
 random_size = true
 output_folder = "datasets_lite/gestalt/un_crowding"
 
-["src/datasets_generation/gestalt/texturized_linedrawings_lines/generate_dataset.py"]
+["src/generate_datasets/gestalt/texturized_linedrawings_lines/generate_dataset.py"]
 canvas_size = [ 224, 224,]
 background_color = [ 0, 0, 0,]
 antialiasing = false
@@ -186,7 +186,7 @@ object_longest_side = 200
 density = 1.8
 output_folder = "datasets_lite/gestalt/texturized_linedrawings_lines"
 
-["src/datasets_generation/gestalt/embedded_figures/generate_dataset.py"]
+["src/generate_datasets/gestalt/embedded_figures/generate_dataset.py"]
 canvas_size = [ 224, 224,]
 background_color = [ 0, 0, 0,]
 antialiasing = true

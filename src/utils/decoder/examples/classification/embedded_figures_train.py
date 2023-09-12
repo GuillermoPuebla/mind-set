@@ -11,7 +11,7 @@ import pathlib
 dataset_folder = pathlib.Path("datasets_examples") / "embedded_figures"
 
 # We create a small Jastrow_Illusion dataset just for this example.
-from src.datasets_generation.gestalt.embedded_figures.generate_dataset import (
+from src.generate_datasets.gestalt.embedded_figures.generate_dataset import (
     generate_all as embedded_figures_generate,
 )
 

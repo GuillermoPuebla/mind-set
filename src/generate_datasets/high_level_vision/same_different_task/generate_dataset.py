@@ -9,7 +9,7 @@ import numpy as np
 import cv2
 from PIL import Image
 
-from src.datasets_generation.high_level_vision.same_different_task.generate_utils import (
+from src.generate_datasets.high_level_vision.same_different_task.generate_utils import (
     get_arrow_points,
     sample_midpoints_arrows,
     get_line_points,

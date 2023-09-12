@@ -1,5 +1,5 @@
 """
-This file generates a toml parameters file containing the parameters for each dataset found in the src/datasets_generations folder (that is, each file matching the path  src/datasets_generation/**/generate_dataset**.py). The toml parameters file is in the format that can be read by the `generate_datasets.py` function. A user is supposed to change the resulting toml file, not the defaults parameters in the individual source files. 
+This file generates a toml parameters file containing the parameters for each dataset found in the src/generate_datasetss folder (that is, each file matching the path  src/generate_datasets/**/generate_dataset**.py). The toml parameters file is in the format that can be read by the `generate_datasets.py` function. A user is supposed to change the resulting toml file, not the defaults parameters in the individual source files. 
 """
 
 import importlib
@@ -32,7 +32,7 @@ import glob
 
 if __name__ == "__main__":
     datasets = glob.glob(
-        "src/datasets_generation/**/generate_dataset**.py", recursive=True
+        "src/generate_datasets/**/generate_dataset**.py", recursive=True
     )
 
     create_config(datasets)

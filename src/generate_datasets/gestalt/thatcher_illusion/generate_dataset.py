@@ -10,7 +10,7 @@ import sty
 from torchvision import transforms
 from tqdm import tqdm
 
-from src.datasets_generation.gestalt.thatcher_illusion.utils import (
+from src.generate_datasets.gestalt.thatcher_illusion.utils import (
     get_image_facial_landmarks,
     get_bounding_rectangle,
     apply_thatcher_effect_on_image,

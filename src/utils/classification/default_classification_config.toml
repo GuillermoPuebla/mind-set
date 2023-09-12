@@ -33,9 +33,9 @@ evaluate_during_training = false
 name = "training"
 annotation_file = "path/to/annotation/file.csv"
 img_path_col_name = "Path"
-# Use either a string or a list of string for a regression task. For a classification task, only a single string is permitted. 
-label_cols = [""]
-filters = { Type = "random" }
+# Use either a string or a list of string for a regression task. For a classification task, only a single string is permitted (either in a list or not)
+label_cols = ["ImageNetClassIdx"]
+# filters = { Type = "random" }
 
 # Example of validation datasets.
 
@@ -69,8 +69,8 @@ neptune_proj_name = false
 
 [saving_folders]
 # The paths for saving the results and the model. If false, no saving will occur. Notice that, during training, the `train_id` will be appended to these folders. 
-results_folder = 'results/decoder/'
-model_output_folder = 'models/decoder'
+results_folder = 'results/classification/'
+model_output_folder = 'models/classification/'
 
 [transformation]
 fill_color = [0, 0, 0]

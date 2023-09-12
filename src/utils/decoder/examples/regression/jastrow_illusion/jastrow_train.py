@@ -12,7 +12,7 @@ import pathlib
 dataset_folder = pathlib.Path("datasets_examples") / "jastrow_illusion"
 
 # We create a small Jastrow_Illusion dataset just for this example.
-from src.datasets_generation.low_level_vision.jastrow_illusion.generate_dataset import (
+from src.generate_datasets.low_level_vision.jastrow_illusion.generate_dataset import (
     generate_all as Jastrow_generate,
 )
 

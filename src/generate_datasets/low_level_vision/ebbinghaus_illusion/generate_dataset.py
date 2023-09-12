@@ -10,7 +10,7 @@ import argparse
 import sty
 from tqdm import tqdm
 
-from src.datasets_generation.low_level_vision.ebbinghaus_illusion.utils import (
+from src.generate_datasets.low_level_vision.ebbinghaus_illusion.utils import (
     DrawEbbinghaus,
 )
 from src.utils.misc import (

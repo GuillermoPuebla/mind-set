@@ -1,4 +1,4 @@
-["src/datasets_generation/high_level_vision/gridded_images/generate_dataset.py"]
+["src/generate_datasets/high_level_vision/gridded_images/generate_dataset.py"]
 canvas_size = [ 224, 224,]
 background_color = [ 0, 0, 0,]
 antialiasing = false
@@ -9,3 +9,13 @@ grid_degree = 45
 grid_size = 8
 grid_thickness = 4
 output_folder = "datasets/high_level_vision/gridded_images"
+
+
+["src/generate_datasets/gestalt/linedrawings/generate_dataset.py"]
+canvas_size = [ 224, 224,]
+background_color = [ 0, 0, 0,]
+antialiasing = false
+regenerate = true
+object_longest_side = 100
+linedrawing_input_folder = "assets/baker_2018/outline_images_fix/"
+output_folder = "datasets/gestalt/linedrawings"

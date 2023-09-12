@@ -38,7 +38,7 @@ Similarly, if your research or project requires datasets with more than the prov
 We provide an intuitive interface to generate each dataset from scratch, allowing users to modify various parameters. This is done through a `toml` configuration file, a simple text file that specifies what datasets should be generated, and what parameters to use for each one of them. The `toml` file used to generate the lite and the full version uploaded to Kaggle are provided in the root folder: `generate_all_datasets.toml` and `generate_all_datasets_lite.toml`.
 The file contains a series of config options for each dataset. For example, the dataset `un_crowding` in the category `gestalt` is specified as: 
 ```toml
-["src/datasets_generation/gestalt/un_crowding/generate_dataset.py"]
+["src/generate_datasets/gestalt/un_crowding/generate_dataset.py"]
 canvas_size = [ 224, 224,]
 background_color = [ 0, 0, 0,]
 antialiasing = false

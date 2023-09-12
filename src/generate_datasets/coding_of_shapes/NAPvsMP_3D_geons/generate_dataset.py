@@ -7,7 +7,7 @@ import sty
 from PIL import ImageColor
 from tqdm import tqdm
 
-from src.datasets_generation.gestalt.CSE_CIE_dots.utils import DrawCSE_CIEdots
+from src.generate_datasets.gestalt.CSE_CIE_dots.utils import DrawCSE_CIEdots
 import pathlib
 import PIL.Image as Image
 import os

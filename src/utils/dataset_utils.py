@@ -229,6 +229,45 @@ def load_dataset(task_type, ds_config, transf_config):
 from torch.utils.data import Dataset
 import pandas as pd
 
+import json
+from torchvision.models import ResNet50_Weights
+
+ResNet50_Weights.IMAGENET1K_V1.value.meta["categories"]
+
+import pandas as pd
+import json
+
+
+class AddImageNetClass:
+    def __init__(self, class_index_json_file="assets/imagenet_class_index.json"):
+        self.class_idx = json.load(open(class_index_json_file))
+        self.idx2label = [self.class_idx[str(k)][1] for k in range(len(self.class_idx))]
+        self.label2idx = {
+            names[1]: int(label) for label, names in self.class_idx.items()
+        }
+
+    def add_to_annotation_file_path(
+        self, annotation_file_path, name_cols_imagenet, annotation_output_path=None
+    ):
+        annotation_output_path = (
+            annotation_file_path
+            if annotation_output_path is None
+            else annotation_output_path
+        )
+        df = pd.read_csv(annotation_file_path)
+
+        def fun(class_name):
+            return (
+                self.label2idx[class_name] if class_name in self.label2idx else "none"
+            )
+
+        #
+        df["ImageNetClassIdx"] = df[name_cols_imagenet].apply(fun)
+        df.to_csv(annotation_output_path)
+        print(
+            f"ImageNet class added in columns ImageNetClassIdx based on the class {name_cols_imagenet}"
+        )
+
 
 class ImageDatasetAnnotations(Dataset):
     def __init__(

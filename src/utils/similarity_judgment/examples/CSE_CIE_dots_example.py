@@ -8,7 +8,7 @@ dataset_folder = "datasets_examples/CSE_CIE_dots_small/"
 To make this example work, we need the CSE_CIE_dots dataset in the system. If not present, we need to create it. Since this is just an example, we create a small version of it: 
 """
 
-from src.datasets_generation.gestalt.CSE_CIE_dots.generate_dataset import (
+from src.generate_datasets.gestalt.CSE_CIE_dots.generate_dataset import (
     generate_all as CSE_CIE_dots_generate,
 )
 
