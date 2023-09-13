@@ -1,8 +1,6 @@
 import csv
-import glob
 import os
 import pathlib
-import shutil
 
 import numpy as np
 import argparse

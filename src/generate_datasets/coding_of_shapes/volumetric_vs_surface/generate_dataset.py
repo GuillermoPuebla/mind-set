@@ -16,7 +16,6 @@ import argparse
 import csv
 import os
 import pathlib
-from collections import deque
 
 import cv2
 import numpy as np
