@@ -5,7 +5,7 @@ import torch.backends.cudnn as cudnn
 
 # from rich import print
 from src.utils.callbacks import *
-from src.utils.dataset_utils import load_dataset
+from src.utils.dataset_utils import ImageNetClasses, get_dataloader
 from src.utils.misc import pretty_print_dict, update_dict
 from src.utils.net_utils import load_pretraining, make_cuda, GrabNet, ResNet152decoders
 from torch.utils.data import DataLoader
@@ -35,11 +35,13 @@ def classification_evaluate(
     use_cuda = torch.cuda.is_available()
     torch.cuda.set_device(toml_config["gpu_num"]) if torch.cuda.is_available() else None
 
-    test_datasets = [
-        load_dataset(
-            toml_config["task_type"],
+    test_loaders = [
+        get_dataloader(
+            "classification",
             ds_config=i,
             transf_config=toml_config["transformation"],
+            batch_size=toml_config["network"]["batch_size"],
+            return_path=True,
         )
         for i in toml_config["eval"]["datasets"]
     ]
@@ -47,7 +49,7 @@ def classification_evaluate(
     net, _, _ = GrabNet.get_net(
         toml_config["network"]["architecture_name"],
         imagenet_pt=True if toml_config["network"]["imagenet_pretrained"] else False,
-        num_classes=len(test_datasets[0].classes),
+        num_classes=1000,  # num classes of ImageNet
     )
 
     load_pretraining(
@@ -60,20 +62,10 @@ def classification_evaluate(
 
     cudnn.benchmark = True if use_cuda else False
 
-    test_loaders = [
-        DataLoader(
-            td,
-            batch_size=toml_config["network"]["batch_size"],
-            drop_last=False,
-            num_workers=8 if use_cuda else 0,
-            timeout=0,
-            pin_memory=True,
-        )
-        for td in test_datasets
-    ]
     net.cuda() if use_cuda else None
 
     results_folder = pathlib.Path(toml_config["saving_folders"]["results_folder"])
+    imagenet_classes = ImageNetClasses()
 
     def evaluate_one_dataloader(dataloader):
         results_final = []
@@ -87,7 +79,7 @@ def classification_evaluate(
         )
 
         for _, data in enumerate(tqdm(dataloader, colour="yellow")):
-            images, labels = data
+            images, labels, path = data
             images = make_cuda(images, use_cuda)
             labels = make_cuda(labels, use_cuda)
             output = net(images)
@@ -96,8 +88,13 @@ def classification_evaluate(
 
                 results_final.append(
                     {
-                        "label": labels[i].item(),
-                        "prediction": prediction,
+                        "image_path": path[i],
+                        "label_idx": labels[i].item(),
+                        "label_class_name": imagenet_classes.idx2label[
+                            labels[i].item()
+                        ],
+                        "prediction_idx": prediction,
+                        "prediction_class_name": imagenet_classes.idx2label[prediction],
                     }
                 )
 

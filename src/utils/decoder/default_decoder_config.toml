@@ -44,7 +44,7 @@ filters = { Type = "random" }
 # annotation_file = ""
 # img_path_col_name = "Path"
 # label_cols = ["val1"]
-# filters = { Type = "blabla"}
+# filters = {} # or filters = { Type = "blabla"} 
 
 # You can use more than one validation dataset
 # [[eval.datasets]]
@@ -52,7 +52,7 @@ filters = { Type = "random" }
 # annotation_file = ""
 # img_path_col_name = "Path"
 # label_cols = ["val2"]
-# filters = { Type = "blabla"}
+# filters = {} # or filters = { Type = "blabla"} 
 
 
 [training.stopping_conditions]

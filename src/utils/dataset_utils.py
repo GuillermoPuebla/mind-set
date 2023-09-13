@@ -12,6 +12,7 @@ import random
 from PIL import ImageStat
 from sty import fg, rs
 from torchvision import transforms as tf
+from torch.utils.data import DataLoader
 
 from PIL import Image
 from torchvision.transforms import functional as F
@@ -208,7 +209,7 @@ def fix_dataset(dataset, transf_values, fill_color, name_ds=""):
     return dataset
 
 
-def load_dataset(task_type, ds_config, transf_config):
+def get_dataloader(task_type, ds_config, transf_config, batch_size, return_path=False):
     ds = ImageDatasetAnnotations(
         task_type=task_type,
         csv_file=ds_config["annotation_file"],
@@ -216,13 +217,23 @@ def load_dataset(task_type, ds_config, transf_config):
         label_cols=ds_config["label_cols"],
         filters=ds_config["filters"],
         transform=None,  # transform is added in fix_dataset
+        return_path=return_path,
     )
 
-    return fix_dataset(
+    ds = fix_dataset(
         ds,
         transf_values=transf_config["values"],
         fill_color=transf_config["fill_color"],
         name_ds=ds_config["name"],
+    )
+
+    return DataLoader(
+        ds,
+        batch_size=batch_size,
+        drop_last=False,
+        num_workers=8 if torch.cuda.is_available() else 0,
+        timeout=0,
+        pin_memory=True,
     )
 
 
@@ -238,7 +249,7 @@ import pandas as pd
 import json
 
 
-class AddImageNetClass:
+class ImageNetClasses:
     def __init__(self, class_index_json_file="assets/imagenet_class_index.json"):
         self.class_idx = json.load(open(class_index_json_file))
         self.idx2label = [self.class_idx[str(k)][1] for k in range(len(self.class_idx))]
@@ -278,7 +289,9 @@ class ImageDatasetAnnotations(Dataset):
         label_cols: Union[List[str], str],
         filters: Optional[Dict[str, Union[str, int]]] = None,
         transform=None,
+        return_path=False,
     ):
+        self.return_path = return_path
         self.task_type = task_type
         self.dataframe = pd.read_csv(csv_file)
         if filters:
@@ -316,7 +329,10 @@ class ImageDatasetAnnotations(Dataset):
 
         if self.transform:
             image = self.transform(image)
-        return image, torch.tensor(labels, dtype=label_tensor_dtype)
+        if self.return_path:
+            return image, torch.tensor(labels, dtype=label_tensor_dtype), str(img_path)
+        else:
+            return image, torch.tensor(labels, dtype=label_tensor_dtype)
 
 
 class AffineTransform:

@@ -5,7 +5,7 @@ import torch.backends.cudnn as cudnn
 
 # from rich import print
 from src.utils.callbacks import *
-from src.utils.dataset_utils import load_dataset
+from src.utils.dataset_utils import get_dataloader
 from src.utils.misc import pretty_print_dict, update_dict
 from src.utils.net_utils import load_pretraining, make_cuda, GrabNet, ResNet152decoders
 from torch.utils.data import DataLoader
@@ -33,11 +33,13 @@ def decoder_evaluate(
     use_cuda = torch.cuda.is_available()
     torch.cuda.set_device(toml_config["gpu_num"]) if torch.cuda.is_available() else None
 
-    test_datasets = [
-        load_dataset(
+    test_loaders = [
+        get_dataloader(
             toml_config["task_type"],
             ds_config=i,
             transf_config=toml_config["transformation"],
+            batch_size=toml_config["network"]["batch_size"],
+            return_path=True,
         )
         for i in toml_config["eval"]["datasets"]
     ]
@@ -52,7 +54,7 @@ def decoder_evaluate(
         imagenet_pt=True if toml_config["network"]["imagenet_pretrained"] else False,
         num_classes=toml_config["network"]["decoder_outputs"]
         if toml_config["task_type"] == "regression"
-        else len(test_datasets[0].classes),
+        else len(test_loaders[0].dataset.classes),
     )
 
     load_pretraining(
@@ -65,17 +67,6 @@ def decoder_evaluate(
 
     cudnn.benchmark = True if use_cuda else False
 
-    test_loaders = [
-        DataLoader(
-            td,
-            batch_size=toml_config["network"]["batch_size"],
-            drop_last=False,
-            num_workers=8 if use_cuda else 0,
-            timeout=0,
-            pin_memory=True,
-        )
-        for td in test_datasets
-    ]
     net.cuda() if use_cuda else None
 
     results_folder = pathlib.Path(toml_config["saving_folders"]["results_folder"])
@@ -93,31 +84,39 @@ def decoder_evaluate(
         )
 
         for _, data in enumerate(tqdm(dataloader, colour="yellow")):
-            images, labels = data
+            images, labels, path = data
             images = make_cuda(images, use_cuda)
             labels = make_cuda(labels, use_cuda)
             out_dec = net(images)
-            for decoder_idx in range(num_decoders):
-                for i in range(len(labels)):
-                    if task_type == "classification":
-                        prediction = torch.argmax(out_dec[decoder_idx][i]).item()
-                    else:
-                        try:
-                            prediction = out_dec[decoder_idx][i].item()
-                        except IndexError:
-                            prediction = [o.item() for o in out_dec][decoder_idx]
-                    results_final.append(
-                        {
-                            "decoder": decoder_idx,
-                            "label": labels[i].item(),
-                            "prediction": prediction,
-                        }
-                    )
+            for i in range(len(labels)):
+                # if task_type == "classification":
+                #     prediction = torch.argmax(out_dec[decoder_idx][i]).item()
+                # else:
+                #     try:
+                #         prediction = out_dec[decoder_idx][i].item()
+                #     except IndexError:
+                #         prediction = [o.item() for o in out_dec][decoder_idx]
+                results_final.append(
+                    {
+                        "image_path": path[i],
+                        "label": labels[i].item(),
+                        **{
+                            f"prediction_dec_{dec_idx}": torch.argmax(
+                                out_dec[dec_idx][i]
+                            ).item()
+                            if task_type == "classification"
+                            else out_dec[dec_idx][i].item()
+                            for dec_idx in range(num_decoders)
+                        },
+                    }
+                )
 
         results_final_pandas = pandas.DataFrame(results_final)
+        result_path = str(results_folder / dataloader.dataset.name / "predictions.csv")
         results_final_pandas.to_csv(
-            str(results_folder / dataloader.dataset.name / "predictions.csv"),
+            result_path,
             index=False,
         )
+        print(sty.fg.yellow + f"Result written in {result_path}" + sty.rs.fg)
 
     [evaluate_one_dataloader(dataloader) for dataloader in test_loaders]

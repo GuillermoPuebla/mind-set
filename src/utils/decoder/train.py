@@ -2,7 +2,7 @@ from typing import Any
 import torchvision
 import toml
 from datetime import datetime
-from src.utils.dataset_utils import load_dataset
+from src.utils.dataset_utils import get_dataloader
 
 from src.utils.decoder.train_utils import (
     decoder_step,
@@ -95,24 +95,27 @@ def decoder_train(
     use_cuda = torch.cuda.is_available()
     torch.cuda.set_device(toml_config["gpu_num"]) if torch.cuda.is_available() else None
 
-    train_dataset = load_dataset(
+    train_loader = get_dataloader(
         toml_config["task_type"],
         ds_config=toml_config["training"]["dataset"],
         transf_config=toml_config["transformation"],
+        batch_size=toml_config["network"]["batch_size"],
     )
 
-    test_datasets = (
+    test_loaders = (
         [
-            load_dataset(
+            get_dataloader(
                 toml_config["task_type"],
                 ds_config=i,
                 transf_config=toml_config["transformation"],
+                batch_size=toml_config["network"]["batch_size"],
             )
             for i in toml_config["eval"]["datasets"]
         ]
         if toml_config["training"]["evaluate_during_training"] in toml_config
         else []
     )
+
     assert toml_config["network"]["architecture_name"] in [
         "resnet152_decoder",
         "resnet152_decoder_residual",
@@ -123,7 +126,7 @@ def decoder_train(
         imagenet_pt=True if toml_config["network"]["imagenet_pretrained"] else False,
         num_classes=toml_config["network"]["decoder_outputs"]
         if toml_config["task_type"] == "regression"
-        else len(train_dataset.classes),
+        else len(train_loader.dataset.classes),
     )
 
     num_decoders = len(net.decoders)
@@ -160,35 +163,9 @@ def decoder_train(
 
     net.train()
 
-    train_loader = DataLoader(
-        train_dataset,
-        batch_size=toml_config["network"]["batch_size"],
-        drop_last=False,
-        shuffle=True,
-        num_workers=8 if use_cuda else 0,
-        timeout=0,
-        pin_memory=True,
-    )
-
     weblog_dataset_info(
         train_loader, weblogger=weblogger, num_batches_to_log=1, log_text="train"
     ) if weblogger else None
-
-    test_loaders = (
-        [
-            DataLoader(
-                td,
-                batch_size=toml_config["network"]["batch_size"],
-                drop_last=False,
-                num_workers=8 if use_cuda else 0,
-                timeout=0,
-                pin_memory=True,
-            )
-            for td in test_datasets
-        ]
-        if toml_config["training"]["evaluate_during_training"]
-        else []
-    )
 
     [
         weblog_dataset_info(
