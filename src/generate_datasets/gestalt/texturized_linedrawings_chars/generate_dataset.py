@@ -1,9 +1,7 @@
 import argparse
 import csv
-import glob
 import os
 import random
-import shutil
 
 import cv2
 import numpy as np
