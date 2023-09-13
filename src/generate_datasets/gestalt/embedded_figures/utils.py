@@ -1,6 +1,6 @@
 import random
 import numpy as np
-from PIL import Image, ImageDraw
+from PIL import ImageDraw
 
 from src.utils.drawing_utils import DrawStimuli
 from src.utils.misc import apply_antialiasing
