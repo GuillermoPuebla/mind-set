@@ -4,7 +4,6 @@ import csv
 
 import numpy as np
 import sty
-from PIL import ImageColor
 from tqdm import tqdm
 
 from src.generate_datasets.gestalt.CSE_CIE_dots.utils import DrawCSE_CIEdots
