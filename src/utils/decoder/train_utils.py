@@ -1,11 +1,8 @@
 import torch
-import torchvision
 from torch import nn as nn
 from src.utils.net_utils import make_cuda
 from src.utils.misc import convert_lists_to_strings
 from copy import deepcopy
-import numpy as np
-from torch.nn import functional as F
 
 
 def update_logs(
