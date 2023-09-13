@@ -1,0 +1,17 @@
+gpu_num = 0
+
+[network]
+architecture_name = "vgg11" 
+
+[[eval.datasets]]
+name = "linedrawings"
+annotation_file = "datasets_examples/linedrawings/annotation_w_imagenet_idxs.csv"
+img_path_col_name = "Path"
+label_cols = ["ImageNetClassIdx"]
+filters = {}
+
+
+
+[saving_folders]
+results_folder = 'results/examples/imagenet_classification/linedrawings/'
+
