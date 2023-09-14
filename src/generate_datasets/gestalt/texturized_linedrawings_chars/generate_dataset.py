@@ -15,7 +15,7 @@ from torchvision.transforms import InterpolationMode, transforms
 from PIL import Image, ImageDraw, ImageFont
 from tqdm import tqdm
 
-from src.utils.similarity_judgment.misc import get_new_affine_values, my_affine
+from src.utils.similarity_judgment.misc import get_affine_rnd_fun_from_code, my_affine
 from src.utils.drawing_utils import (
     DrawStimuli,
     get_mask_from_linedrawing,
@@ -156,7 +156,7 @@ class DrawPatternedCanvas(DrawStimuli):
             mask=mask,
         )
 
-        af = get_new_affine_values(self.transform_code)
+        af = get_affine_rnd_fun_from_code(self.transform_code)
         img = my_affine(
             canvas,
             translate=list(np.array(af["tr"]) / expand_factor),

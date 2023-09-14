@@ -6,10 +6,15 @@ import importlib
 import toml
 import os
 from tqdm import tqdm
+from pathlib import Path
 import sty
+import glob
 
 
-def create_config(datasets):
+def create_config(
+    datasets=glob.glob("src/generate_datasets/**/generate_dataset**.py", recursive=True),
+    save_to=Path("generate_all_datasets.toml"),
+):
     config = {}
 
     for dataset in tqdm(datasets):
@@ -24,15 +29,9 @@ def create_config(datasets):
         config[dataset] = module.DEFAULTS
 
     # Write the config to a JSON file
-    with open("generate_all_datasets.toml", "w") as f:
+    with open(save_to, "w") as f:
         toml.dump(config, f)
 
 
-import glob
-
 if __name__ == "__main__":
-    datasets = glob.glob(
-        "src/generate_datasets/**/generate_dataset**.py", recursive=True
-    )
-
-    create_config(datasets)
+    create_config()
