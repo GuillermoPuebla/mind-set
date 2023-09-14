@@ -17,8 +17,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ["3.9.9"]
+        os: [ubuntu:20.04, windows-latest, macos-latest]
+        python-version: ["3.9.6"]
 
     steps:
       # -------- https://github.com/actions/checkout
@@ -37,7 +37,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install black pytest
           pip install -r requirements.txt
-
       # --------
       - name: Format with black
         run: |
