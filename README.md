@@ -82,3 +82,6 @@ You can refer to the examples in each folder to get started. We will soon provid
 ### Publications 
 - [Conference Paper](https://psyarxiv.com/cneyp/): **Introducing the MindSet benchmark for comparing DNNs to human vision**, [Conference on Cognitive Computational Neuroscience, Oxford, UK 2013](https://2023.ccneuro.org/view_paper.php?PaperNum=1127)
 _Valerio Biscione, Don Yin, Gaurav Malhotra, Marin Dujmović, Milton Montero, Guillermo Puebla, Federico Adolfi, Christian Tsvetkov, Benjamin Evans, Jeffrey Bowers_
+
+## Supported Operating Systems
+The scripts and functionalities have been tested and are confirmed to work on *macOS 13 Ventura*, *Windows 11*, and *Ubuntu 20.04*.
