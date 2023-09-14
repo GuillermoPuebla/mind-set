@@ -40,7 +40,7 @@ def test_generate_toml():
     if data_save_to.exists():
         shutil.rmtree(data_save_to)
 
-    create_config(toml_save_to)
+    create_config(save_to=toml_save_to)
 
     with open(toml_save_to, "r") as f:
         toml_config = toml.load(f)
