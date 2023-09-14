@@ -89,7 +89,6 @@ def log_neptune_init_info(neptune_logger, toml_config, tags=None):
     neptune_logger["sys/tags"].add(tags)
 
 
-
 def replace_layer(net, layer_class, new_layer_class):
     """This function replaces a specific layer class in a given neural network with a new layer class. The input parameters are:
     net: The neural network object in which the layer replacement is to be done

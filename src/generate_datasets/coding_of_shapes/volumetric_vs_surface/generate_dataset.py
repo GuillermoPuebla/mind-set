@@ -36,7 +36,7 @@ from src.utils.misc import (
     add_general_args,
     delete_and_recreate_path,
 )
-import os 
+import os
 
 from src.utils.misc import DEFAULTS as BASE_DEFAULTS
 
@@ -45,6 +45,7 @@ DEFAULTS["object_longest_side"] = 100
 category_folder = os.path.basename(os.path.dirname(os.path.dirname(__file__)))
 name_dataset = os.path.basename(os.path.dirname(__file__))
 DEFAULTS["output_folder"] = f"data/{category_folder}/{name_dataset}"
+
 
 def generate_all(
     object_longest_side=DEFAULTS["object_longest_side"],
