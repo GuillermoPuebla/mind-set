@@ -9,7 +9,6 @@ import cv2
 import sty
 from PIL import Image, ImageDraw
 import math
-import src.utils.create_training_from_linedrawings as create_training
 from torchvision.transforms import InterpolationMode, transforms
 from PIL import Image, ImageDraw, ImageFont
 
