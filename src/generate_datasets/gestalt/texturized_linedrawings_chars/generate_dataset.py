@@ -10,7 +10,6 @@ from pathlib import Path
 import sty
 from PIL import Image, ImageDraw
 import math
-import src.utils.create_training_from_linedrawings as create_training
 from torchvision.transforms import InterpolationMode, transforms
 from PIL import Image, ImageDraw, ImageFont
 from tqdm import tqdm
@@ -156,7 +155,7 @@ class DrawPatternedCanvas(DrawStimuli):
             mask=mask,
         )
 
-        af = get_affine_rnd_fun_from_code(self.transform_code)
+        af = get_affine_rnd_fun_from_code(self.transform_code)()
         img = my_affine(
             canvas,
             translate=list(np.array(af["tr"]) / expand_factor),
@@ -206,7 +205,7 @@ def generate_all(
     antialiasing=DEFAULTS["antialiasing"],
     regenerate=DEFAULTS["regenerate"],
 ):
-    transf_code = f"t[-0.1,0.1]"
+    transf_code = {"translation": [-0.1, 0.1]}
     linedrawing_input_folder = Path(linedrawing_input_folder)
 
     output_folder = Path(output_folder)

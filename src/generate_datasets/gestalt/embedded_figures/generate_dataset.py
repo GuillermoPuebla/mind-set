@@ -11,7 +11,6 @@ from torchvision.transforms import transforms, InterpolationMode
 from tqdm import tqdm
 
 from src.generate_datasets.gestalt.embedded_figures.utils import DrawEmbeddedFigures
-from src.utils.similarity_judgment.misc import my_affine, get_affine_rnd_fun_from_code
 from src.utils.misc import (
     add_general_args,
     delete_and_recreate_path,

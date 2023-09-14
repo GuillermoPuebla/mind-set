@@ -36,18 +36,18 @@ def get_affine_rnd_fun_from_code(transf_values):
                 np.random.uniform(*transf_values["translation"]),
             ]
         )
-        if transf_values["translation"]
+        if "translation" in transf_values and transf_values["translation"]
         else lambda: (0, 0)
     )
 
     scale = (
         (lambda: np.random.uniform(*transf_values["scale"]))
-        if transf_values["scale"]
+        if "scale" in transf_values and transf_values["scale"]
         else lambda: 1.0
     )
     rot = (
         (lambda: np.random.uniform(*transf_values["rotation"]))
-        if transf_values["rotation"]
+        if "rotation" in transf_values and transf_values["rotation"]
         else lambda: 0
     )
     return lambda: {"rt": rot(), "tr": tr(), "sc": scale(), "sh": 0.0}
