@@ -18,9 +18,11 @@ def create_config(
     save_to=Path("generate_all_datasets.toml"),
 ):
     config = {}
+    datasets = [Path(dataset) for dataset in datasets]
 
     for dataset in tqdm(datasets):
-        module = importlib.import_module(f"{dataset[:-3].replace(os.sep, '.')}")
+        module = ".".join(list(dataset.parts)).strip(".py")
+        module = importlib.import_module(module)
         for k, v in module.DEFAULTS.items():
             if v is None:
                 print(
@@ -28,7 +30,7 @@ def create_config(
                     + f"Dataset {dataset}\nWarning: the parameter {k} has value None. None are not supported by toml file and the parameter won't be saved. We suggest to never use None as a default parameter"
                     + sty.rs.fg
                 )
-        config[dataset] = module.DEFAULTS
+        config[dataset.as_posix()] = module.DEFAULTS
 
     # Write the config to a JSON file
     with open(save_to, "w") as f:
