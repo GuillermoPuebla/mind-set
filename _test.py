@@ -78,9 +78,3 @@ def test_generate_toml():
 
 if __name__ == "__main__":
     test_generate_toml()
-
-
-"""
-we now know that generate_toml will take the entire dictionary and start to generate files in each of the output folder. without changing the function itself, can we use a external method to check if the images in each output folder reaches 10 (recruisively), we stop; use watchdog;
-maybe use threading to start a thread on each  generate_toml(toml_path) and terminate it if the number of fiels (recruisive in that output folder reaches 10) for each key
-"""
