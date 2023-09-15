@@ -1,7 +1,7 @@
 """
 Script for regression test / revisit doc string later
 """
-
+import sys
 from src.utils.generate_default_pars_toml_file import create_config
 from src.generate_datasets_from_toml import generate_toml
 from pathlib import Path
@@ -115,6 +115,11 @@ def test_generate_toml():
 
     with open("GeneratedNotebook.ipynb", "w") as f:
         nbf.write(nb, f)
+
+    # now terminate the current process manually as the multiprocessing seems to 
+    # do some weird stuff with
+    # semaphores and locks
+    sys.exit()
 
 
 if __name__ == "__main__":
