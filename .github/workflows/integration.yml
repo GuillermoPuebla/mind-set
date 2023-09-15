@@ -38,12 +38,35 @@ jobs:
           pip install black pytest
           pip install -r requirements.txt
 
-      # # --------
-      # - name: Format with black
-      #   run: |
-      #     black . --check --line-length=88
+      # --------
+      - name: Format with black
+        if: matrix.os == 'ubuntu-20.04'
+        run: |
+          black . --line-length=88
+        
+      - name: Commit changes
+        if: matrix.os == 'ubuntu-20.04'
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: '.'
+          author_name: GitHub Actions
+          author_email: actions@github.com
+          message: "Formatted code with black."
+          default_author: github_actor
 
       # --------
       - name: Test with pytest
         run: |
           pytest
+
+      - name: Additional steps for ubuntu-20.04
+        if: matrix.os == 'ubuntu-20.04'
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: 'tests/samples_preview.ipynb'
+          author_name: GitHub Actions
+          author_email: actions@github.com
+          message: 'Committing tests/samples_preview.ipynb'
+          default_author: github_actor
+        
+
