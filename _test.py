@@ -9,6 +9,14 @@ import toml
 import shutil
 from tqdm import tqdm
 import multiprocessing as mp
+import base64
+import nbformat as nbf
+
+
+def encode_image_base64(image_path):
+    with open(image_path, "rb") as img_file:
+        encoded_bytes = base64.b64encode(img_file.read())
+    return encoded_bytes.decode("utf-8")
 
 
 class CountImagesIn:
@@ -58,7 +66,7 @@ def test_generate_toml():
         with open(toml_individual_save_to / f"{dataset_name}.toml", "w") as f:
             toml.dump({key: toml_config[key]}, f)
 
-    # -------- now generate each dataset --------
+    # -------- generate each dataset --------
     for key in name_path_dict:
         toml_path = toml_individual_save_to / f"{key}.toml"
         output_path = name_path_dict[key]
@@ -68,12 +76,45 @@ def test_generate_toml():
         CountImagesIn(output_path, generate_thread=process_generate)
 
     # -------- collect generated images --------
+    dataset_structure = {}
     for key in toml_config:
         dataset_name = Path(key).parent.name
         dataset_category_name = Path(key).parent.parent.name
         output_folder = data_save_to / dataset_category_name / dataset_name
+        images = list(output_folder.rglob("*.png"))
 
-        # to be continued
+        if dataset_category_name not in dataset_structure:
+            dataset_structure[dataset_category_name] = {}
+        if dataset_name not in dataset_structure[dataset_category_name]:
+            dataset_structure[dataset_category_name][dataset_name] = []
+        dataset_structure[dataset_category_name][dataset_name].extend(images)
+
+    nb = nbf.v4.new_notebook()
+
+    for category_name, datasets in dataset_structure.items():
+        nb.cells.append(nbf.v4.new_markdown_cell(f"# {category_name}"))
+
+        for dataset_name, images in datasets.items():
+            nb.cells.append(nbf.v4.new_markdown_cell(f"## {dataset_name}"))
+
+            # Initialize table markdown
+            table_markdown = "<table><tr>"
+
+            for index, image_path in enumerate(images):
+                base64_data = encode_image_base64(image_path)
+
+                if len(base64_data):  # filter empty
+                    table_markdown += f"<td><img src='data:image/png;base64,{base64_data}' alt='{image_path.name}'></td>"
+                    # check last
+                    if (index + 1) % 3 == 0 or (index + 1) == len(images):
+                        table_markdown += "</tr><tr>"
+
+            # close table
+            table_markdown += "</tr></table>"
+            nb.cells.append(nbf.v4.new_markdown_cell(table_markdown))
+
+    with open("GeneratedNotebook.ipynb", "w") as f:
+        nbf.write(nb, f)
 
 
 if __name__ == "__main__":
