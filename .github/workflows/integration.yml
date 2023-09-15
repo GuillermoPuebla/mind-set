@@ -53,6 +53,7 @@ jobs:
           author_email: actions@github.com
           message: "Formatted code with black."
           default_author: github_actor
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       # --------
       - name: Test with pytest
@@ -68,5 +69,6 @@ jobs:
           author_email: actions@github.com
           message: 'Committing tests/samples_preview.ipynb'
           default_author: github_actor
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
         
 
