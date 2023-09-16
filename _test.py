@@ -36,13 +36,13 @@ def generate_headers(nb, data, level=1):
     for key, value in sorted(data.items()):
         if key != "images":
             nb.cells.append(nbf.new_markdown_cell(f"{'#' * level} {key}"))
-            
+
             # Adding a check for configuration here
             config = check_up_config(key)
             if config:
                 config_str = toml.dumps(config)
                 nb.cells.append(nbf.new_markdown_cell(f"```toml\n{config_str}\n```"))
-            
+
             generate_headers(nb, value, level + 1)
         else:
             nb.cells.append(nbf.new_markdown_cell(create_table_markdown(value)))
