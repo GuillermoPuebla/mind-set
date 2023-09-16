@@ -38,3 +38,8 @@ temp/*
 Icon*
 
 .vscode/*
+
+# ignore pngs in tests folder
+tests/**/*.png
+tests/**/*.csv
+tests/**/*.toml
