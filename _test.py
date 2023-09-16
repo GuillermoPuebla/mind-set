@@ -7,7 +7,6 @@ from pathlib import Path
 import toml
 import shutil
 import os
-from tqdm import tqdm
 from collections import defaultdict
 import base64
 from nbformat import v4 as nbf
