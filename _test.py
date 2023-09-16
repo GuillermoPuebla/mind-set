@@ -36,6 +36,13 @@ def generate_headers(nb, data, level=1):
     for key, value in sorted(data.items()):
         if key != "images":
             nb.cells.append(nbf.new_markdown_cell(f"{'#' * level} {key}"))
+            
+            # Adding a check for configuration here
+            config = check_up_config(key)
+            if config:
+                config_str = toml.dumps(config)
+                nb.cells.append(nbf.new_markdown_cell(f"```toml\n{config_str}\n```"))
+            
             generate_headers(nb, value, level + 1)
         else:
             nb.cells.append(nbf.new_markdown_cell(create_table_markdown(value)))
@@ -51,6 +58,17 @@ def create_table_markdown(images):
                 table_markdown += "</tr><tr>"
     table_markdown += "</tr></table>"
     return table_markdown
+
+
+def check_up_config(project_name: str):
+    """using project name to look up the used config"""
+    toml_path = Path("tests", "tomls", f"{project_name}.toml")
+    assert toml_path.parent.exists(), "Tomls folder not found"
+    if toml_path.exists():
+        with open(toml_path, "r") as f:
+            toml_config = toml.load(f)
+            return toml_config
+    return ""
 
 
 def generate_notebook(dataset_structure):
