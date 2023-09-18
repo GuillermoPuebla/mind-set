@@ -16,7 +16,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-20.04, windows-latest, macos-latest]
+        os: [windows-latest, macos-latest]  # ubuntu-20.04, 
         python-version: ["3.9.6"]
 
     steps:
@@ -39,12 +39,12 @@ jobs:
 
       # --------
       - name: Format with black
-        if: matrix.os == 'ubuntu-20.04'
+        if: matrix.os == 'windows-latest'
         run: |
           black . --line-length=88
         
       - name: Commit changes
-        if: matrix.os == 'ubuntu-20.04'
+        if: matrix.os == 'windows-latest'
         uses: EndBug/add-and-commit@v9
         with:
           add: '.'
@@ -59,8 +59,8 @@ jobs:
         run: |
           pytest
 
-      - name: Additional steps for ubuntu-20.04
-        if: matrix.os == 'ubuntu-20.04'
+      - name: Additional steps for windows
+        if: matrix.os == 'windows-latest'
         uses: EndBug/add-and-commit@v9
         with:
           add: 'tests/samples_preview.ipynb'
