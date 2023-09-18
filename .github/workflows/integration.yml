@@ -16,7 +16,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest, macos-latest]  # ubuntu-20.04, 
+        os: [windows-latest, macos-latest, ubuntu-20.04] 
         python-version: ["3.9.6"]
 
     steps:
@@ -47,7 +47,7 @@ jobs:
         if: matrix.os == 'windows-latest'
         uses: EndBug/add-and-commit@v9
         with:
-          add: '.'
+          add: '*.py'
           author_name: GitHub Actions
           author_email: actions@github.com
           message: "Formatted code with black."
