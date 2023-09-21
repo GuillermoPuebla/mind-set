@@ -43,7 +43,7 @@ def load_and_invert(path, canvas_size, background, antialiasing):
 
     except UnidentifiedImageError:
         # read image from npy instead
-        img = np.load(path.parent.parent / "shapes_npy" / path.name.replace(".png", ".npy"))
+        img = np.load(path.parent.parent / "shapes_npy" / path.name.replace(".png", ".npy"), allow_pickle=True)
         img = Image.fromarray(img)
 
     img = img.resize(canvas_size)
