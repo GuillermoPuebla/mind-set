@@ -43,7 +43,10 @@ def load_and_invert(path, canvas_size, background, antialiasing):
 
     except UnidentifiedImageError:
         # read image from npy instead
-        img = np.load(path.parent.parent / "shapes_npy" / path.name.replace(".png", ".npy"), allow_pickle=True)
+        img = np.load(
+            path.parent.parent / "shapes_npy" / path.name.replace(".png", ".npy"),
+            allow_pickle=True,
+        )
         img = Image.fromarray(img)
 
     img = img.resize(canvas_size)
@@ -57,7 +60,9 @@ def load_and_invert(path, canvas_size, background, antialiasing):
     for y in range(height):
         for x in range(width):
             r, g, b = data[x, y]
-            if r == 0 or g == 0 or b == 0:  # If the pixel is not black (>=0) in the grayscale image
+            if (
+                r == 0 or g == 0 or b == 0
+            ):  # If the pixel is not black (>=0) in the grayscale image
                 data[x, y] = background
 
     return apply_antialiasing(img) if antialiasing else img
@@ -80,22 +85,36 @@ def generate_all(
 
     figs_to_take = range(0, 16 * 4, 4)
     i = figs_to_take[0]
-    all_shapes_path = [left_ds / "shapes" / (str(i).zfill(3) + ".png") for i in figs_to_take]
-    all_context_path = [left_ds / "context" / (str(i).zfill(3) + "a.png") for i in range(0, 64)]
+    all_shapes_path = [
+        left_ds / "shapes" / (str(i).zfill(3) + ".png") for i in figs_to_take
+    ]
+    all_context_path = [
+        left_ds / "context" / (str(i).zfill(3) + "a.png") for i in range(0, 64)
+    ]
 
     output_folder = pathlib.Path(output_folder)
 
     if output_folder.exists() and not regenerate:
-        print(sty.fg.yellow + f"Dataset already exists and `regenerate` flag if false. Finished" + sty.rs.fg)
+        print(
+            sty.fg.yellow
+            + f"Dataset already exists and `regenerate` flag if false. Finished"
+            + sty.rs.fg
+        )
         return str(output_folder)
 
     delete_and_recreate_path(output_folder)
     #
     output_folder_shape = output_folder / "shapes"
-    [(output_folder_shape / str(i)).mkdir(parents=True, exist_ok=True) for i, s in enumerate(all_shapes_path)]
+    [
+        (output_folder_shape / str(i)).mkdir(parents=True, exist_ok=True)
+        for i, s in enumerate(all_shapes_path)
+    ]
     output_folder_context = output_folder / "context"
 
-    [(output_folder_context / str(i // 4)).mkdir(parents=True, exist_ok=True) for i, s in enumerate(all_context_path)]
+    [
+        (output_folder_context / str(i // 4)).mkdir(parents=True, exist_ok=True)
+        for i, s in enumerate(all_context_path)
+    ]
 
     with open(output_folder / "annotation.csv", "w", newline="") as annfile:
         writer = csv.writer(annfile)
@@ -106,7 +125,9 @@ def generate_all(
             folder = output_folder_shape / str(idx)
             n = get_highest_number(folder)
             img.save(folder / f"{n + 1}.png")
-            writer.writerow([f"shapes/{str(idx)}/{n + 1}.png", "shapes", idx, background_color])
+            writer.writerow(
+                [f"shapes/{str(idx)}/{n + 1}.png", "shapes", idx, background_color]
+            )
 
             ## Test figures
             # Here we only take the figures containing the "target" shape, not the figures with the distractor (which are also provided in the dataset). That's because the standard test consits of checking whether a network can correctly classify these shape_based_image_generation with a high accuracy.
