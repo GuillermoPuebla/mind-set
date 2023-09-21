@@ -7,6 +7,7 @@ import sty
 from PIL.ImageOps import invert
 from PIL import Image, UnidentifiedImageError
 import re
+import numpy as np
 from tqdm import tqdm
 from src.utils.misc import (
     add_general_args,
@@ -38,19 +39,12 @@ def get_highest_number(folder_path):
 
 def load_and_invert(path, canvas_size, background, antialiasing):
     try:
-        img = invert(Image.open(path, format="PNG").convert("RGB"))
+        img = invert(Image.open(path).convert("RGB"))
 
     except UnidentifiedImageError:
-        try:
-            # Try to open the image without conversion to check size
-            with Image.open(path) as img:
-                print(f"Image size: {img.size}")
-                print(
-                    "Note: The image format is recognized, but might be corrupted or incompatible with the requested operation."
-                )
-        except Exception as e:
-            print(f"Error: {e}")
-            print("The image is either corrupted or its format is not recognized by PIL/Pillow.")
+        # read image from npy instead
+        img = np.load(path.parent.parent / "shapes_npy" / path.name.replace(".png", ".npy"))
+        img = Image.fromarray(img)
 
     img = img.resize(canvas_size)
     img = img.point(lambda x: 255 if x >= 10 else 0)
