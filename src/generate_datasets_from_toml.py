@@ -1,3 +1,4 @@
+from pathlib import Path
 import argparse
 from tqdm import tqdm
 import toml
@@ -13,10 +14,8 @@ def generate_toml(toml_file):
         dataset_params = toml.load(f)
 
     for dataset, params in tqdm(dataset_params.items()):
-        generate_all = getattr(
-            importlib.import_module(f"{dataset[:-3].replace(os.sep, '.')}"),
-            "generate_all",
-        )
+        module_path = ".".join(Path(dataset).parent.parts) + "." + "generate_dataset"
+        generate_all = getattr(importlib.import_module(module_path), "generate_all")
         params = {k: tuple(v) if isinstance(v, list) else v for k, v in params.items()}
         generate_all(**params)
 
