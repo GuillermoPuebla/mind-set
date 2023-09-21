@@ -38,7 +38,7 @@ def get_highest_number(folder_path):
 
 def load_and_invert(path, canvas_size, background, antialiasing):
     try:
-        img = invert(Image.open(path).convert("RGB"))
+        img = invert(Image.open(path, format="PNG").convert("RGB"))
 
     except UnidentifiedImageError:
         try:
