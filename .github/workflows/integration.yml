@@ -23,6 +23,11 @@ jobs:
       # -------- https://github.com/actions/checkout
       # check out your repository files onto the runner, so that the workflow can access them
       - uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Checkout LFS objects
+        run: git lfs checkout
 
       # -------- https://github.com/actions/setup-python
       - name: Set up Python ${{ matrix.python-version }}
