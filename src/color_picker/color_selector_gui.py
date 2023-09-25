@@ -1,5 +1,5 @@
 """
-Select the RGB or RGBA color from an image using mouse.
+Select the RGB or RGBA color from an image using mouse in a GUI.
 """
 
 import tkinter as tk
@@ -12,15 +12,11 @@ from PIL.Image import Resampling
 
 def color_selector(image_path):
     image = Image.open(image_path)
-
     root = tk.Tk()
-
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()
-
     max_size = (screen_width, screen_height)
     image.thumbnail(max_size, Resampling.LANCZOS)
-
     tk_image = ImageTk.PhotoImage(image)
 
     canvas = tk.Canvas(root, width=image.width, height=image.height)
@@ -51,7 +47,6 @@ def color_selector(image_path):
             pass
 
     canvas.bind("<Button-1>", callback)
-
     root.mainloop()
     return color_of_interest
 

@@ -85,3 +85,6 @@ _Valerio Biscione, Don Yin, Gaurav Malhotra, Marin Dujmović, Milton Montero, Gu
 
 ## Supported Operating Systems
 The scripts and functionalities have been tested and are confirmed to work on *macOS 13 Ventura*, *Windows 11*, and *Ubuntu 20.04*.
+
+## Similarity Judgement
+[![Demo for Similarity Judgement](assets/similarity_judgement.png)](https://youtu.be/a7k5viGmxnk)
