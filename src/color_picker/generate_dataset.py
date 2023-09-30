@@ -30,7 +30,9 @@ def generate_all(
             for step in range(20):  # abandon the checks, just dump the shapes!
                 shape_configs._refresh()
                 random_shape_config = shape_configs._return_shape_config()
-                getattr(img, "add_" + random_shape_config["shape"])(**random_shape_config["parameters"])
+                getattr(img, "add_" + random_shape_config["shape"])(
+                    **random_shape_config["parameters"]
+                )
 
             propose_coordinates = img._propose_arrow_coord()
 
