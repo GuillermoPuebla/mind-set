@@ -6,6 +6,7 @@
 *.pyc
 .DS_Store
 *.pyc
+_dev.py
 
 # specific directories
 **/__pycache__/

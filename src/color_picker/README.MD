@@ -5,7 +5,7 @@ This repository contains three scripts that make up the system for the colour pi
 - color_selector_gui.py
     This is a stand-alone module that helps to find the colour of specific pixels in a given image with a GUI, given that this is sometimes difficult with code alone when we have a specific image to test.
 
-- color_picker_train_stimuli.py
+- generate_dataset.py
     This is a train image generation script where the two input parameters are the save path of the images and the number of images to generate. Each stimulus is composed of random shapes and an arrow at a random location. Each image is labelled with the grayscale colour of the pixel under the arrow.
 
 - color_picker_test_stimuli.py

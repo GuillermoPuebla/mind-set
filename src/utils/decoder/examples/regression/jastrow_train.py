@@ -1,5 +1,4 @@
 import os
-import pandas as pd
 import toml
 from src.utils.decoder.examples.regression.jastrow_illusion.jastrow_utils import (
     adjust_csv,

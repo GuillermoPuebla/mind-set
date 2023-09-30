@@ -12,9 +12,7 @@ import glob
 
 
 def create_config(
-    datasets=glob.glob(
-        "src/generate_datasets/**/generate_dataset**.py", recursive=True
-    ),
+    datasets=glob.glob("src/generate_datasets/**/generate_dataset**.py", recursive=True),
     save_to=Path("generate_all_datasets.toml"),
 ):
     config = {}

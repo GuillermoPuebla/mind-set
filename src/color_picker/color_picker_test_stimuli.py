@@ -2,38 +2,12 @@
 This script draws two boxes with different shades of grey.ƒ
 """
 
-from PIL import Image, ImageDraw
+from PIL import Image
 from pathlib import Path
+from src.color_picker.utils import add_arrow
 
 import os
 from tqdm import tqdm
-
-
-def add_arrow(canvas, coord: tuple[float, float], fill=255):
-    image_width = canvas.size[0]
-    resize_ratio = image_width / (4 * 224)
-
-    # configs for the arrow
-    arrow_line_length = 45 * resize_ratio
-    triangle_height = 30 * resize_ratio
-    triangle_width = 20 * resize_ratio
-    line_width = int(2 * resize_ratio)
-
-    if 0 < coord[0] < 1 and 0 < coord[1] < 1:
-        coord = tuple(map(lambda x: x * image_width, coord))
-
-    coord = (coord[0], coord[1] - 1)
-
-    coord_1 = coord
-    coord_2 = (coord[0], coord[1] - arrow_line_length)
-
-    coord_triangle_left = (coord[0] - triangle_width, coord[1] - triangle_height)
-    coord_triangle_right = (coord[0] + triangle_width, coord[1] - triangle_height)
-
-    draw = ImageDraw.Draw(canvas)
-    draw.line((coord_1, coord_2), fill=fill, width=line_width)
-    draw.polygon((coord_1, coord_triangle_left, coord_triangle_right), fill=fill)
-    return canvas
 
 
 def generate_arrow_data(

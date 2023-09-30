@@ -19,11 +19,9 @@ def encode_image_base64(image_path):
 
 
 def build_dataset_structure(path, dataset_structure):
-    # collect first 9
+    # collect first 9 images from a dataset for displaying
     for root, dirs, files in sorted(os.walk(path)):
-        image_files = [
-            Path(root) / file for file in sorted(files) if file.endswith(".png")
-        ][:9]
+        image_files = [Path(root) / file for file in sorted(files) if file.endswith(".png")][:9]
         if image_files:
             d = dataset_structure
             path_parts = Path(root).relative_to(path).parts
@@ -88,8 +86,11 @@ def test_generate_toml():
     if data_save_to.exists():
         shutil.rmtree(data_save_to)
 
-    # -------- making config --------
-    create_config(save_to=toml_save_to)
+    # -------- making configs --------
+    # datasets=glob.glob("src/generate_datasets/**/generate_dataset**.py", recursive=True),
+    datasets = list(Path("src", "color_picker").rglob("generate_dataset*.py"))
+    datasets.extend(list(Path("src", "generate_datasets").rglob("generate_dataset*.py")))
+    create_config(datasets=datasets, save_to=toml_save_to)
 
     with open(toml_save_to, "r") as f:
         toml_config = toml.load(f)

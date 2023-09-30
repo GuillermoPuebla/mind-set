@@ -8,7 +8,6 @@ import sty
 import PIL.Image as Image
 from src.utils.drawing_utils import (
     DrawStimuli,
-    get_mask_from_linedrawing,
     paste_linedrawing_onto_canvas,
     resize_image_keep_aspect_ratio,
 )
@@ -35,9 +34,7 @@ class DrawDottedImage(DrawStimuli):
         img = resize_image_keep_aspect_ratio(img, self.obj_longest_side)
 
         _, binary_img = cv2.threshold(img, 240, 255, cv2.THRESH_BINARY_INV)
-        contours, b = cv2.findContours(
-            binary_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE
-        )
+        contours, b = cv2.findContours(binary_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
         dotted_img = np.ones_like(img) * 255
 
         def draw_dot(image, x, y, size, color):
@@ -56,9 +53,7 @@ class DrawDottedImage(DrawStimuli):
                     x, y = point[0]
                     draw_dot(dotted_img, x, y, dot_size, color=0)
 
-        canvas = paste_linedrawing_onto_canvas(
-            Image.fromarray(dotted_img), self.create_canvas(), self.fill
-        )
+        canvas = paste_linedrawing_onto_canvas(Image.fromarray(dotted_img), self.create_canvas(), self.fill)
 
         return apply_antialiasing(canvas) if self.antialiasing else canvas
 
@@ -93,11 +88,7 @@ def generate_all(
     output_folder = Path(output_folder)
 
     if output_folder.exists() and not regenerate:
-        print(
-            sty.fg.yellow
-            + f"Dataset already exists and `regenerate` flag if false. Finished"
-            + sty.rs.fg
-        )
+        print(sty.fg.yellow + f"Dataset already exists and `regenerate` flag if false. Finished" + sty.rs.fg)
         return str(output_folder)
 
     delete_and_recreate_path(output_folder)
@@ -115,27 +106,19 @@ def generate_all(
 
     with open(output_folder / "annotation.csv", "w", newline="") as annfile:
         writer = csv.writer(annfile)
-        writer.writerow(
-            ["Path", "Class", "Background", "DotDistance", "DotSize", "IterNum"]
-        )
+        writer.writerow(["Path", "Class", "Background", "DotDistance", "DotSize", "IterNum"])
         for n, img_path in enumerate(tqdm(linedrawing_input_folder.glob("*"))):
             class_name = img_path.stem
-            img = ds.dotted_image(
-                img_path, dot_distance=dot_distance, dot_size=dot_size
-            )
+            img = ds.dotted_image(img_path, dot_distance=dot_distance, dot_size=dot_size)
 
             path = Path(class_name) / f"{n}.png"
             img.save(output_folder / path)
-            writer.writerow(
-                [path, class_name, ds.background, dot_distance, dot_size, n]
-            )
+            writer.writerow([path, class_name, ds.background, dot_distance, dot_size, n])
     return str(output_folder)
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
-    )
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     add_general_args(parser)
     parser.set_defaults(output_folder=DEFAULTS["output_folder"])
