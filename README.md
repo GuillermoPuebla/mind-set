@@ -1,12 +1,10 @@
 # MindSet
-<!-- ![](https://i.ibb.co/pvTVHKw/0-05254-67.png)     ![](https://i.ibb.co/4SvMvCt/28.png)![](https://i.ibb.co/9N4YVxF/c-0.png) -->
+![](https://i.ibb.co/pvTVHKw/0-05254-67.png)     ![](https://i.ibb.co/4SvMvCt/28.png)![](https://i.ibb.co/9N4YVxF/c-0.png)
 
-                                             |                                      |                   
-:-------------------------------------------:|:------------------------------------:|:------------------------------------:
-![](https://i.ibb.co/pvTVHKw/0-05254-67.png) | ![](https://i.ibb.co/4SvMvCt/28.png) | ![](https://i.ibb.co/9N4YVxF/c-0.png)
 
 ### TL;DR: Just gimme the datasets!
 **[MindSet Large on Kaggle](https://www.kaggle.com/datasets/valerio1988/mindset)** (~1.3 GB)
+
 
 **[MindSet Lite on Kaggle](https://www.kaggle.com/datasets/valerio1988/mindset-lite)**  (59 MB)
 
