@@ -7,6 +7,7 @@
 .DS_Store
 *.pyc
 _dev.py
+experiment/*
 
 # specific directories
 **/__pycache__/
