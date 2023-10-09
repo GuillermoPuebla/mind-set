@@ -23,7 +23,7 @@ class GrabNet:
         resize_value = 224
 
         if imagenet_pt:
-            print(fg.red + "Loading ImageNet" + rs.fg)
+            print(fg.red + "Loading ImageNet Pretraining" + rs.fg)
 
         pretrained_weights = "IMAGENET1K_V1" if imagenet_pt else None
         nc = 1000 if imagenet_pt else num_classes
@@ -145,55 +145,6 @@ class GrabNet:
     @staticmethod
     def get_other_nets(architecture_name, num_classes, imagenet_pt, **kwargs):
         pass
-
-
-class RandomPixels(torch.nn.Module):
-    def __init__(self, background_color=(0, 0, 0), line_color=(255, 255, 255)):
-        super().__init__()
-        self.background_color = background_color
-        self.line_color = line_color
-
-    def forward(self, input):
-        i = np.array(input)
-        i = i.astype(np.int16)
-        s_line = len(i[i == self.line_color])
-        i[i == self.line_color] = np.repeat(
-            [1000, 1000, 1000], s_line / 3, axis=0
-        ).flatten()
-
-        s = len(i[i == self.background_color])
-        i[i == self.background_color] = np.random.randint(0, 255, s)
-
-        s_line = len(i[i == [1000, 1000, 1000]])
-        i[i == [1000, 1000, 1000]] = np.repeat([0, 0, 0], s_line / 3, axis=0).flatten()
-        i = i.astype(np.uint8)
-
-        return transforms.ToPILImage()(i)
-
-
-class RandomBackground(torch.nn.Module):
-    def __init__(self, color_to_randomize=0):
-        super().__init__()
-        self.color_to_randomize = color_to_randomize
-
-    def forward(self, input):
-        i = np.array(input)
-        s = len(i[i == self.color_to_randomize])
-
-        i[i == self.color_to_randomize] = np.repeat(
-            [np.random.randint(0, 255, 3)], s / 3, axis=0
-        ).flatten()
-        return transforms.ToPILImage()(i)
-
-
-def prepare_network(net, pretraining, optimizer=None, train=True):
-    pretraining_file = "vanilla" if pretraining == "ImageNet" else pretraining
-    load_pretraining(net, pretraining_file, optimizer, torch.cuda.is_available())
-    net.cuda() if torch.cuda.is_available() else None
-
-    cudnn.benchmark = True
-    net.train() if train else net.eval()
-    # print_net_info(net) if config.verbose else None
 
 
 def load_pretraining(

@@ -198,7 +198,7 @@ def decoder_train(
             logs=logs,
             logs_prefix=logs_prefix,
             collect_data=kwargs.pop("collect_data", False),
-            stats=train_dataset.stats,
+            stats=train_loader.dataset.stats,
             method=method,
         )
 
@@ -212,7 +212,7 @@ def decoder_train(
     all_callbacks = [
         # StopFromUserInput(),
         ProgressBar(
-            l=len(train_dataset),
+            l=len(train_loader.dataset),
             batch_size=toml_config["network"]["batch_size"],
             logs_keys=[
                 "ema_loss",

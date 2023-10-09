@@ -4,7 +4,7 @@ import toml
 from src.utils.decoder.eval import decoder_evaluate
 import pathlib
 
-from src.utils.decoder.examples.regression.jastrow_illusion.jastrow_utils import (
+from src.utils.decoder.examples.regression.jastrow_utils import (
     adjust_csv,
 )
 
