@@ -3,7 +3,7 @@ from typing import List
 import numpy as np
 from torchvision.transforms import transforms
 
-import os
+import torch.nn.functional as F
 import torchvision
 import torch.nn as nn
 from sty import fg, ef, rs, bg
