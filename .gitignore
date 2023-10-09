@@ -7,7 +7,7 @@
 .DS_Store
 *.pyc
 _dev.py
-experiment/*
+experiments/*
 init
 
 # specific directories
