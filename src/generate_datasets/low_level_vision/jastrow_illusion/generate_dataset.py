@@ -41,12 +41,8 @@ class JastrowParent(ParentStimuli):
 
         The Jastrow factor is calculated as the product of the rotation similarity and the spatial similarity.
         """
-        assert (
-            len(self.contained_shapes) == 2
-        ), "Make sure there are only two arc shapes"
-        assert all(
-            [shape.shape == "arc" for shape in self.contained_shapes]
-        ), "Shapes must be arc"
+        assert len(self.contained_shapes) == 2, "Make sure there are only two arc shapes"
+        assert all([shape.shape == "arc" for shape in self.contained_shapes]), "Shapes must be arc"
 
         rotations = [shape.rotation for shape in self.contained_shapes]
         positions = [shape.position for shape in self.contained_shapes]
@@ -55,9 +51,7 @@ class JastrowParent(ParentStimuli):
         rotation_similarity = self.get_rotation_similarity(*rotations)
 
         # calculate the spatial similarity by calculating the distance between the two shapes and dividing by the max distance
-        self.position_similarity = np.linalg.norm(
-            np.array(positions[0]) - np.array(positions[1])
-        ) / math.sqrt(2)
+        self.position_similarity = np.linalg.norm(np.array(positions[0]) - np.array(positions[1])) / math.sqrt(2)
         self.position_similarity = 1 - self.position_similarity
 
         # calculate the Jastrow factor as the product of rotation similarity and spatial similarity
@@ -70,9 +64,7 @@ class JastrowParent(ParentStimuli):
 
 
 class DrawJastrow(DrawStimuli):
-    def generate_jastrow_illusion(
-        self, arc, width, size_red, size_blue, top_color, type_stimulus
-    ):
+    def generate_jastrow_illusion(self, arc, width, size_red, size_blue, top_color, type_stimulus):
         correct_stimulus = False
         while not correct_stimulus:
             position_fun = lambda: (random.uniform(0.1, 0.9), random.uniform(0.1, 0.9))
@@ -82,20 +74,14 @@ class DrawJastrow(DrawStimuli):
                 initial_expansion=4 if self.antialiasing else 1,
             )
             # With illusory or aligned, arc_1 is always the top 1. Then "on_top" decides it's color.
-            arcs_sizes = (
-                [size_red, size_blue] if top_color == "red" else [size_blue, size_red]
-            )
+            arcs_sizes = [size_red, size_blue] if top_color == "red" else [size_blue, size_red]
             arc_1 = Shapes(parent=parent)
             arc_1.add_arc(size=arcs_sizes[0], arc=arc, width=width)
-            arc_1.move_to(position_fun()).rotate(
-                rotation_fun()
-            ) if type_stimulus == "random" else None
+            arc_1.move_to(position_fun()).rotate(rotation_fun()) if type_stimulus == "random" else None
 
             arc_2 = Shapes(parent=parent)
             arc_2.add_arc(size=arcs_sizes[1], arc=arc, width=width)
-            arc_2.move_to(position_fun()).rotate(
-                rotation_fun()
-            ) if type_stimulus == "random" else None
+            arc_2.move_to(position_fun()).rotate(rotation_fun()) if type_stimulus == "random" else None
             parent.center_shapes()
 
             if type_stimulus == "aligned" or type_stimulus == "illusory":
@@ -107,10 +93,7 @@ class DrawJastrow(DrawStimuli):
                 while not image_ok:
                     arc_1.move_to(position_fun()).rotate(rotation_fun())
                     arc_2.move_to(position_fun()).rotate(rotation_fun())
-                    if not (
-                        arc_1.is_touching(arc_2)
-                        and parent.compute_jastrow_factor().round(3) > 0.7
-                    ):
+                    if not (arc_1.is_touching(arc_2) and parent.compute_jastrow_factor().round(3) > 0.7):
                         image_ok = True
                 arc_1.set_color("red").register()
                 arc_2.set_color("blue").register()
@@ -155,11 +138,7 @@ def generate_all(
     types = ["illusory", "random", "aligned"]
 
     if output_folder.exists() and not regenerate:
-        print(
-            sty.fg.yellow
-            + f"Dataset already exists and `regenerate` flag if false. Finished"
-            + sty.rs.fg
-        )
+        print(sty.fg.yellow + f"Dataset already exists and `regenerate` flag if false. Finished" + sty.rs.fg)
         return str(output_folder)
 
     delete_and_recreate_path(output_folder)
@@ -167,17 +146,13 @@ def generate_all(
 
     [
         [
-            (
-                output_folder / type / ("" if type == "random" else f"{top}_on_top")
-            ).mkdir(exist_ok=True, parents=True)
+            (output_folder / type / ("" if type == "random" else f"{top}_on_top")).mkdir(exist_ok=True, parents=True)
             for type in types
         ]
         for top in on_top_cols
     ]
 
-    ds = DrawJastrow(
-        background=background_color, canvas_size=canvas_size, antialiasing=antialiasing
-    )
+    ds = DrawJastrow(background=background_color, canvas_size=canvas_size, antialiasing=antialiasing)
 
     with open(output_folder / "annotation.csv", "w", newline="") as annfile:
         writer = csv.writer(annfile)
@@ -192,6 +167,9 @@ def generate_all(
                 "SizeBottom",
                 "OnTop",
                 "SampleNum",
+                "SizeRed",
+                "SizeBlue",
+                "SizeRedMinusBlue",
             ]
         )
 
@@ -230,15 +208,16 @@ def generate_all(
                             size_blue,
                             "none" if type == "random" else top_color,
                             idx,
+                            size_red,
+                            size_blue,
+                            size_red - size_blue,
                         ]
                     )
     return str(output_folder)
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
-    )
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     add_general_args(parser)
     parser.set_defaults(output_folder=DEFAULTS["output_folder"])
