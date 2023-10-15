@@ -8,7 +8,6 @@ import sty
 import PIL.Image as Image
 from src.utils.drawing_utils import (
     DrawStimuli,
-    get_mask_from_linedrawing,
     paste_linedrawing_onto_canvas,
     resize_image_keep_aspect_ratio,
 )
@@ -35,14 +34,10 @@ class DrawDottedImage(DrawStimuli):
         img = resize_image_keep_aspect_ratio(img, self.obj_longest_side)
 
         _, binary_img = cv2.threshold(img, 240, 255, cv2.THRESH_BINARY_INV)
-        contours, b = cv2.findContours(
-            binary_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE
-        )
+        contours, b = cv2.findContours(binary_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
         # dotted_img = np.ones_like(img) * 255
 
-        canvas = paste_linedrawing_onto_canvas(
-            Image.fromarray(img), self.create_canvas(), self.fill
-        )
+        canvas = paste_linedrawing_onto_canvas(Image.fromarray(img), self.create_canvas(), self.fill)
 
         return apply_antialiasing(canvas) if self.antialiasing else canvas
 
@@ -73,11 +68,7 @@ def generate_all(
     output_folder = Path(output_folder)
 
     if output_folder.exists() and not regenerate:
-        print(
-            sty.fg.yellow
-            + f"Dataset already exists and `regenerate` flag if false. Finished"
-            + sty.rs.fg
-        )
+        print(sty.fg.yellow + f"Dataset already exists and `regenerate` flag if false. Finished" + sty.rs.fg)
         return str(output_folder)
 
     delete_and_recreate_path(output_folder)
@@ -98,9 +89,7 @@ def generate_all(
         writer.writerow(["Path", "Class", "Background", "IterNum"])
         for n, img_path in enumerate(tqdm(linedrawing_input_folder.glob("*"))):
             class_name = img_path.stem
-            img = ds.get_linedrawings(
-                img_path,
-            )
+            img = ds.get_linedrawings(img_path)
             path = Path(class_name) / f"{n}.png"
             img.save(output_folder / path)
             writer.writerow([path, class_name, ds.background, n])
@@ -108,9 +97,7 @@ def generate_all(
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
-    )
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     add_general_args(parser)
     parser.set_defaults(output_folder=DEFAULTS["output_folder"])

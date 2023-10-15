@@ -7,10 +7,9 @@ import numpy as np
 from pathlib import Path
 import cv2
 import sty
-from PIL import Image, ImageDraw
 import math
 from torchvision.transforms import InterpolationMode, transforms
-from PIL import Image, ImageDraw, ImageFont
+from PIL import ImageDraw
 
 from src.utils.similarity_judgment.misc import get_affine_rnd_fun_from_code, my_affine
 from src.utils.drawing_utils import (

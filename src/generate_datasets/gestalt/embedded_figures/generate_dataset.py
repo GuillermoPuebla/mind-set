@@ -1,8 +1,6 @@
 import argparse
 import csv
-import glob
 import os
-import shutil
 
 import sty
 from tqdm import tqdm
@@ -15,6 +13,7 @@ from src.utils.misc import (
     add_general_args,
     delete_and_recreate_path,
 )
+import uuid
 
 from src.utils.misc import DEFAULTS as BASE_DEFAULTS
 
@@ -145,7 +144,8 @@ def generate_all(
                             num_rnd_lines=10,
                             debug=debug_mode,
                         )
-                    img_path = pathlib.Path(cond) / shape_name / f"{i}.png"
+                    unique_hex = uuid.uuid4().hex[:8]
+                    img_path = pathlib.Path(cond) / shape_name / f"{unique_hex}.png"
                     img.save(output_folder / img_path)
                     writer.writerow([img_path, cond, shape_name, ds.background, i])
     return str(output_folder)

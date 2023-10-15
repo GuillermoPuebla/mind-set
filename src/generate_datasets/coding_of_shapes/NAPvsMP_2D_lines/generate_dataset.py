@@ -15,6 +15,7 @@ from src.utils.misc import (
 )
 
 from src.utils.misc import DEFAULTS as BASE_DEFAULTS
+import uuid
 
 DEFAULTS = BASE_DEFAULTS.copy()
 category_folder = os.path.basename(os.path.dirname(os.path.dirname(__file__)))
@@ -77,7 +78,8 @@ def generate_all(
         for t in tqdm(all_types):
             for i in tqdm((kubilius_dataset / t).glob("*"), leave=False):
                 name_sample = i.stem
-                img_path = pathlib.Path(t) / f"{name_sample}.png"
+                unique_hex = uuid.uuid4().hex[:8]
+                img_path = pathlib.Path(t) / f"{name_sample}_{unique_hex}.png"
                 img = ds.process_image(
                     kubilius_dataset / img_path,
                     line_color,

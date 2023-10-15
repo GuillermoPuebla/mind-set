@@ -199,7 +199,8 @@ def generate_all(
                         split_type=split_type,
                         cut_rotation=cut_rotation,
                     )
-                    path = Path(name_comb) / split_type / f"{idx}.png"
+                    unique_hex = uuid.uuid4().hex[:8]
+                    path = Path(name_comb) / split_type / f"{unique_hex}.png"
                     img.save(output_folder / path)
                     writer.writerow(
                         [

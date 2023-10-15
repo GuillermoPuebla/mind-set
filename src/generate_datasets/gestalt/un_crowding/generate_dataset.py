@@ -10,10 +10,9 @@ Main changes to the main code:
     - added optional arguments part for generating dataset from the command line
 """
 import csv
-import shutil
+import uuid
 from pathlib import Path
 import argparse
-import glob
 import os
 import PIL.Image as Image
 import random
@@ -680,7 +679,8 @@ def generate_all(
                         )
                         shape_code = shape_code if shape_code != "" else "none"
 
-                        path = Path(v_in_out) / str(v) / f"{shape_code}_{n}.png"
+                        unique_hex = uuid.uuid4().hex[:8]
+                        path = Path(v_in_out) / str(v) / f"{shape_code}_{n}_{unique_hex}.png"
                         img.save(output_folder / path)
                         writer.writerow(
                             [

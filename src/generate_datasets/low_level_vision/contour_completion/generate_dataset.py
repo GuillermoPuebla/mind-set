@@ -1,15 +1,13 @@
 import argparse
 import csv
-import glob
 import os
-import shutil
 from pathlib import Path
 
 import numpy as np
 import sty
-from PIL import Image, ImageDraw
 import math
 import random
+import uuid
 
 from PIL.ImageDraw import Draw
 from tqdm import tqdm
@@ -242,7 +240,8 @@ def generate_all(
                     notched=False,
                     top=top_shape,
                 )
-                path = Path("no_occlusion") / f"{top_shape}_{completed_samples}.png"
+                unique_hex = uuid.uuid4().hex[:8]
+                path = Path("no_occlusion") / f"{top_shape}_{completed_samples}_{unique_hex}.png"
                 img.save(output_folder / path)
                 writer.writerow(
                     [

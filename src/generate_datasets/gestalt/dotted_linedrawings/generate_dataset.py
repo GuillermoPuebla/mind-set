@@ -1,7 +1,7 @@
 import argparse
 import csv
 from pathlib import Path
-
+import uuid
 import cv2
 import numpy as np
 import sty
@@ -123,7 +123,9 @@ def generate_all(
                 img_path, dot_distance=dot_distance, dot_size=dot_size
             )
 
-            path = Path(class_name) / f"{n}.png"
+            unique_hex = uuid.uuid4().hex[:8]
+
+            path = Path(class_name) / f"{unique_hex}.png"
             img.save(output_folder / path)
             writer.writerow(
                 [path, class_name, ds.background, dot_distance, dot_size, n]

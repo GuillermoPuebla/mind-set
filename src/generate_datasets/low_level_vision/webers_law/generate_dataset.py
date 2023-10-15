@@ -1,29 +1,17 @@
 import argparse
-from cgi import test
 import csv
-import math
 import os
-import errno
 import pathlib
 from tkinter import N
 import numpy as np
-import matplotlib.pyplot as plt
-from PIL import Image
-from PIL import ImageDraw
-import itertools
-import random
+import uuid
 from torchvision.transforms import transforms, InterpolationMode
 import sty
 from torch import rand
-
 from PIL import Image, ImageDraw
-import math
-
 from tqdm import tqdm
 from src.utils.drawing_utils import DrawStimuli
-
 from src.utils.misc import add_general_args, delete_and_recreate_path
-
 from src.utils.misc import DEFAULTS as BASE_DEFAULTS
 
 DEFAULTS = BASE_DEFAULTS.copy()
@@ -125,8 +113,8 @@ def generate_all(
                 # with a canvas_size_y of 224, this is from 1 to 5 pixels width.
                 width = int(np.random.uniform(0.0044, 0.02232) * ds.canvas_size[1])
                 lum = int(np.random.uniform(100, 256))
-
-                img_path = pathlib.Path(str(l)) / f"{n}.png"
+                unique_hex = uuid.uuid4().hex[:8]
+                img_path = pathlib.Path(str(l)) / f"{unique_hex}.png"
                 img = ds.gen_stim(l, width, lum)
                 img.save(output_folder / img_path)
 

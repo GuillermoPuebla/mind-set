@@ -16,6 +16,7 @@ from src.utils.misc import (
     add_general_args,
     delete_and_recreate_path,
 )
+import uuid
 
 from src.utils.misc import DEFAULTS as BASE_DEFAULTS
 
@@ -274,7 +275,8 @@ def generate_all(
                 img, label, norm_label, upper_line_color = ds.generate_illusory_images(
                     same_length=True
                 )
-                path = Path(c) / f"{norm_label:.3f}_{upper_line_color}_{i}.png"
+                unique_hex = uuid.uuid4().hex[:8]
+                path = Path(c) / f"{norm_label:.3f}_{upper_line_color}_{unique_hex}.png"
                 img.save(output_folder / path)
                 writer.writerow(
                     [

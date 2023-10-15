@@ -1,9 +1,7 @@
 import argparse
 import csv
-import glob
 import os
 import random
-import shutil
 from pathlib import Path
 
 import numpy as np
@@ -11,7 +9,7 @@ import sty
 from PIL import Image
 from PIL import ImageDraw
 from tqdm import tqdm
-
+import uuid
 from src.utils.drawing_utils import DrawStimuli
 from src.utils.misc import (
     add_general_args,
@@ -152,7 +150,8 @@ def generate_all(
         for i, theta_context in enumerate(tqdm(all_thetas)):
             _, radius, _, freq = get_random_values()
             img = ds.generate_illusion(0, radius, (0.5, 0.5), freq, theta_context)
-            path = Path("center_context") / f"0__{theta_context:.3f}_{i}.png"
+            unique_hex = uuid.uuid4().hex[:8]
+            path = Path("center_context") / f"0_{theta_context:.3f}_{unique_hex}.png"
             img.save(output_folder / path)
             writer.writerow(
                 [

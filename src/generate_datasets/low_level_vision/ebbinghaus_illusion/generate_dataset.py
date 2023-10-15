@@ -7,6 +7,7 @@ import argparse
 
 import sty
 from tqdm import tqdm
+import uuid
 
 from src.generate_datasets.low_level_vision.ebbinghaus_illusion.utils import (
     DrawEbbinghaus,
@@ -110,7 +111,8 @@ def generate_all(
                 shift=shift,
                 colour_center_circle=(255, 0, 0),
             )
-            path = pathlib.Path("small_flankers") / f"{r_c:.5f}_{i}.png"
+            unique_hex = uuid.uuid4().hex[:8]
+            path = pathlib.Path("small_flankers") / f"{r_c:.5f}_{unique_hex}.png"
             img.save(output_folder / path)
             writer.writerow(
                 [path, "small_flankers", r_c, r2, number_flankers, ds.background, shift]

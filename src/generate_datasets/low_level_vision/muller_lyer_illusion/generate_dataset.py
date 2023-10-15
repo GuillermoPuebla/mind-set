@@ -4,6 +4,7 @@ import math
 import os
 import random
 from pathlib import Path
+import uuid
 
 import numpy as np
 import sty
@@ -222,7 +223,8 @@ def generate_all(
                     arrow_length=arrow_length,
                     type=c,
                 )
-                path = Path(c) / f"{line_length}__{i}.png"
+                unique_hex = uuid.uuid4().hex[:8]
+                path = Path(c) / f"{line_length}_{unique_hex}.png"
                 img.save(str(output_folder / path))
                 writer.writerow(
                     [

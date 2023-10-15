@@ -220,7 +220,7 @@ def generate_all(
                     path = (
                         Path(type)
                         / ("" if type == "random" else f"{top_color}_on_top")
-                        / f"{unique_hex}.png"
+                        / f"red{size_red:.2f}_blue{size_blue:.2f}_{idx}_{unique_hex}.png"
                     )
                     img.save(output_folder / path)
                     writer.writerow(

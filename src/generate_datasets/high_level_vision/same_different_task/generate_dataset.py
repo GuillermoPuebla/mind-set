@@ -1,20 +1,16 @@
 import argparse
 import os
 import csv
-import math
-import copy
 import pathlib
 import random
 import numpy as np
 import cv2
 from PIL import Image
+import uuid
 
 from src.generate_datasets.high_level_vision.same_different_task.generate_utils import (
-    get_arrow_points,
-    sample_midpoints_arrows,
     get_line_points,
     sample_midpoints_lines,
-    scramble_poligon,
     svrt_1_points,
 )
 import sty
@@ -466,7 +462,8 @@ def generate_all(
                             pass
                         else:
                             break
-                    img_path = pathlib.Path(ds_name) / label / f"{n}.png"
+                    unique_hex = uuid.uuid4().hex[:8]
+                    img_path = pathlib.Path(ds_name) / label / f"{unique_hex}.png"
                     img.save(output_folder / img_path)
                     writer.writerow(
                         [

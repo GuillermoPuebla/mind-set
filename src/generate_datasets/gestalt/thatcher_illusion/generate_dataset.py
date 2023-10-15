@@ -1,9 +1,7 @@
 import argparse
 import csv
-import glob
 import os
 import pathlib
-import shutil
 import PIL.Image as Image
 import numpy as np
 import sty

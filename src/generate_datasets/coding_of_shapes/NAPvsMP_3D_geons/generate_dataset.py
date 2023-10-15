@@ -5,7 +5,7 @@ import csv
 import numpy as np
 import sty
 from tqdm import tqdm
-
+import uuid
 from src.generate_datasets.gestalt.CSE_CIE_dots.utils import DrawCSE_CIEdots
 import pathlib
 import PIL.Image as Image
@@ -96,7 +96,8 @@ def generate_all(
         for t in tqdm(all_types):
             for i in tqdm((shape_folder / t).glob("*"), leave=False):
                 name_sample = i.stem
-                img_path = pathlib.Path(t) / f"{name_sample}.png"
+                unique_hex = uuid.uuid4().hex[:8]
+                img_path = pathlib.Path(t) / f"{name_sample}_{unique_hex}.png"
                 img = ds.process_image(
                     shape_folder / img_path,
                     stroke_color,

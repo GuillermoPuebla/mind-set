@@ -2,25 +2,18 @@ import argparse
 import csv
 import os
 import pathlib
-from copy import deepcopy
 
 import cv2
-import matplotlib.pyplot as plt
 import numpy as np
 import PIL.Image as Image
-import glob
 
 import sty
-from PIL.ImageOps import grayscale, invert
 
 import numpy as np
 from torchvision import transforms
 from torchvision.transforms import InterpolationMode
 from tqdm import tqdm
 
-from src.utils.similarity_judgment.misc import (
-    paste_at_center,
-)
 from src.utils.drawing_utils import (
     DrawStimuli,
     resize_image_keep_aspect_ratio,

@@ -16,6 +16,7 @@ import argparse
 import csv
 import os
 import pathlib
+import uuid
 
 import cv2
 import numpy as np
@@ -140,7 +141,8 @@ def generate_all(
                 resize_image_keep_aspect_ratio(cropped_image, object_longest_side)
             )
             pil_img = paste_linedrawing_onto_canvas(img, ds.create_canvas(), ds.fill)
-            path = pathlib.Path(categories[type]) / f"{main_obj_type}.png"
+            unique_hex = uuid.uuid4().hex[:8]
+            path = pathlib.Path(categories[type]) / f"{main_obj_type}_{unique_hex}.png"
             output_path = pathlib.Path(output_folder) / path
 
             (apply_antialiasing(pil_img) if antialiasing else pil_img).save(output_path)
