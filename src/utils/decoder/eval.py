@@ -14,7 +14,9 @@ import toml
 import inspect
 
 
-def decoder_evaluate(task_type=None, gpu_num=None, eval=None, network=None, saving_folders=None, **kwargs):
+def decoder_evaluate(
+    task_type=None, gpu_num=None, eval=None, network=None, saving_folders=None, **kwargs
+):
     with open(os.path.dirname(__file__) + "/default_decoder_config.toml", "r") as f:
         toml_config = toml.load(f)
 
@@ -71,7 +73,12 @@ def decoder_evaluate(task_type=None, gpu_num=None, eval=None, network=None, savi
         results_final = []
         (results_folder / dataloader.dataset.name).mkdir(parents=True, exist_ok=True)
 
-        print(f"Evaluating Dataset " + sty.fg.green + f"{dataloader.dataset.name}" + sty.rs.fg)
+        print(
+            f"Evaluating Dataset "
+            + sty.fg.green
+            + f"{dataloader.dataset.name}"
+            + sty.rs.fg
+        )
 
         for _, data in enumerate(tqdm(dataloader, colour="yellow")):
             images, labels, path = data
@@ -91,7 +98,9 @@ def decoder_evaluate(task_type=None, gpu_num=None, eval=None, network=None, savi
                         "image_path": path[i],
                         "label": labels[i].item(),
                         **{
-                            f"prediction_dec_{dec_idx}": torch.argmax(out_dec[dec_idx][i]).item()
+                            f"prediction_dec_{dec_idx}": torch.argmax(
+                                out_dec[dec_idx][i]
+                            ).item()
                             if task_type == "classification"
                             else out_dec[dec_idx][i].item()
                             for dec_idx in range(num_decoders)
@@ -113,7 +122,9 @@ def decoder_evaluate(task_type=None, gpu_num=None, eval=None, network=None, savi
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
     parser.add_argument("--toml_config_path", "-toml")
     args = parser.parse_known_args()[0]
     with open(args.toml_config_path, "r") as f:

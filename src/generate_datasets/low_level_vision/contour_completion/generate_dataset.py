@@ -241,7 +241,10 @@ def generate_all(
                     top=top_shape,
                 )
                 unique_hex = uuid.uuid4().hex[:8]
-                path = Path("no_occlusion") / f"{top_shape}_{completed_samples}_{unique_hex}.png"
+                path = (
+                    Path("no_occlusion")
+                    / f"{top_shape}_{completed_samples}_{unique_hex}.png"
+                )
                 img.save(output_folder / path)
                 writer.writerow(
                     [

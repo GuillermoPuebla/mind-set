@@ -680,7 +680,11 @@ def generate_all(
                         shape_code = shape_code if shape_code != "" else "none"
 
                         unique_hex = uuid.uuid4().hex[:8]
-                        path = Path(v_in_out) / str(v) / f"{shape_code}_{n}_{unique_hex}.png"
+                        path = (
+                            Path(v_in_out)
+                            / str(v)
+                            / f"{shape_code}_{n}_{unique_hex}.png"
+                        )
                         img.save(output_folder / path)
                         writer.writerow(
                             [
