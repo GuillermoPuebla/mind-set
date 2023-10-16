@@ -96,8 +96,7 @@ def generate_all(
         for t in tqdm(all_types):
             for i in tqdm((shape_folder / t).glob("*"), leave=False):
                 name_sample = i.stem
-                unique_hex = uuid.uuid4().hex[:8]
-                img_path = pathlib.Path(t) / f"{name_sample}_{unique_hex}.png"
+                img_path = pathlib.Path(t) / f"{name_sample}.png"
                 img = ds.process_image(
                     shape_folder / img_path,
                     stroke_color,
