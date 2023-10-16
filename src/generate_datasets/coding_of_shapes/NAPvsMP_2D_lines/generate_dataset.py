@@ -78,8 +78,7 @@ def generate_all(
         for t in tqdm(all_types):
             for i in tqdm((kubilius_dataset / t).glob("*"), leave=False):
                 name_sample = i.stem
-                unique_hex = uuid.uuid4().hex[:8]
-                img_path = pathlib.Path(t) / f"{name_sample}_{unique_hex}.png"
+                img_path = pathlib.Path(t) / f"{name_sample}.png"
                 img = ds.process_image(
                     kubilius_dataset / img_path,
                     line_color,
