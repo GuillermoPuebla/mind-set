@@ -7,19 +7,14 @@ import torch.backends.cudnn as cudnn
 from src.utils.callbacks import *
 from src.utils.dataset_utils import get_dataloader
 from src.utils.misc import pretty_print_dict, update_dict
-from src.utils.net_utils import load_pretraining, make_cuda, GrabNet, ResNet152decoders
-from torch.utils.data import DataLoader
-from torchvision.datasets import ImageFolder
+from src.utils.net_utils import load_pretraining, make_cuda, GrabNet
 from tqdm import tqdm
-from pathlib import Path
 import pandas
 import toml
 import inspect
 
 
-def decoder_evaluate(
-    task_type=None, gpu_num=None, eval=None, network=None, saving_folders=None, **kwargs
-):
+def decoder_evaluate(task_type=None, gpu_num=None, eval=None, network=None, saving_folders=None, **kwargs):
     with open(os.path.dirname(__file__) + "/default_decoder_config.toml", "r") as f:
         toml_config = toml.load(f)
 
@@ -76,12 +71,7 @@ def decoder_evaluate(
         results_final = []
         (results_folder / dataloader.dataset.name).mkdir(parents=True, exist_ok=True)
 
-        print(
-            f"Evaluating Dataset "
-            + sty.fg.green
-            + f"{dataloader.dataset.name}"
-            + sty.rs.fg
-        )
+        print(f"Evaluating Dataset " + sty.fg.green + f"{dataloader.dataset.name}" + sty.rs.fg)
 
         for _, data in enumerate(tqdm(dataloader, colour="yellow")):
             images, labels, path = data
@@ -101,9 +91,7 @@ def decoder_evaluate(
                         "image_path": path[i],
                         "label": labels[i].item(),
                         **{
-                            f"prediction_dec_{dec_idx}": torch.argmax(
-                                out_dec[dec_idx][i]
-                            ).item()
+                            f"prediction_dec_{dec_idx}": torch.argmax(out_dec[dec_idx][i]).item()
                             if task_type == "classification"
                             else out_dec[dec_idx][i].item()
                             for dec_idx in range(num_decoders)
@@ -120,3 +108,15 @@ def decoder_evaluate(
         print(sty.fg.yellow + f"Result written in {result_path}" + sty.rs.fg)
 
     [evaluate_one_dataloader(dataloader) for dataloader in test_loaders]
+
+
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("--toml_config_path", "-toml")
+    args = parser.parse_known_args()[0]
+    with open(args.toml_config_path, "r") as f:
+        toml_config = toml.load(f)
+    print(f"**** Selected {args.toml_config_path} ****")
+    decoder_evaluate(**toml_config)
