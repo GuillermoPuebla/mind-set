@@ -54,7 +54,9 @@ class DrawPonzo(DrawStimuli):
         margin = self.canvas_size[0] * 0.11
 
         ## draw the diagonal
-        vertical_distance_from_center = random.randint(int(self.canvas_size[0] * 0.11), int(self.canvas_size[0] * 0.33))
+        vertical_distance_from_center = random.randint(
+            int(self.canvas_size[0] * 0.11), int(self.canvas_size[0] * 0.33)
+        )
         x = self.canvas_size[0] // 2 - vertical_distance_from_center
         length = self.canvas_size[0] - margin * 2
         slope = random.random() * 2 + 3.2  # random.random()
@@ -78,11 +80,15 @@ class DrawPonzo(DrawStimuli):
 
         if self.num_rail_lines > 0:
             vertical_ranges = [
-                int(i * (self.canvas_size[1] - margin * 2) // (self.num_rail_lines) + margin)
+                int(
+                    i * (self.canvas_size[1] - margin * 2) // (self.num_rail_lines)
+                    + margin
+                )
                 for i in range(self.num_rail_lines + 1)
             ]
             vertical_line_position = [
-                random.randint(vertical_ranges[i], vertical_ranges[i + 1] - 1) for i in range(len(vertical_ranges) - 1)
+                random.randint(vertical_ranges[i], vertical_ranges[i + 1] - 1)
+                for i in range(len(vertical_ranges) - 1)
             ]
             for v in vertical_line_position:
                 h_start = compute_x(v, d1_line_start, d1_line_end)
@@ -95,10 +101,16 @@ class DrawPonzo(DrawStimuli):
                 )
         ## draw red and line lines
         v_position_up = random.randint(int(margin), self.canvas_size[1] // 2)
-        v_position_down = random.randint(self.canvas_size[1] // 2, int(self.canvas_size[1] - margin))
+        v_position_down = random.randint(
+            self.canvas_size[1] // 2, int(self.canvas_size[1] - margin)
+        )
         pos = np.array([v_position_down, v_position_up])
         red_length = random.randint(self.canvas_size[0] // 10, self.canvas_size[0] // 2)
-        blue_length = red_length if same_length else random.randint(self.canvas_size[0] // 10, self.canvas_size[0] // 2)
+        blue_length = (
+            red_length
+            if same_length
+            else random.randint(self.canvas_size[0] // 10, self.canvas_size[0] // 2)
+        )
         np.random.shuffle(pos)
 
         upper_line_color = "red" if pos[0] < pos[1] else "blue"
@@ -126,20 +138,32 @@ class DrawPonzo(DrawStimuli):
 
         return img, label, norm_label, upper_line_color
 
-    def generate_rnd_lines_images(self, colored_line_always_horizontal=False, antialias=True):
+    def generate_rnd_lines_images(
+        self, colored_line_always_horizontal=False, antialias=True
+    ):
         img = Image.new("RGB", self.canvas_size, color="black")
 
         d = ImageDraw.Draw(img)
-        for i in range(self.num_rail_lines + 2):  # add the diagonal lines which are always present
+        for i in range(
+            self.num_rail_lines + 2
+        ):  # add the diagonal lines which are always present
             start_point, end_point = self.get_random_start_end_ponts()
             d.line([start_point, end_point], fill="white", width=2)
 
         if colored_line_always_horizontal:
             margin = self.canvas_size[0] * 0.11
-            v_position_red = random.randint(int(margin), int(self.canvas_size[1] - margin))
-            v_position_blue = random.randint(int(margin), int(self.canvas_size[1] - margin))
-            red_length = random.randint(self.canvas_size[0] // 10, self.canvas_size[0] // 2)
-            blue_length = random.randint(self.canvas_size[0] // 10, self.canvas_size[0] // 2)
+            v_position_red = random.randint(
+                int(margin), int(self.canvas_size[1] - margin)
+            )
+            v_position_blue = random.randint(
+                int(margin), int(self.canvas_size[1] - margin)
+            )
+            red_length = random.randint(
+                self.canvas_size[0] // 10, self.canvas_size[0] // 2
+            )
+            blue_length = random.randint(
+                self.canvas_size[0] // 10, self.canvas_size[0] // 2
+            )
             red_sp = (self.canvas_size[0] // 2 - red_length // 2, v_position_red)
             red_ep = (self.canvas_size[0] // 2 + red_length // 2, v_position_red)
             blue_sp = (self.canvas_size[0] // 2 - blue_length // 2, v_position_blue)
@@ -158,7 +182,9 @@ class DrawPonzo(DrawStimuli):
         label = red_length - blue_length
         norm_label = label / max_length
         if antialias:
-            img = img.resize(tuple(np.array(self.canvas_size) * 2)).resize(self.canvas_size, resample=Image.Resampling.LANCZOS)
+            img = img.resize(tuple(np.array(self.canvas_size) * 2)).resize(
+                self.canvas_size, resample=Image.Resampling.LANCZOS
+            )
         return apply_antialiasing(img) if self.antialiasing else img, label, norm_label
 
 
@@ -190,7 +216,11 @@ def generate_all(
     output_folder = Path(output_folder)
 
     if output_folder.exists() and not regenerate:
-        print(sty.fg.yellow + f"Dataset already exists and `regenerate` flag if false. Finished" + sty.rs.fg)
+        print(
+            sty.fg.yellow
+            + f"Dataset already exists and `regenerate` flag if false. Finished"
+            + sty.rs.fg
+        )
         return str(output_folder)
 
     delete_and_recreate_path(output_folder)
