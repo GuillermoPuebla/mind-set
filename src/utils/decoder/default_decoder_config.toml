@@ -36,6 +36,12 @@ img_path_col_name = "Path"
 # Use either a string or a list of string for a regression task. For a classification task, only a single string is permitted. 
 label_cols = [""]
 filters = {}  # { Type = "random" }
+# If true, it will normalize the labels to be between the range
+normalize_labels = false
+# if provided, it will assume that the labels is within this range and will normalize to the provided range
+# if false, it will not auto detect the max and min values of the labels
+label_range = false
+normalize_range = [-1, 1]
 
 # Example of validation datasets.
 

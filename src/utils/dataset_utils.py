@@ -11,11 +11,11 @@ import torchvision
 import random
 from PIL import ImageStat
 from sty import fg, rs
-from torchvision import transforms as tf
 from torch.utils.data import DataLoader
 
 from PIL import Image
 from torchvision.transforms import functional as F
+from sklearn.preprocessing import MinMaxScaler
 
 
 def add_compute_stats(obj_class):
@@ -43,15 +43,7 @@ def add_compute_stats(obj_class):
             @param kwargs:
             """
             self.verbose = True
-            print(
-                fg.yellow
-                + f"\n**Creating Dataset ["
-                + fg.cyan
-                + f"{name_ds}"
-                + fg.yellow
-                + "]**"
-                + rs.fg
-            )
+            print(fg.yellow + f"\n**Creating Dataset [" + fg.cyan + f"{name_ds}" + fg.yellow + "]**" + rs.fg)
             super().__init__(**kwargs)
             # self.idx_to_class = {v: k for k, v in self.class_to_idx.items()}
 
@@ -109,11 +101,7 @@ def add_compute_stats(obj_class):
                     if stats == save_stats_file:
                         save_stats_file = None
                 else:
-                    print(
-                        fg.red
-                        + f"File [{Path(stats).name}] not found, stats will be computed."
-                        + rs.fg
-                    )
+                    print(fg.red + f"File [{Path(stats).name}] not found, stats will be computed." + rs.fg)
                     compute_stats = True
 
             if stats is None or compute_stats is True:
@@ -121,14 +109,10 @@ def add_compute_stats(obj_class):
 
             if save_stats_file is not None:
                 print(f"Stats saved in {save_stats_file}")
-                pathlib.Path(os.path.dirname(save_stats_file)).mkdir(
-                    parents=True, exist_ok=True
-                )
+                pathlib.Path(os.path.dirname(save_stats_file)).mkdir(parents=True, exist_ok=True)
                 pickle.dump(self.stats, open(save_stats_file, "wb"))
 
-            normalize = torchvision.transforms.Normalize(
-                mean=self.stats["mean"], std=self.stats["std"]
-            )
+            normalize = torchvision.transforms.Normalize(mean=self.stats["mean"], std=self.stats["std"])
 
             self.transform.transforms += [normalize]
 
@@ -148,9 +132,7 @@ class Stats(ImageStat.Stat):
         return Stats(list(map(np.add, np.array(self.h) / 255, np.array(other.h) / 255)))
 
 
-def compute_mean_and_std_from_dataset(
-    dataset, dataset_path=None, max_iteration=100, data_loader=None, verbose=True
-):
+def compute_mean_and_std_from_dataset(dataset, dataset_path=None, max_iteration=100, data_loader=None, verbose=True):
     if max_iteration < 30:
         print(
             "Max Iteration in Compute Mean and Std for dataset is lower than 30! This could create unrepresentative stats!"
@@ -191,17 +173,13 @@ def fix_dataset(dataset, transf_values, fill_color, name_ds=""):
     dataset.transform = torchvision.transforms.Compose(
         [
             AffineTransform(
-                transf_values["translation"]
-                if transf_values["translation"]
-                else (0, 0),
+                transf_values["translation"] if transf_values["translation"] else (0, 0),
                 transf_values["rotation"] if transf_values["rotation"] else (0, 0),
                 transf_values["scale"] if transf_values["scale"] else (1, 1),
                 fill_color=fill_color,
             ),
             torchvision.transforms.ToTensor(),
-            torchvision.transforms.Normalize(
-                mean=dataset.stats["mean"], std=dataset.stats["std"]
-            ),
+            torchvision.transforms.Normalize(mean=dataset.stats["mean"], std=dataset.stats["std"]),
         ]
     )
     if add_resize:
@@ -209,8 +187,9 @@ def fix_dataset(dataset, transf_values, fill_color, name_ds=""):
     return dataset
 
 
-def get_dataloader(task_type, ds_config, transf_config, batch_size, return_path=False):
+def get_dataloader(toml_config, task_type, ds_config, transf_config, batch_size, return_path=False):
     ds = ImageDatasetAnnotations(
+        toml_config=toml_config,
         task_type=task_type,
         csv_file=ds_config["annotation_file"],
         img_path_col=ds_config["img_path_col_name"],
@@ -253,36 +232,25 @@ class ImageNetClasses:
     def __init__(self, class_index_json_file="assets/imagenet_class_index.json"):
         self.class_idx = json.load(open(class_index_json_file))
         self.idx2label = [self.class_idx[str(k)][1] for k in range(len(self.class_idx))]
-        self.label2idx = {
-            names[1]: int(label) for label, names in self.class_idx.items()
-        }
+        self.label2idx = {names[1]: int(label) for label, names in self.class_idx.items()}
 
-    def add_to_annotation_file_path(
-        self, annotation_file_path, name_cols_imagenet, annotation_output_path=None
-    ):
-        annotation_output_path = (
-            annotation_file_path
-            if annotation_output_path is None
-            else annotation_output_path
-        )
+    def add_to_annotation_file_path(self, annotation_file_path, name_cols_imagenet, annotation_output_path=None):
+        annotation_output_path = annotation_file_path if annotation_output_path is None else annotation_output_path
         df = pd.read_csv(annotation_file_path)
 
         def fun(class_name):
-            return (
-                self.label2idx[class_name] if class_name in self.label2idx else "none"
-            )
+            return self.label2idx[class_name] if class_name in self.label2idx else "none"
 
         #
         df["ImageNetClassIdx"] = df[name_cols_imagenet].apply(fun)
         df.to_csv(annotation_output_path)
-        print(
-            f"ImageNet class added in columns ImageNetClassIdx based on the class {name_cols_imagenet}"
-        )
+        print(f"ImageNet class added in columns ImageNetClassIdx based on the class {name_cols_imagenet}")
 
 
 class ImageDatasetAnnotations(Dataset):
     def __init__(
         self,
+        toml_config: dict,
         task_type: str,
         csv_file: str,
         img_path_col: str,
@@ -310,29 +278,44 @@ class ImageDatasetAnnotations(Dataset):
             ), "With a classification task, the dataset.label_cols must be a single string or one-element list"
             self.label_cols = self.label_cols[0]
             self.classes = self.dataframe[self.label_cols].unique()
-            self.classes_dict = {
-                c: i for i, c in enumerate(self.classes)
-            }  # for __getitem__
+            self.classes_dict = {c: i for i, c in enumerate(self.classes)}  # for __getitem__
 
         self.transform = transform
         self.dataframe = self.dataframe.reset_index(drop=True)
+
+        # normalise configs
+        self.does_normalize = toml_config["training"]["dataset"].get("normalize_labels", False)
+        self.label_range = toml_config["training"]["dataset"].get("label_range", False)
+        self.normalize_range = toml_config["training"]["dataset"].get("normalize_range", [-1, 1])
+
+        if self.does_normalize and not self.label_range:
+            self.label_range = (self.dataframe[self.label_cols].min(), self.dataframe[self.label_cols].max())
+        if self.does_normalize:
+            self.scaler = MinMaxScaler(feature_range=self.normalize_range)
 
     def __len__(self) -> int:
         return len(self.dataframe)
 
     def __getitem__(self, idx: int) -> tuple:
         img_path = self.root_path / self.dataframe.loc[idx, self.img_path_col]
+
         if self.task_type == "classification":
             labels = self.dataframe.loc[idx, self.label_cols]
             labels = self.classes_dict[labels]
             label_tensor_dtype = torch.long
         else:
             labels = self.dataframe.loc[idx, self.label_cols].values.astype(float)
+            if self.does_normalize:
+                labels = labels.reshape(-1, 1)
+                labels = self.scaler.transform(labels)
+                labels = labels.flatten()
             label_tensor_dtype = torch.float32
-        image: Image.Image = Image.open(img_path).convert("RGB")
+
+        image = Image.open(img_path).convert("RGB")
 
         if self.transform:
             image = self.transform(image)
+
         if self.return_path:
             return image, torch.tensor(labels, dtype=label_tensor_dtype), str(img_path)
         else:

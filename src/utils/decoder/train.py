@@ -51,13 +51,9 @@ def decoder_train(
         }
     )
 
-    results_folder_id = (
-        pathlib.Path(toml_config["saving_folders"]["results_folder"])
-        / toml_config["training"]["train_id"]
-    )
+    results_folder_id = pathlib.Path(toml_config["saving_folders"]["results_folder"]) / toml_config["training"]["train_id"]
     model_output_folder_id = (
-        pathlib.Path(toml_config["saving_folders"]["model_output_folder"])
-        / toml_config["training"]["train_id"]
+        pathlib.Path(toml_config["saving_folders"]["model_output_folder"]) / toml_config["training"]["train_id"]
     )
     results_folder_id.mkdir(parents=True, exist_ok=True)
     model_output_folder_id.mkdir(parents=True, exist_ok=True)
@@ -88,6 +84,7 @@ def decoder_train(
     torch.cuda.set_device(toml_config["gpu_num"]) if torch.cuda.is_available() else None
 
     train_loader = get_dataloader(
+        toml_config,
         toml_config["task_type"],
         ds_config=toml_config["training"]["dataset"],
         transf_config=toml_config["transformation"],
@@ -97,6 +94,7 @@ def decoder_train(
     test_loaders = (
         [
             get_dataloader(
+                toml_config,
                 toml_config["task_type"],
                 ds_config=i,
                 transf_config=toml_config["transformation"],
@@ -122,11 +120,7 @@ def decoder_train(
     )
 
     num_decoders = len(net.decoders)
-    loss_fn = (
-        torch.nn.MSELoss()
-        if toml_config["task_type"] == "regression"
-        else torch.nn.CrossEntropyLoss()
-    )
+    loss_fn = torch.nn.MSELoss() if toml_config["task_type"] == "regression" else torch.nn.CrossEntropyLoss()
     optimizers = [
         torch.optim.Adam(
             net.decoders[i].parameters(),
@@ -155,16 +149,9 @@ def decoder_train(
 
     net.train()
 
-    weblog_dataset_info(
-        train_loader, weblogger=weblogger, num_batches_to_log=1, log_text="train"
-    ) if weblogger else None
+    weblog_dataset_info(train_loader, weblogger=weblogger, num_batches_to_log=1, log_text="train") if weblogger else None
 
-    [
-        weblog_dataset_info(
-            td, weblogger=weblogger, num_batches_to_log=1, log_text="test"
-        )
-        for td in test_loaders
-    ]
+    [weblog_dataset_info(td, weblogger=weblogger, num_batches_to_log=1, log_text="test") for td in test_loaders]
 
     step = decoder_step
 
@@ -174,17 +161,10 @@ def decoder_train(
         logs.update({f"{logs_prefix}ema_loss": ExpMovingAverage(0.2)})
 
         if train:
-            logs.update(
-                {
-                    f"{logs_prefix}ema_{log_type}_{i}": ExpMovingAverage(0.2)
-                    for i in range(6)
-                }
-            )
+            logs.update({f"{logs_prefix}ema_{log_type}_{i}": ExpMovingAverage(0.2) for i in range(6)})
         else:
             logs.update({f"{logs_prefix}{log_type}": CumulativeAverage()})
-            logs.update(
-                {f"{logs_prefix}{log_type}_{i}": CumulativeAverage() for i in range(6)}
-            )
+            logs.update({f"{logs_prefix}{log_type}_{i}": CumulativeAverage() for i in range(6)})
 
         return run(
             loader,
@@ -206,9 +186,7 @@ def decoder_train(
         logs["stop"] = True
         print("Early Stopping")
 
-    log_type = (
-        "acc" if toml_config["task_type"] == "classification" else "rmse"
-    )  # rmse: Root Mean Square Error : sqrt(MSE)
+    log_type = "acc" if toml_config["task_type"] == "classification" else "rmse"  # rmse: Root Mean Square Error : sqrt(MSE)
     all_callbacks = [
         # StopFromUserInput(),
         ProgressBar(
@@ -220,16 +198,11 @@ def decoder_train(
             ],
         ),
         PrintNeptune(id="ema_loss", plot_every=10, weblogger=weblogger),
-        *[
-            PrintNeptune(id=f"ema_{log_type}_{i}", plot_every=10, weblogger=weblogger)
-            for i in range(num_decoders)
-        ],
+        *[PrintNeptune(id=f"ema_{log_type}_{i}", plot_every=10, weblogger=weblogger) for i in range(num_decoders)],
         TriggerActionWhenReachingValue(
             mode="max",
             patience=1,
-            value_to_reach=toml_config["training"]["stopping_conditions"][
-                "stop_at_epoch"
-            ],
+            value_to_reach=toml_config["training"]["stopping_conditions"]["stop_at_epoch"],
             check_after_batch=False,
             metric_name="epoch",
             action=stop,
@@ -251,10 +224,7 @@ def decoder_train(
                     SaveInfoCsv(
                         log_names=[
                             "epoch",
-                            *[
-                                f"{tl.dataset.name}/{log_type}_{i}"
-                                for i in range(num_decoders)
-                            ],
+                            *[f"{tl.dataset.name}/{log_type}_{i}" for i in range(num_decoders)],
                         ],
                         path=str(results_folder_id / f"{tl.dataset.name}.csv"),
                     ),
@@ -300,9 +270,7 @@ def decoder_train(
         TriggerActionWhenReachingValue(
             mode="min",
             patience=20,
-            value_to_reach=toml_config["training"]["stopping_conditions"][
-                "stop_at_loss"
-            ],
+            value_to_reach=toml_config["training"]["stopping_conditions"]["stop_at_loss"],
             check_every=10,
             metric_name="ema_loss",
             action=stop,
@@ -320,9 +288,7 @@ def decoder_train(
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
-    )
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument(
         "--toml_config_path",
         "-toml",

@@ -37,6 +37,7 @@ def classification_evaluate(
 
     test_loaders = [
         get_dataloader(
+            toml_config,
             "classification",
             ds_config=i,
             transf_config=toml_config["transformation"],
