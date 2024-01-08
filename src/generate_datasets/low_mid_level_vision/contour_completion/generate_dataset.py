@@ -158,7 +158,6 @@ def generate_all(
     loc = locals()
     args = {i: loc[i] for i in inspect.getfullargspec(generate_all)[0]}
     config = {f"{category_folder}/{name_dataset}": args}
-
     ds = DrawCompletion(
         background=background_color,
         canvas_size=canvas_size,

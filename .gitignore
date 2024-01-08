@@ -10,6 +10,7 @@ _dev.py
 experiments/*
 init
 
+assets/ETH_80
 # specific directories
 **/__pycache__/
 **/.neptune/

@@ -147,7 +147,7 @@ DEFAULTS.update(
         "foreground_char": "random",
         "output_folder": f"data/{category_folder}/{name_dataset}",
         "antialiasing": False,
-        "font_size": [15, 20],
+        "font_size": (15, 20),
     }
 )
 
@@ -219,7 +219,7 @@ def generate_all(
                 rotation_angle = random.randint(-60, 60)
                 font_s = (
                     random.randint(font_size[0], font_size[1])
-                    if isinstance(font_size, list)
+                    if isinstance(font_size, tuple)
                     else font_size
                 )
 

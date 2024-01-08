@@ -21,7 +21,7 @@ def generate_datasets_from_toml(toml_file):
         file = params.pop("file")
         module_path = ".".join(Path(file).parent.parts) + "." + "generate_dataset"
         generate_all = getattr(importlib.import_module(module_path), "generate_all")
-        # params = {k: list(v) if isinstance(v, tuple) else v for k, v in params.items()}
+        params = {k: tuple(v) if isinstance(v, list) else v for k, v in params.items()}
         generate_all(**params)
 
 
