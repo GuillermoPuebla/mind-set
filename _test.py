@@ -2,14 +2,18 @@
 Script for regression test / revisit doc string later
 """
 from src.utils.generate_default_pars_toml_file import create_config
-from src.generate_datasets_from_toml import generate_toml
+from src.generate_datasets_from_toml import generate_datasets_from_toml
 from pathlib import Path
 import toml
+import inspect
+
 import shutil
 import os
 from collections import defaultdict
 import base64
 from nbformat import v4 as nbf
+
+from src.utils.misc import modify_toml
 
 
 def encode_image_base64(image_path):
@@ -24,6 +28,15 @@ def build_dataset_structure(path, dataset_structure):
         image_files = [
             Path(root) / file for file in sorted(files) if file.endswith(".png")
         ][:9]
+        toml_file = [
+            Path(root) / file for file in sorted(files) if file.endswith(".toml")
+        ]
+        if toml_file:
+            d = dataset_structure
+            path_parts = Path(root).relative_to(path).parts
+            for part in path_parts:
+                d = d.setdefault(part, defaultdict(dict))
+            d["config"] = toml.load(toml_file) if toml_file else None
         if image_files:
             d = dataset_structure
             path_parts = Path(root).relative_to(path).parts
@@ -33,15 +46,14 @@ def build_dataset_structure(path, dataset_structure):
 
 
 def generate_headers(nb, data, level=1):
+    if "config" in data:
+        config = data.pop("config")
+        config_str = toml.dumps(config)
+        nb.cells.append(nbf.new_markdown_cell(f"```toml\n{config_str}\n```"))
+
     for key, value in sorted(data.items()):
         if key != "images":
             nb.cells.append(nbf.new_markdown_cell(f"{'#' * level} {key}"))
-
-            # Adding a check for configuration here
-            config = check_up_config(key)
-            if config:
-                config_str = toml.dumps(config)
-                nb.cells.append(nbf.new_markdown_cell(f"```toml\n{config_str}\n```"))
 
             generate_headers(nb, value, level + 1)
         else:
@@ -71,8 +83,7 @@ def check_up_config(project_name: str):
     return ""
 
 
-def generate_notebook(dataset_structure):
-    save_to = Path("tests", "samples_preview.ipynb")
+def generate_notebook(dataset_structure, save_to):
     nb = nbf.new_notebook()
     generate_headers(nb, dataset_structure)
     with open(save_to, "w") as f:
@@ -80,49 +91,62 @@ def generate_notebook(dataset_structure):
 
 
 def test_generate_toml():
-    # -------- folder preparation --------
-    toml_save_to = Path("tests", "all_datasets.toml")
-    data_save_to = Path("tests", "sample_data")
-    toml_individual_save_to = Path("tests", "tomls")
-    toml_individual_save_to.mkdir(parents=True, exist_ok=True)
-    if data_save_to.exists():
-        shutil.rmtree(data_save_to)
+    # source_toml = "generate_subset_datasets.toml"
+    source_toml = "generate_all_datasets.toml"
 
-    # -------- making configs --------
-    # datasets=glob.glob("src/generate_datasets/**/generate_dataset**.py", recursive=True),
-    datasets = list(Path("src", "color_picker").rglob("generate_dataset*.py"))
-    datasets.extend(
-        list(Path("src", "generate_datasets").rglob("generate_dataset*.py"))
+    name_test = "small_black_bg"
+    with open(source_toml, "r") as file:
+        toml_lines = file.readlines()
+
+    toml_lines = modify_toml(
+        toml_lines,
+        modified_key_starts_with="num_samples",
+        modify_value_fun=lambda h, x: 5,
     )
-    create_config(datasets=datasets, save_to=toml_save_to)
 
-    with open(toml_save_to, "r") as f:
-        toml_config = toml.load(f)
+    generate_dataset_and_notebook_from_toml_file(toml_lines, source_toml, name_test)
 
-    name_path_dict = {}
+    name_test = "small_random_bg"
+    with open(source_toml, "r") as file:
+        toml_lines = file.readlines()
 
-    for key in toml_config:
-        dataset_name = Path(key).parent.name
-        dataset_category_name = Path(key).parent.parent.name
-        output_folder = data_save_to / dataset_category_name / dataset_name
-        toml_config[key].update({"output_folder": output_folder.as_posix()})
-        name_path_dict.update({dataset_name: output_folder})
+    toml_lines = modify_toml(
+        toml_lines,
+        modified_key_starts_with="num_samples",
+        modify_value_fun=lambda h, x: 5,
+    )
 
-        # -------- set num_samples to 10 --------
-        for sub_key in toml_config[key]:
-            if "num_samples" in sub_key:
-                toml_config[key][sub_key] = 9
+    toml_lines = modify_toml(
+        toml_lines,
+        modified_key_starts_with="background_color",
+        modify_value_fun=lambda h, x: '"rnd-uniform"',
+    )
 
-        with open(toml_individual_save_to / f"{dataset_name}.toml", "w") as f:
-            toml.dump({key: toml_config[key]}, f)
+    generate_dataset_and_notebook_from_toml_file(toml_lines, source_toml, name_test)
 
-    # -------- generate each dataset --------
-    [generate_toml(toml_individual_save_to / f"{key}.toml") for key in name_path_dict]
 
-    # -------- collect generated images --------
+def generate_dataset_and_notebook_from_toml_file(toml_lines, source_toml, name_test):
+    toml_lines = modify_toml(
+        toml_lines,
+        modified_key_starts_with="output_folder",
+        modify_value_fun=lambda h, x: '"'
+        + str(Path("tests") / name_test / "data" / h.strip('"'))
+        + '"',
+    )
+
+    name_toml_file = Path("tests") / (
+        os.path.splitext(source_toml)[0] + "_" + f"{name_test}.toml"
+    )
+    with open(name_toml_file, "w") as file:
+        file.writelines(toml_lines)
+    save_path = Path("tests") / name_test
+    if Path(save_path).exists():
+        shutil.rmtree(save_path)
+
+    generate_datasets_from_toml(name_toml_file)
     dataset_structure = defaultdict(dict)
-    build_dataset_structure(data_save_to, dataset_structure)
-    generate_notebook(dataset_structure)
+    build_dataset_structure(save_path / "data", dataset_structure)
+    generate_notebook(dataset_structure, save_path / "notebook.ipynb")
 
 
 if __name__ == "__main__":

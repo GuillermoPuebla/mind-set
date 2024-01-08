@@ -156,6 +156,7 @@ class Shapes(ShapeCoreFunctions):
         return self
 
     def add_puddle(self, size, x=0.5, y=0.5, seed=1, smooth_iterations=5):
+        current_seed = random.getstate()
         x *= self.initial_image_size[0]
         y *= self.initial_image_size[1]
 
@@ -191,6 +192,7 @@ class Shapes(ShapeCoreFunctions):
         vertices = chaikins_corner_cutting(vertices, smooth_iterations)
 
         self.draw.polygon(vertices, fill=self.color)
+        random.seed(current_seed)
         return self
 
 

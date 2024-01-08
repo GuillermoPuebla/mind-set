@@ -1,7 +1,7 @@
 task_type = "classification"
 
 [training]
-train_id = "trained_model"  
+train_id = "trained_model"
 evaluate_during_training = false
 save_at_epoch_end = false
 
@@ -34,6 +34,7 @@ filters = { Type = "embedded_polygon" }
 [transformation]
 fill_color = [0, 0, 0]
 [transformation.values]
-translation = [-0.2, 0.2] 
+translation_X = [-0.2, 0.2]
+translation_Y = [-0.2, 0.2]
 scale = [0.7, 1.3]
 rotation = [0, 360]

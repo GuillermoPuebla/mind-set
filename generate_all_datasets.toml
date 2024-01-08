@@ -1,207 +1,608 @@
-["src/generate_datasets/coding_of_shapes/volumetric_vs_surface/generate_dataset.py"]
+["low_mid_level_vision/depth_perception"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
 canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or [random] for a randomly pixellated background, or [rnd-uniform] for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
 background_color = [ 0, 0, 0,]
-antialiasing = true
-regenerate = true
+antialiasing = false
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
 object_longest_side = 100
-output_folder = "datasets/coding_of_shapes/volumetric_vs_surface"
+# A folder containing the Depth Perception stimuli from Enns and Rensink 1991.
+input_folder = "assets/enns_rensink_1991/pngs"
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
+output_folder = "data/low_mid_level_vision/depth_perception"
+file = "src/generate_datasets/low_mid_level_vision/depth_perception/generate_dataset.py"
 
-["src/generate_datasets/coding_of_shapes/NAPvsMP_2D_lines/generate_dataset.py"]
+["low_mid_level_vision/contour_completion"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
 canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or [random] for a randomly pixellated background, or [rnd-uniform] for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
+background_color = [ 100, 100, 100,]
+antialiasing = true
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# Each `sample` corresponds to an entire set of pair of shape_based_image_generation, for each condition.
+num_samples = 500
+# The color of the circle object. If called from command line, the RGB value must be a string in the form R_G_B, e.g. 255_0_125. Write `random` to have a random color.
+circle_color = [ 255, 255, 255,]
+# The color of the square object. If called from command line, the RGB value must be a string in the form R_G_B, e.g. 255_0_125. Write `random` to have a random color.
+square_color = [ 0, 0, 0,]
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
+output_folder = "data/low_mid_level_vision/contour_completion"
+file = "src/generate_datasets/low_mid_level_vision/contour_completion/generate_dataset.py"
+
+["low_mid_level_vision/decomposition"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
+canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or [random] for a randomly pixellated background, or [rnd-uniform] for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
 background_color = [ 0, 0, 0,]
 antialiasing = true
-regenerate = true
-output_folder = "datasets/coding_of_shapes/NAPvsMP_2D_lines"
-
-["src/generate_datasets/coding_of_shapes/NAPvsMP_3D_geons/generate_dataset.py"]
-canvas_size = [ 224, 224,]
-background_color = [ 0, 0, 0,]
-antialiasing = true
-regenerate = true
-stroke_color = ""
-output_folder = "datasets/coding_of_shapes/NAPvsMP_3D_geons"
-
-["src/generate_datasets/high_level_vision/decomposition/generate_dataset.py"]
-canvas_size = [ 224, 224,]
-background_color = [ 0, 0, 0,]
-antialiasing = true
-regenerate = true
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# Specify the value to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
 num_samples = 5000
+# Specify by how much each image is separated (same values for the whole dataset)
 moving_distance = 60
+# Specify the color of the shapes (same across the whole dataset). Specify in R_G_B format, e.g. 255_0_0 for red
 shape_color = [ 255, 255, 255,]
-output_folder = "datasets/high_level_vision/decomposition"
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
+output_folder = "data/low_mid_level_vision/decomposition"
+file = "src/generate_datasets/low_mid_level_vision/decomposition/generate_dataset.py"
 
-["src/generate_datasets/high_level_vision/same_different_task/generate_dataset.py"]
+["low_mid_level_vision/emergent_features"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
 canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or [random] for a randomly pixellated background, or [rnd-uniform] for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
 background_color = [ 0, 0, 0,]
 antialiasing = true
-regenerate = true
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# Each `sample` corresponds to an entire set of pair of shape_based_image_generation, for each condition.
+num_samples = 1000
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
+output_folder = "data/low_mid_level_vision/emergent_features"
+file = "src/generate_datasets/low_mid_level_vision/emergent_features/generate_dataset.py"
+
+["low_mid_level_vision/webers_law"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
+canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or [random] for a randomly pixellated background, or [rnd-uniform] for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
+background_color = [ 0, 0, 0,]
+antialiasing = true
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# The number of samples to generate for each length and brightness condition. This will vary the width, if width is [rnd]. If width is a specific value, num_samples_per_condition will be set to 1
+num_samples_per_condition = 10
+# The maximum line length (in pixels) to use
+max_line_length = 50
+# The minimum line length (in pixels) to use
+min_line_length = 5
+# The Interval line length to use
+interval_line_length = 1
+# The minumum grayscale value to use for the brightness condition
+min_grayscale = 50
+# The maximum grayscale value to use for the brightness condition
+max_grayscale = 255
+# The Interval grayscale value to use
+interval_grayscale = 20
+# Width of the line. [rnd] to use a random width, otherwise specify a value (in pixel).
+width = 2
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
+output_folder = "data/low_mid_level_vision/webers_law"
+file = "src/generate_datasets/low_mid_level_vision/webers_law/generate_dataset.py"
+
+["low_mid_level_vision/un_crowding"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
+canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or [random] for a randomly pixellated background, or [rnd-uniform] for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
+background_color = [ 0, 0, 0,]
+antialiasing = false
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# The number of samples for each vernier type (left/right orientation) and condition. The vernier is places inside a flanker.
+num_samples_vernier_inside = 5000
+# The number of samples for each vernier type (left/right orientation) and condition. The vernier is placed outside of the flankers
+num_samples_vernier_outside = 5000
+# across samples
+random_size = true
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
+output_folder = "data/low_mid_level_vision/un_crowding"
+file = "src/generate_datasets/low_mid_level_vision/un_crowding/generate_dataset.py"
+
+["low_mid_level_vision/NAP_vs_MP_2D_lines"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
+canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or [random] for a randomly pixellated background, or [rnd-uniform] for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
+background_color = [ 0, 0, 0,]
+antialiasing = false
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
+object_longest_side = 100
+# A folder containing the NAP vs MP 2D lines stimuli.
+input_folder = "assets/kubilius_2017/pngs"
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
+output_folder = "data/low_mid_level_vision/NAP_vs_MP_2D_lines"
+file = "src/generate_datasets/low_mid_level_vision/NAP_vs_MP_2D_lines/generate_dataset.py"
+
+["low_mid_level_vision/relational_vs_coordinate"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
+canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or [random] for a randomly pixellated background, or [rnd-uniform] for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
+background_color = [ 0, 0, 0,]
+antialiasing = false
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
+object_longest_side = 80
+# A folder containing the hummel-stankiewicz stimuli
+input_folder = "assets/hummel_stankiewicz_1996/pngs"
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
+output_folder = "data/low_mid_level_vision/relational_vs_coordinate"
+file = "src/generate_datasets/low_mid_level_vision/relational_vs_coordinate/generate_dataset.py"
+
+["low_mid_level_vision/NAP_vs_MP_3D_geons_0"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
+canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or [random] for a randomly pixellated background, or [rnd-uniform] for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
+background_color = [ 0, 0, 0,]
+antialiasing = true
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# Specify the color of the shape. The shading will be preserved. Leave it empty to not change the color of the shape. Specify it as a rgb tuple in the format of 255_255_255
+stroke_color = ""
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
+output_folder = "data/low_mid_level_vision/NAP_vs_MP_3D_geons_standard"
+# The folder containing the shapes.
+shape_folder = "assets/amir_geons/cropped/NAPvsMP"
+# Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
+object_longest_side = 100
+file = "src/generate_datasets/low_mid_level_vision/NAP_vs_MP_3D_geons/generate_dataset.py"
+
+["low_mid_level_vision/NAP_vs_MP_3D_geons_1"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
+canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or [random] for a randomly pixellated background, or [rnd-uniform] for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
+background_color = [ 0, 0, 0,]
+antialiasing = true
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# Specify the color of the shape. The shading will be preserved. Leave it empty to not change the color of the shape. Specify it as a rgb tuple in the format of 255_255_255
+stroke_color = ""
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
+output_folder = "data/low_mid_level_vision/NAP_vs_MP_3D_geons_no_shades"
+# The folder containing the shapes.
+shape_folder = "assets/amir_geons/cropped/NAPvsMP_no_shades"
+# Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
+object_longest_side = 100
+file = "src/generate_datasets/low_mid_level_vision/NAP_vs_MP_3D_geons/generate_dataset.py"
+
+["low_mid_level_vision/NAP_vs_MP_3D_geons_2"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
+canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or [random] for a randomly pixellated background, or [rnd-uniform] for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
+background_color = [ 0, 0, 0,]
+antialiasing = true
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# Specify the color of the shape. The shading will be preserved. Leave it empty to not change the color of the shape. Specify it as a rgb tuple in the format of 255_255_255
+stroke_color = ""
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
+output_folder = "data/low_mid_level_vision/NAP_vs_MP_3D_geons_silhouettes"
+# The folder containing the shapes.
+shape_folder = "assets/amir_geons/cropped/NAPvsMP_silhouettes"
+# Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
+object_longest_side = 100
+file = "src/generate_datasets/low_mid_level_vision/NAP_vs_MP_3D_geons/generate_dataset.py"
+
+["shape_and_object_recognition/texturized_blobs"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
+canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or [random] for a randomly pixellated background, or [rnd-uniform] for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
+background_color = [ 0, 0, 0,]
+antialiasing = false
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# The number of augmented samples to generate for each line drawings
+num_samples_per_blob = 5
+num_blobs = 10
+# Specify the value to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
+object_longest_side = 200
+# The character to be used as background. Use `random` to use a random character for each sample
+background_char = " "
+# The character to be used as foreground. Write `random` to use a different character for each image
+foreground_char = "random"
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
+output_folder = "data/shape_and_object_recognition/texturized_blobs"
+# If a number, it defines the size of the font for all images. It can be a string in the form A_B, in which case the size will be drawn from a uniform(A, B) distribution for each image
+font_size = [ 15, 20,]
+file = "src/generate_datasets/shape_and_object_recognition/texturized_blobs/generate_dataset.py"
+
+["shape_and_object_recognition/dotted_linedrawings"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
+canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or [random] for a randomly pixellated background, or [rnd-uniform] for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
+background_color = [ 0, 0, 0,]
+antialiasing = false
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
+object_longest_side = 100
+# A folder containing linedrawings. We assume these to be black strokes-on-white canvas simple contour drawings.
+linedrawing_input_folder = "assets/baker_2018_linedrawings/cropped/"
+# Distance between dots
+dot_distance = 5
+# Size of each dot
+dot_size = 1
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
+output_folder = "data/shape_and_object_recognition/dotted_linedrawings"
+file = "src/generate_datasets/shape_and_object_recognition/dotted_linedrawings/generate_dataset.py"
+
+["shape_and_object_recognition/texturized_linedrawings_chars"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
+canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or [random] for a randomly pixellated background, or [rnd-uniform] for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
+background_color = [ 0, 0, 0,]
+antialiasing = false
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# A folder containing linedrawings. We assume these to be black strokes-on-white canvas simple contour drawings.
+linedrawing_input_folder = "assets/baker_2018_linedrawings/cropped/"
+# The number of augmented samples to generate for each line drawings
+num_samples = 5
+# Specify the value to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
+object_longest_side = 200
+# The character to be used as background. Use `random` to use a random character for each sample
+background_char = " "
+# The character to be used as foreground. Write `random` to use a different character for each image
+foreground_char = "random"
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
+output_folder = "data/shape_and_object_recognition/texturized_linedrawings_chars"
+# If a number, it defines the size of the font for all images. It can be a string in the form A_B, in which case the size will be drawn from a uniform(A, B) distribution for each image
+font_size = [ 15, 20,]
+file = "src/generate_datasets/shape_and_object_recognition/texturized_linedrawings_chars/generate_dataset.py"
+
+["shape_and_object_recognition/leuven_embedded_figures_test"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
+canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or [random] for a randomly pixellated background, or [rnd-uniform] for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
+background_color = [ 0, 0, 0,]
+antialiasing = true
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
+output_folder = "data/shape_and_object_recognition/leuven_embedded_figures_test"
+file = "src/generate_datasets/shape_and_object_recognition/leuven_embedded_figures_test/generate_dataset.py"
+
+["shape_and_object_recognition/silhouettes_0"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
+canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or [random] for a randomly pixellated background, or [rnd-uniform] for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
+background_color = [ 0, 0, 0,]
+antialiasing = false
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
+object_longest_side = 100
+# A folder containing the image input types (linedrawings/silhouettes). We assume these to be black strokes-on-white canvas simple contour drawings.
+image_input_folder = "assets/baker_2018_linedrawings/cropped/"
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
+output_folder = "data/shape_and_object_recognition/silhouettes_from_linedrawings_baker_2018"
+# Either [silhouettes] or [linedrawings]. Default is [linedrawings]. Both are supposed to be blackstroke over a black canvas. If using linedrawings, they will first be converted into silhouettes.
+input_image_type = "linedrawings"
+file = "src/generate_datasets/shape_and_object_recognition/silhouettes/generate_dataset.py"
+
+["shape_and_object_recognition/silhouettes_1"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
+canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or [random] for a randomly pixellated background, or [rnd-uniform] for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
+background_color = [ 0, 0, 0,]
+antialiasing = false
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
+object_longest_side = 100
+# A folder containing the image input types (linedrawings/silhouettes). We assume these to be black strokes-on-white canvas simple contour drawings.
+image_input_folder = "assets/baker_2022_silhouettes/cropped"
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
+output_folder = "data/shape_and_object_recognition/silhouettes_from_silhouettes_baker_2022"
+# Either [silhouettes] or [linedrawings]. Default is [linedrawings]. Both are supposed to be blackstroke over a black canvas. If using linedrawings, they will first be converted into silhouettes.
+input_image_type = "silhouettes"
+file = "src/generate_datasets/shape_and_object_recognition/silhouettes/generate_dataset.py"
+
+["shape_and_object_recognition/fragmented_frankenstein_0"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
+canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or [random] for a randomly pixellated background, or [rnd-uniform] for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
+background_color = [ 0, 0, 0,]
+antialiasing = false
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
+object_longest_side = 100
+# A folder containing the image input types (linedrawings/silhouettes). We assume these to be black strokes-on-white canvas simple contour drawings.
+image_input_folder = "assets/baker_2018_linedrawings/cropped/"
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
+output_folder = "data/shape_and_object_recognition/fragmented_frankenstein_from_linedrawings_baker_2018"
+# Use 1 to convert to silhouettes, 0 to not convert. Set to 0 if the images are already silhouettes!
+convert_to_silhouettes = 0
+file = "src/generate_datasets/shape_and_object_recognition/fragmented_frankenstein/generate_dataset.py"
+
+["shape_and_object_recognition/fragmented_frankenstein_1"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
+canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or [random] for a randomly pixellated background, or [rnd-uniform] for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
+background_color = [ 0, 0, 0,]
+antialiasing = false
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
+object_longest_side = 100
+# A folder containing the image input types (linedrawings/silhouettes). We assume these to be black strokes-on-white canvas simple contour drawings.
+image_input_folder = "assets/baker_2022_silhouettes/cropped"
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
+output_folder = "data/shape_and_object_recognition/fragmented_frankenstein_from_silhouettes_baker_2022"
+# Use 1 to convert to silhouettes, 0 to not convert. Set to 0 if the images are already silhouettes!
+convert_to_silhouettes = 0
+file = "src/generate_datasets/shape_and_object_recognition/fragmented_frankenstein/generate_dataset.py"
+
+["shape_and_object_recognition/fragmented_frankenstein_2"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
+canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or [random] for a randomly pixellated background, or [rnd-uniform] for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
+background_color = [ 0, 0, 0,]
+antialiasing = false
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
+object_longest_side = 100
+# A folder containing the image input types (linedrawings/silhouettes). We assume these to be black strokes-on-white canvas simple contour drawings.
+image_input_folder = "assets/baker_2018_linedrawings/cropped/"
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
+output_folder = "data/shape_and_object_recognition/fragmented_frankenstein_silhouettes_from_linedrawings_baker_2018"
+# Use 1 to convert to silhouettes, 0 to not convert. Set to 0 if the images are already silhouettes!
+convert_to_silhouettes = 1
+file = "src/generate_datasets/shape_and_object_recognition/fragmented_frankenstein/generate_dataset.py"
+
+["shape_and_object_recognition/viewpoint_invariance"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
+canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or [random] for a randomly pixellated background, or [rnd-uniform] for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
+background_color = [ 0, 0, 0,]
+antialiasing = true
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# A folder containing the original ETH-80 dataset. If the dataset is not present, it will be downloaded in this folder.
+ETH_80_folder = "assets/ETH_80"
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
+output_folder = "data/shape_and_object_recognition/viewpoint_invariance"
+# Specify the value to which the longest side of the object will be resized (keeping the aspect ratio), before pasting the image into a canvas
+object_longest_side = 100
+# Limits of the azimuth viewpoints. For the ETH-80 dataset, they go from 0 to 338. Specify whether you want to only consider some values between A and B inclusive. If provided as a command line argument, use a string in the format A_B, e.g. 45_200.
+azimuth_lim = [ 0, 365,]
+# Limits of the inclination viewpoints. For the ETH-80 dataset, they go from 0 (top-view) to 90 (plane-view). Specify whether you want to only consider some values between A and B inclusive. If provided as a command line argument, use a string in the format A_B, e.g. 45_90.
+inclination_lim = [ 30, 90,]
+file = "src/generate_datasets/shape_and_object_recognition/viewpoint_invariance/generate_dataset.py"
+
+["shape_and_object_recognition/same_different_task"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
+canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or [random] for a randomly pixellated background, or [rnd-uniform] for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
+background_color = [ 0, 0, 0,]
+antialiasing = true
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# --size_shapes SIZE_SHAPES, -ss SIZE_SHAPES either a number (both shapes the same, specific size), or rnd1 (different random sizes across samples, but same size within samples), rnd2 (different random sizes within samples and across samples). Different sizes for each shape are only applied when it makes sense for the task.
 num_samples = 5000
 type_dataset = "all"
 size_shapes = 20
-output_folder = "datasets/high_level_vision/same_different_task"
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
+output_folder = "data/shape_and_object_recognition/same_different_task"
+file = "src/generate_datasets/shape_and_object_recognition/same_different_task/generate_dataset.py"
 
-["src/generate_datasets/high_level_vision/gridded_images/generate_dataset.py"]
+["shape_and_object_recognition/linedrawings"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
 canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or [random] for a randomly pixellated background, or [rnd-uniform] for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
 background_color = [ 0, 0, 0,]
 antialiasing = false
-regenerate = true
-linedrawing_input_folder = "assets/baker_2018/outline_images_fix"
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
 object_longest_side = 100
+# A folder containing linedrawings. We assume these to be black strokes-on-white canvas simple contour drawings.
+linedrawing_input_folder = "assets/baker_2018_linedrawings/cropped/"
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
+output_folder = "data/shape_and_object_recognition/linedrawings"
+file = "src/generate_datasets/shape_and_object_recognition/linedrawings/generate_dataset.py"
+
+["shape_and_object_recognition/gridded_images"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
+canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or [random] for a randomly pixellated background, or [rnd-uniform] for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
+background_color = [ 0, 0, 0,]
+antialiasing = false
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# A folder containing linedrawings. We assume these to be black strokes-on-white canvas simple contour drawings.
+linedrawing_input_folder = "assets/baker_2018_linedrawings/cropped"
+# Specify the value to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
+object_longest_side = 100
+# The rotation of the grid, in angles.
 grid_degree = 45
+# The size of each cell of the grid (in pixels)
 grid_size = 8
+# The thickness of the grid (in pixels)
 grid_thickness = 4
-output_folder = "datasets/high_level_vision/gridded_images"
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
+output_folder = "data/shape_and_object_recognition/gridded_images"
+file = "src/generate_datasets/shape_and_object_recognition/gridded_images/generate_dataset.py"
 
-["src/generate_datasets/low_level_vision/ebbinghaus_illusion/generate_dataset.py"]
+["shape_and_object_recognition/texturized_linedrawings_lines"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
 canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or [random] for a randomly pixellated background, or [rnd-uniform] for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
+background_color = [ 0, 0, 0,]
+antialiasing = false
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# A folder containing linedrawings. We assume these to be black strokes-on-white canvas simple contour drawings.
+linedrawing_input_folder = "assets/baker_2018_linedrawings/cropped/"
+# --density DENSITY, -d DENSITY The desity of the pattern. The horizontal and vertical spacing are equal to line_length/density
+num_samples = 500
+# Specify the value to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
+object_longest_side = 200
+density = 1.8
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
+output_folder = "data/shape_and_object_recognition/texturized_linedrawings_lines"
+file = "src/generate_datasets/shape_and_object_recognition/texturized_linedrawings_lines/generate_dataset.py"
+
+["shape_and_object_recognition/embedded_figures"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
+canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or [random] for a randomly pixellated background, or [rnd-uniform] for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
 background_color = [ 0, 0, 0,]
 antialiasing = true
-regenerate = true
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# The number of samples to generate for each (embedded) polygons
 num_samples = 5000
-output_folder = "datasets/low_level_vision/ebbinghaus_illusion"
+# The shape of the embedded size (in pixels)
+shape_size = 45
+debug_mode = false
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
+output_folder = "data/shape_and_object_recognition/embedded_figures"
+file = "src/generate_datasets/shape_and_object_recognition/embedded_figures/generate_dataset.py"
 
-["src/generate_datasets/low_level_vision/size_constancy_ponzo/generate_dataset.py"]
+["visual_illusions/ebbinghaus_illusion"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
 canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or [random] for a randomly pixellated background, or [rnd-uniform] for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
 background_color = [ 0, 0, 0,]
 antialiasing = true
-regenerate = true
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# Each `sample` corresponds to an entire set of pair of shape_based_image_generation, for each condition.
+num_samples = 5000
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
+output_folder = "data/visual_illusions/ebbinghaus_illusion"
+file = "src/generate_datasets/visual_illusions/ebbinghaus_illusion/generate_dataset.py"
+
+["visual_illusions/thatcher_illusion"]
+# The size of the canvas. If called through command line, a string in the format NxM.
+canvas_size = [ 224, 224,]
+# The folder containing faces that need to be Thatcherized. These faces will also be resized to `canvas_size` size.
+face_folder = "assets/celebA_sample/normal"
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
+output_folder = "data/visual_illusions/thatcher_illusion"
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+file = "src/generate_datasets/visual_illusions/thatcher_illusion/generate_dataset.py"
+
+["visual_illusions/tilt_illusion"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
+canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or [random] for a randomly pixellated background, or [rnd-uniform] for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
+background_color = [ 0, 0, 0,]
+antialiasing = true
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# Number of samples with only the center gabor patch
+num_samples_only_center = 1000
+# Number of samples for center and context gabor patches
+num_samples_center_context = 1000
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
+output_folder = "data/visual_illusions/tilt_illusion"
+file = "src/generate_datasets/visual_illusions/tilt_illusion/generate_dataset.py"
+
+["visual_illusions/muller_lyer_illusion"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
+canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or [random] for a randomly pixellated background, or [rnd-uniform] for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
+background_color = [ 0, 0, 0,]
+antialiasing = true
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# --num_samples_illusory NUM_SAMPLES_ILLUSORY, -nill NUM_SAMPLES_ILLUSORY
 num_samples_scrambled = 5000
 num_samples_illusory = 500
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
+output_folder = "data/visual_illusions/muller_lyer_illusion"
+file = "src/generate_datasets/visual_illusions/muller_lyer_illusion/generate_dataset.py"
+
+["visual_illusions/ponzo_illusion"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
+canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or [random] for a randomly pixellated background, or [rnd-uniform] for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
+background_color = [ 0, 0, 0,]
+antialiasing = true
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# --num_samples_illusory NUM_SAMPLES_ILLUSORY, -nill NUM_SAMPLES_ILLUSORY
+num_samples_scrambled = 5000
+num_samples_illusory = 500
+# This refers to the number of horizontal lines (excluding the red and blue lines) in the proper illusion shape_based_image_generation. During training, we generate dataset matching the total number of lines, so that this parameter will affect both test and train shape_based_image_generation. Notice that, since in the minimal illusion, two oblique lines are always present, similarly in the train shape_based_image_generation there are always two lines, to which we add a number of lines specified by this parameter
 num_rail_lines = 5
 train_with_rnd_col_lines = false
-output_folder = "datasets/low_level_vision/size_constancy_ponzo"
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
+output_folder = "data/visual_illusions/ponzo_illusion"
+file = "src/generate_datasets/visual_illusions/ponzo_illusion/generate_dataset.py"
 
-["src/generate_datasets/low_level_vision/contour_completion/generate_dataset.py"]
+["visual_illusions/adelson_checkerboard_illusion"]
+antialiasing = false
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# The arrow will be placed at every s steps.
+steps_arrow = 5
+# The size of the canvas. If called through command line, a string in the format NxM.
 canvas_size = [ 224, 224,]
-background_color = [ 100, 100, 100,]
-antialiasing = true
-regenerate = true
-num_samples = 5000
-circle_color = [ 255, 255, 255,]
-square_color = [ 0, 0, 0,]
-output_folder = "datasets/low_level_vision/contour_completion"
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
+output_folder = "data/visual_illusions/adelson_checkerboard_illusion"
+# The background in grayscale value
+grayscale_background = 0
+file = "src/generate_datasets/visual_illusions/adelson_checkerboard_illusion/generate_dataset.py"
 
-["src/generate_datasets/low_level_vision/tilt_illusion/generate_dataset.py"]
+["visual_illusions/grayscale_shapes"]
+antialiasing = false
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = true
+# Each `sample` corresponds to an entire set of pair of shape_based_image_generation, for each condition.
+num_samples = 50
+# The size of the canvas. If called through command line, a string in the format NxM.
 canvas_size = [ 224, 224,]
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
+output_folder = "data/visual_illusions/grayscale_shapes"
+file = "src/generate_datasets/visual_illusions/grayscale_shapes/generate_dataset.py"
+
+["visual_illusions/jastrow_illusion"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
+canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or [random] for a randomly pixellated background, or [rnd-uniform] for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
 background_color = [ 0, 0, 0,]
 antialiasing = true
-regenerate = true
-num_samples_only_center = 1000
-num_samples_center_context = 1000
-output_folder = "datasets/low_level_vision/tilt_illusion"
-
-["src/generate_datasets/low_level_vision/webers_law/generate_dataset.py"]
-canvas_size = [ 224, 224,]
-background_color = [ 0, 0, 0,]
-antialiasing = true
-regenerate = true
-num_samples_per_length = 1000
-max_line_length = 50
-min_line_length = 5
-interval_line_length = 1
-output_folder = "datasets/low_level_vision/webers_law"
-
-["src/generate_datasets/low_level_vision/muller_lyer_illusion/generate_dataset.py"]
-canvas_size = [ 224, 224,]
-background_color = [ 0, 0, 0,]
-antialiasing = true
-regenerate = true
-num_samples_scrambled = 5000
-num_samples_illusory = 500
-output_folder = "datasets/low_level_vision/muller_lyer_illusion"
-
-["src/generate_datasets/low_level_vision/jastrow_illusion/generate_dataset.py"]
-canvas_size = [ 224, 224,]
-background_color = [ 0, 0, 0,]
-antialiasing = true
-regenerate = true
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# --num_samples_aligned NUM_SAMPLES_ALIGNED, -nas NUM_SAMPLES_ALIGNED
 num_samples_illusory = 500
 num_samples_random = 5000
 num_samples_aligned = 1000
-output_folder = "datasets/low_level_vision/jastrow_illusion"
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
+output_folder = "data/visual_illusions/jastrow_illusion"
+file = "src/generate_datasets/visual_illusions/jastrow_illusion/generate_dataset.py"
 
-["src/generate_datasets/gestalt/thatcher_illusion/generate_dataset.py"]
+["visual_illusions/lightness_contrast_illusion"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
 canvas_size = [ 224, 224,]
-face_folder = "assets/celebA_sample/normal"
-output_folder = "datasets/gestalt/thatcher_illusion"
-regenerate = true
-
-["src/generate_datasets/gestalt/dotted_linedrawings/generate_dataset.py"]
-canvas_size = [ 224, 224,]
-background_color = [ 0, 0, 0,]
 antialiasing = false
-regenerate = true
-object_longest_side = 100
-linedrawing_input_folder = "assets/baker_2018/outline_images_fix/"
-dot_distance = 5
-dot_size = 1
-output_folder = "datasets/gestalt/dotted_linedrawings"
-
-["src/generate_datasets/gestalt/linedrawings/generate_dataset.py"]
-canvas_size = [ 224, 224,]
-background_color = [ 0, 0, 0,]
-antialiasing = false
-regenerate = true
-object_longest_side = 100
-linedrawing_input_folder = "assets/baker_2018/outline_images_fix/"
-output_folder = "datasets/gestalt/linedrawings"
-
-
-["src/generate_datasets/gestalt/texturized_linedrawings_chars/generate_dataset.py"]
-canvas_size = [ 224, 224,]
-background_color = [ 0, 0, 0,]
-antialiasing = false
-regenerate = true
-linedrawing_input_folder = "assets/baker_2018/outline_images_fix/"
-num_samples = 500
-object_longest_side = 200
-background_char = "\\"
-foreground_char = "."
-output_folder = "datasets/gestalt/texturized_linedrawings_chars"
-
-["src/generate_datasets/gestalt/leuven_embedded_figures_test/generate_dataset.py"]
-canvas_size = [ 224, 224,]
-background_color = [ 0, 0, 0,]
-antialiasing = true
-regenerate = true
-output_folder = "datasets/gestalt/leuven_embedded_figures_test"
-
-["src/generate_datasets/gestalt/CSE_CIE_dots/generate_dataset.py"]
-canvas_size = [ 224, 224,]
-background_color = [ 0, 0, 0,]
-antialiasing = true
-regenerate = true
-num_samples = 1000
-output_folder = "datasets/gestalt/CSE_CIE_dots"
-
-["src/generate_datasets/gestalt/un_crowding/generate_dataset.py"]
-canvas_size = [ 224, 224,]
-background_color = [ 0, 0, 0,]
-antialiasing = false
-regenerate = true
-num_samples_vernier_inside = 5000
-num_samples_vernier_outside = 5000
-random_size = true
-output_folder = "datasets/gestalt/un_crowding"
-
-["src/generate_datasets/gestalt/texturized_linedrawings_lines/generate_dataset.py"]
-canvas_size = [ 224, 224,]
-background_color = [ 0, 0, 0,]
-antialiasing = false
-regenerate = true
-linedrawing_input_folder = "assets/baker_2018/outline_images_fix/"
-num_samples = 500
-object_longest_side = 200
-density = 1.8
-output_folder = "datasets/gestalt/texturized_linedrawings_lines"
-
-["src/generate_datasets/gestalt/embedded_figures/generate_dataset.py"]
-canvas_size = [ 224, 224,]
-background_color = [ 0, 0, 0,]
-antialiasing = true
-regenerate = true
-num_samples = 5000
-shape_size = 45
-debug_mode = false
-output_folder = "datasets/gestalt/embedded_figures"
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# The arrow will be placed at every s steps.
+steps_arrow = 30
+# The color of the center square in grayscale int
+square_color = 200
+# It will generate items which background varies from 0 to 255 in steps specified by this parameter.
+steps_bg_color = 20
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
+output_folder = "data/visual_illusions/lightness_contrast_illusion"
+file = "src/generate_datasets/visual_illusions/lightness_contrast_illusion/generate_dataset.py"

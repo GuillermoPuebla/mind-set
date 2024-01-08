@@ -372,8 +372,11 @@ class ShapeCoreFunctions:
 
     def set_color(self, color=None):
         """fill all the non-transparent pixels with the current color"""
-        self.color = colors.to_rgba(color, alpha=1) if color else self.color
-        self.color = tuple([int(i * 255) for i in self.color])
+        if isinstance(color, str):
+            self.color = (
+                colors.to_rgba(color, alpha=1) if isinstance(color, str) else self.color
+            )
+            self.color = tuple([int(i * 255) for i in self.color])
         canvas_array = np.asarray(self.canvas)
 
         mask = canvas_array[..., 3] > 0

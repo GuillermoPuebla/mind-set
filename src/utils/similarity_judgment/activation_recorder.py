@@ -12,14 +12,17 @@ import PIL.Image as Image
 from matplotlib import pyplot as plt
 from torchvision.transforms import InterpolationMode, transforms
 from tqdm import tqdm
+from src.utils.device_utils import to_global_device
 
 from src.utils.similarity_judgment.misc import (
-    my_affine,
-    get_affine_rnd_fun_from_code,
     save_figs,
 )
-from src.utils.misc import conditional_tqdm, conver_tensor_to_plot
-from src.utils.net_utils import make_cuda
+from src.utils.misc import (
+    conditional_tqdm,
+    conver_tensor_to_plot,
+    get_affine_rnd_fun,
+    my_affine,
+)
 from copy import deepcopy
 import csv
 
@@ -118,7 +121,7 @@ class RecordDistance(RecordActivations):
     def compute_distance_pair(self, image0, image1):  # path_save_fig, stats):
         distance = {}
 
-        self.net(make_cuda(image0.unsqueeze(0), torch.cuda.is_available()))
+        self.net(to_global_device(image0.unsqueeze(0)))
         first_image_act = {}
         # activation_image1 = deepcopy(self.activation)
         for name, features1 in self.activation.items():
@@ -126,7 +129,7 @@ class RecordDistance(RecordActivations):
                 continue
             first_image_act[name] = features1.flatten()
 
-        self.net(make_cuda(image1.unsqueeze(0), torch.cuda.is_available()))
+        self.net(to_global_device(image1.unsqueeze(0)))
         # activation_image2 = deepcopy(self.activation)
 
         second_image_act = {}
@@ -156,7 +159,7 @@ class RecordDistance(RecordActivations):
         transformed_repetition=5,
         path_save_fig=None,
     ):
-        affine_rnd_fun = get_affine_rnd_fun_from_code(transf_boundaries)
+        affine_rnd_fun = get_affine_rnd_fun(transf_boundaries)
         norm = [i for i in transform.transforms if isinstance(i, transforms.Normalize)][
             0
         ]

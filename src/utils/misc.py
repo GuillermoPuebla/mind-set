@@ -9,10 +9,15 @@ import torch
 import matplotlib.pyplot as plt
 import cv2
 from PIL import Image, ImageFilter
+from torchvision.transforms import functional as F
 import tqdm
+
+from src.utils.similarity_judgment.misc import draw_random_from_ranges
 
 try:
     import neptune
+    from neptune.types import File
+
 except:
     pass
 
@@ -209,7 +214,7 @@ DEFAULTS = {
     "canvas_size": (224, 224),
     "background_color": (0, 0, 0),
     "antialiasing": True,
-    "regenerate": True,
+    "behaviour_if_present": "overwrite",
 }
 
 
@@ -223,7 +228,7 @@ def add_general_args(parser):
         "--canvas_size",
         "-csize",
         default=DEFAULTS["canvas_size"],
-        help="A string in the format NxM specifying the size of the canvas",
+        help="The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.",
         type=lambda x: tuple([int(i) for i in x.split("x")])
         if isinstance(x, str)
         else x,
@@ -233,28 +238,26 @@ def add_general_args(parser):
         "--background_color",
         "-bg",
         default=DEFAULTS["background_color"],
-        help="Specify the background as rgb value in the form R_G_B, or write [random] for a randomly pixellated background.or [rnd-uniform] for a random (but uniform) color",
+        help="Specify the background color. Could be a list of RGB values, or [random] for a randomly pixellated background, or [rnd-uniform] for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B",
         type=lambda x: (tuple([int(i) for i in x.split("_")]) if "_" in x else x)
         if isinstance(x, str)
         else x,
     )
 
     parser.add_argument(
-        "--no_antialiasing",
-        "-nantial",
+        "--antialiasing",
+        "-antial",
         dest="antialiasing",
-        help="Specify whether we want to disable antialiasing",
-        action="store_false",
+        help="Specify whether we want to enable antialiasing",
+        action="store_true",
         default=DEFAULTS["antialiasing"],
     )
 
     parser.add_argument(
-        "--no_regenerate_if_present",
-        "-noreg",
-        help="If the dataset is already present, DO NOT regenerate it, just return",
-        dest="regenerate",
-        action="store_false",
-        default=DEFAULTS["regenerate"],
+        "--behaviour_if_present",
+        "-if_pres",
+        help="What to do if the dataset folder is already present? Choose between [overwrite], [skip]",
+        default=DEFAULTS["behaviour_if_present"],
     )
 
 
@@ -333,4 +336,90 @@ def apply_antialiasing(img: PIL.Image, amount=None):
 def delete_and_recreate_path(path: pathlib.Path):
     shutil.rmtree(path) if path.exists() else None
     path.mkdir(parents=True, exist_ok=True)
-    print(sty.fg.yellow + f"Creating Dataset in {path}. Please wait..." + sty.rs.fg)
+    print(sty.fg.yellow + f"Recreating {path}." + sty.rs.fg)
+
+
+import random
+
+
+def generate_random_color():
+    return (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+
+
+import os
+import subprocess
+
+
+def check_download_ETH_80_dataset(destination_dir):
+    repo_url = "https://github.com/chenchkx/ETH-80/"
+
+    if not os.path.exists(destination_dir):
+        print(
+            f"ETH-80 dataset, used for the viewpoint invariance dataset, is not found in {destination_dir}. It will be downloaded (~308MB)."
+        )
+        subprocess.run(["git", "clone", repo_url, destination_dir])
+
+    else:
+        print(f"ETH-80 dataset found in {destination_dir}")
+
+
+def get_affine_rnd_fun(transf_values):
+    transf_ranges = {
+        k: [v] if not isinstance(v[0], list) else v for k, v in transf_values.items()
+    }
+
+    tr = lambda: [
+        draw_random_from_ranges(transf_ranges["translation_X"])
+        if "translation_X" in transf_values and transf_values["translation_X"]
+        else 0,
+        draw_random_from_ranges(transf_ranges["translation_Y"])
+        if "translation_Y" in transf_values and transf_values["translation_Y"]
+        else 0,
+    ]
+
+    scale = (
+        (lambda: draw_random_from_ranges(transf_ranges["scale"]))
+        if "scale" in transf_values and transf_values["scale"]
+        else lambda: 1.0
+    )
+    rot = (
+        (lambda: draw_random_from_ranges(transf_ranges["rotation"]))
+        if "rotation" in transf_values and transf_values["rotation"]
+        else lambda: 0
+    )
+    return lambda: {"rt": rot(), "tr": tr(), "sc": scale(), "sh": 0.0}
+
+
+def my_affine(img, translate, **kwargs):
+    return F.affine(
+        img,
+        translate=[int(translate[0] * img.size[0]), int(translate[1] * img.size[1])],
+        **kwargs,
+    )
+
+
+def modify_toml(
+    toml_lines,
+    modified_key_starts_with="num_samples",
+    modify_value_fun=None,
+):
+    lines = []
+    current_header = None  # To store the current header
+    for line in toml_lines:
+        stripped_line = line.strip()
+
+        # Check if the line is a header
+        if stripped_line.startswith("[") and stripped_line.endswith("]"):
+            current_header = stripped_line.strip("[]")
+
+        # Check if the line starts with the specified key
+        elif stripped_line.startswith(modified_key_starts_with):
+            parts = line.split("=")
+            key = parts[0].strip()
+            value = parts[1].strip()
+
+            # Pass the key, value, and the current header to the modify function
+            modified_value = modify_value_fun(current_header, value)
+            line = f"{key} = {modified_value}\n"
+        lines.append(line)
+    return lines

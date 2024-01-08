@@ -1,7 +1,7 @@
 gpu_num = 0
 
 [network]
-architecture_name = "vgg11" 
+architecture_name = "vgg11"
 
 [[eval.datasets]]
 name = "linedrawings"
@@ -11,7 +11,5 @@ label_cols = ["ImageNetClassIdx"]
 filters = {}
 
 
-
 [saving_folders]
 results_folder = 'results/examples/imagenet_classification/linedrawings/'
-

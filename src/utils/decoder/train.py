@@ -1,5 +1,7 @@
 from typing import Any
 import toml
+import inspect
+
 from datetime import datetime
 from src.utils.dataset_utils import get_dataloader
 
@@ -7,6 +9,7 @@ from src.utils.decoder.train_utils import (
     decoder_step,
     log_neptune_init_info,
 )
+from src.utils.device_utils import set_global_device, to_global_device
 from src.utils.net_utils import ExpMovingAverage, CumulativeAverage, GrabNet, run
 from src.utils.misc import weblog_dataset_info, pretty_print_dict, update_dict
 from src.utils.callbacks import *
@@ -25,7 +28,7 @@ import inspect
 
 def decoder_train(
     task_type=None,
-    gpu_num=None,
+    gpu_idx=None,
     train_info=None,
     eval=None,
     network=None,
@@ -85,7 +88,7 @@ def decoder_train(
     pretty_print_dict(toml_config, name="PARAMETERS")
 
     use_cuda = torch.cuda.is_available()
-    torch.cuda.set_device(toml_config["gpu_num"]) if torch.cuda.is_available() else None
+    set_global_device(toml_config["gpu_idx"])
 
     train_loader = get_dataloader(
         toml_config,
@@ -141,7 +144,7 @@ def decoder_train(
     load_pretraining(
         net=net,
         optimizers=optimizers,
-        network_path=toml_config["network"]["load_path"],
+        net_state_dict_path=toml_config["network"]["state_dict_path"],
         optimizers_path=toml_config["training"]["optimizers_path"],
     )
     print(sty.ef.inverse + "FREEZING CORE NETWORK" + sty.rs.ef)
@@ -151,7 +154,7 @@ def decoder_train(
     for param in net.decoders.parameters():
         param.requires_grad = True
 
-    net.cuda() if use_cuda else None
+    net = to_global_device(net)
 
     cudnn.benchmark = False if use_cuda else False
 
@@ -190,7 +193,6 @@ def decoder_train(
 
         return run(
             loader,
-            use_cuda=use_cuda,
             net=net,
             callbacks=callbacks,
             loss_fn=loss_fn,
@@ -311,6 +313,20 @@ def decoder_train(
             action_name=f"goal [{toml_config['training']['stopping_conditions']['stop_at_loss']}]",
         )
     ) if toml_config["training"]["stopping_conditions"]["stop_at_loss"] else None
+
+    all_callbacks.append(
+        TriggerActionWhenReachingValue(
+            mode="min",
+            patience=20,
+            value_to_reach=toml_config["training"]["stopping_conditions"][
+                "stop_at_accuracy"
+            ],
+            check_every=10,
+            metric_name="ema_loss",
+            action=stop,
+            action_name=f"goal [{toml_config['training']['stopping_conditions']['stop_at_accuracy']}]",
+        )
+    ) if toml_config["training"]["stopping_conditions"]["stop_at_accuracy"] else None
 
     net, logs = call_run(train_loader, True, all_callbacks, toml_config["task_type"])
     weblogger.stop() if weblogger else None

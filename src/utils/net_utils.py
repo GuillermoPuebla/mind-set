@@ -11,6 +11,7 @@ import torch.backends.cudnn as cudnn
 import torch
 
 from src.utils.callbacks import Callback, CallbackList
+from src.utils.device_utils import to_global_device
 
 
 class GrabNet:
@@ -148,7 +149,11 @@ class GrabNet:
 
 
 def load_pretraining(
-    net=None, optimizers=None, network_path=None, optimizers_path=None, use_cuda=None
+    net=None,
+    optimizers=None,
+    net_state_dict_path=None,
+    optimizers_path=None,
+    use_cuda=None,
 ):
     if use_cuda is None:
         use_cuda = torch.cuda.is_available()
@@ -166,14 +171,14 @@ def load_pretraining(
         [opt.load_state_dict(lopt) for opt, lopt in zip(optimizers, opts_state)]
         print(fg.red + " Done." + rs.fg)
 
-    if network_path:
+    if net_state_dict_path:
         print(
-            fg.red + f"Loading full model from {network_path}..." + rs.fg,
+            fg.red + f"Loading full model from {net_state_dict_path}..." + rs.fg,
             end="",
         )
         net.load_state_dict(
             torch.load(
-                network_path,
+                net_state_dict_path,
                 map_location=torch.device("cuda") if use_cuda else torch.device("cpu"),
             )
         )
@@ -201,10 +206,6 @@ def print_net_info(net):
     )
     print(rs.fg)
     print()
-
-
-def make_cuda(fun, is_cuda):
-    return fun.cuda() if is_cuda else fun
 
 
 ##
@@ -342,7 +343,7 @@ def run(
         logs = {}
     torch.cuda.empty_cache()
 
-    make_cuda(net, use_cuda)
+    net = to_global_device(net)
 
     callbacks = CallbackList(callbacks)
     callbacks.set_model(net)

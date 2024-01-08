@@ -1,10 +1,9 @@
 import os
 import pandas as pd
 import toml
+import inspect
+
 from src.utils.dataset_utils import ImageNetClasses
-from src.utils.decoder.examples.regression.jastrow_illusion.jastrow_utils import (
-    adjust_csv,
-)
 from src.utils.imagenet_classification.eval import classification_evaluate
 import pathlib
 
@@ -12,7 +11,7 @@ import pathlib
 dataset_folder = pathlib.Path("datasets_examples") / "linedrawings"
 
 # We create a small Jastrow_Illusion dataset just for this example.
-from src.generate_datasets.gestalt.linedrawings.generate_dataset import (
+from src.generate_datasets.shape_and_object_recognition.linedrawings.generate_dataset import (
     generate_all as linedrawings_generate,
 )
 

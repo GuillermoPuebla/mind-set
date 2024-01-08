@@ -1,2 +1,0 @@
-The stimulis for this dataset have been completely recreated from scratch based on the examples in the paper [Sensitivity to Nonaccidental Configurations of Two-Line Stimuli - Jonas Kubilius, Charlotte Sleurs, Johan Wagemans, 2017](https://journals.sagepub.com/doi/10.1177/2041669517699628). 
-A `.svg` version can be found in `assets/kubilius_2017`, with both the `png` and `svg` version. The script `generate_dataset` allows you to change the background, canvas size, antialiasing, and regenerate the dataset with an appropriate annotation file. 

@@ -28,3 +28,4 @@ filters = { Type = "illusory" }
 translation = false
 scale = false
 rotation = false
+rotation = false

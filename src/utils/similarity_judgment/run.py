@@ -1,8 +1,11 @@
 import argparse
 
 import toml
+import inspect
+
 import torch
-from src.utils.net_utils import GrabNet, prepare_network
+from src.utils.device_utils import set_global_device
+from src.utils.net_utils import GrabNet, load_pretraining
 from src.utils.misc import delete_and_recreate_path, update_dict, pretty_print_dict
 from sty import fg, rs
 import pickle
@@ -43,13 +46,9 @@ def compute_distance(
 
     network, norm_values, resize_value = GrabNet.get_net(
         toml_config["options"]["architecture_name"],
-        imagenet_pt=True
-        if toml_config["options"]["pretraining"] == "ImageNet"
-        else False,
+        imagenet_pt=True if toml_config["options"]["imagenet_pretrained"] else False,
     )
-    torch.cuda.set_device(
-        toml_config["options"]["gpu_num"]
-    ) if torch.cuda.is_available() else None
+    set_global_device(toml_config["options"]["gpu_idx"])
 
     pathlib.Path(toml_config["saving_folders"]["results_folder"]).mkdir(
         parents=True, exist_ok=True
@@ -57,10 +56,11 @@ def compute_distance(
 
     pretty_print_dict(toml_config)
 
-    prepare_network(
-        network,
-        toml_config["options"]["pretraining"],
-        train=False,
+    load_pretraining(
+        net=network,
+        optimizers=None,
+        net_state_dict_path=toml_config["network"]["state_dict_path"],
+        optimizers_path=None,
     )
 
     transf_list = [

@@ -1,6 +1,0 @@
-[network]
-use_residual_decoder = true
-
-[training]
-train_dataset = "datasets/examples/ebbinghaus/random_data_n100/train"
-test_datasets = []

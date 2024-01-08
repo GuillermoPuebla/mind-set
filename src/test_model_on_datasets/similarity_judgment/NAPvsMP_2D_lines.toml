@@ -1,5 +1,5 @@
 [basic_info]
-annotation_file_path = 'datasets/coding_of_shapes/NAPvsMP_2D_lines/annotation.csv'
+annotation_file_path = 'datasets/low_mid_level_vision/NAPvsMP_2D_lines/annotation.csv'
 match_factors = ["SampleName"]
 factor_variable = "Type"
 reference_level = "reference"
@@ -16,6 +16,7 @@ matching_transform = true
 repetitions = 50
 
 [transformation.values]
-translation = [-0.2, 0.2]
+translation_X = [-0.2, 0.2]
+translation_Y = [-0.2, 0.2]
 scale = [0.8, 1.2]
 rotation = [-50, 50]

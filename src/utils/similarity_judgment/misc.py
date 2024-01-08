@@ -6,7 +6,6 @@ import PIL.Image as Image
 import numpy as np
 import torch
 from matplotlib import pyplot as plt
-from torchvision.transforms import functional as F
 
 
 class PasteOnCanvas(torch.nn.Module):
@@ -26,39 +25,6 @@ class PasteOnCanvas(torch.nn.Module):
         )
         canvas = paste_at_center(canvas, pil_image).convert("RGB")
         return canvas
-
-
-def get_affine_rnd_fun_from_code(transf_values):
-    tr = (
-        (
-            lambda: [
-                np.random.uniform(*transf_values["translation"]),
-                np.random.uniform(*transf_values["translation"]),
-            ]
-        )
-        if "translation" in transf_values and transf_values["translation"]
-        else lambda: (0, 0)
-    )
-
-    scale = (
-        (lambda: np.random.uniform(*transf_values["scale"]))
-        if "scale" in transf_values and transf_values["scale"]
-        else lambda: 1.0
-    )
-    rot = (
-        (lambda: np.random.uniform(*transf_values["rotation"]))
-        if "rotation" in transf_values and transf_values["rotation"]
-        else lambda: 0
-    )
-    return lambda: {"rt": rot(), "tr": tr(), "sc": scale(), "sh": 0.0}
-
-
-def my_affine(img, translate, **kwargs):
-    return F.affine(
-        img,
-        translate=[int(translate[0] * img.size[0]), int(translate[1] * img.size[1])],
-        **kwargs,
-    )
 
 
 def save_figs(path, set, extra_info="", n=None):
@@ -117,3 +83,22 @@ def paste_at_center(canvas, image_to_paste):
     # Paste the image onto the canvas
     canvas.paste(image_to_paste, position)
     return canvas
+
+
+import random
+
+
+def draw_random_from_ranges(ranges):
+    """
+    Will draw a random number uniformly distributed within a set of ranges
+    ranges = [[0, 10], [15, 100], [150, 200]]
+    draw_random_from_ranges(ranges) => 16.023..
+
+    """
+    total_span = sum(high - low for low, high in ranges)
+    random_point = random.uniform(0, total_span)
+    running_total = 0
+    for low, high in ranges:
+        running_total += high - low
+        if random_point <= running_total:
+            return random_point - (running_total - (high - low)) + low

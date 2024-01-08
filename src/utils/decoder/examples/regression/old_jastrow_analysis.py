@@ -78,7 +78,7 @@ if __name__ == "__main__":
     #         results_folder="./results/jastrow_illusion/",
     #         dataset_folder=f"datasets/low_level_vision/jastrow_test/{folder}/",
     #         pretraining="models/jastrow_illusion/linear_decoder.pt",
-    #         gpu_num=0,
+    #         gpu_idx=0,
     #         batch_size=32,
     #         use_residual_decoder=True,
     #     )

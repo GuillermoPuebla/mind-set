@@ -6,8 +6,9 @@ import torch.backends.cudnn as cudnn
 # from rich import print
 from src.utils.callbacks import *
 from src.utils.dataset_utils import ImageNetClasses, get_dataloader
+from src.utils.device_utils import set_global_device, to_global_device
 from src.utils.misc import pretty_print_dict, update_dict
-from src.utils.net_utils import load_pretraining, make_cuda, GrabNet, ResNet152decoders
+from src.utils.net_utils import load_pretraining, GrabNet, ResNet152decoders
 from torch.utils.data import DataLoader
 from torchvision.datasets import ImageFolder
 from tqdm import tqdm
@@ -16,9 +17,11 @@ import pandas
 import toml
 import inspect
 
+import inspect
+
 
 def classification_evaluate(
-    task_type=None, gpu_num=None, eval=None, network=None, saving_folders=None, **kwargs
+    task_type=None, gpu_idx=None, eval=None, network=None, saving_folders=None, **kwargs
 ):
     with open(
         os.path.dirname(__file__) + "/default_classification_config.toml", "r"
@@ -32,8 +35,7 @@ def classification_evaluate(
         {i: local_vars[i] for i in inspect.getfullargspec(classification_evaluate)[0]},
     )
     pretty_print_dict(toml_config, name="PARAMETERS")
-    use_cuda = torch.cuda.is_available()
-    torch.cuda.set_device(toml_config["gpu_num"]) if torch.cuda.is_available() else None
+    set_global_device(toml_config["gpu_idx"])
 
     test_loaders = [
         get_dataloader(
@@ -56,15 +58,12 @@ def classification_evaluate(
     load_pretraining(
         net=net,
         optimizers=None,
-        network_path=toml_config["network"]["load_path"],
+        net_state_dict_path=toml_config["network"]["state_dict_path"],
         optimizers_path=None,
     )
     net.eval()
 
-    cudnn.benchmark = True if use_cuda else False
-
-    net.cuda() if use_cuda else None
-
+    net = to_global_device(net)
     results_folder = pathlib.Path(toml_config["saving_folders"]["results_folder"])
     imagenet_classes = ImageNetClasses()
 
@@ -81,8 +80,8 @@ def classification_evaluate(
 
         for _, data in enumerate(tqdm(dataloader, colour="yellow")):
             images, labels, path = data
-            images = make_cuda(images, use_cuda)
-            labels = make_cuda(labels, use_cuda)
+            images = to_global_device(images)
+            labels = to_global_device(labels)
             output = net(images)
             for i in range(len(labels)):
                 prediction = torch.argmax(output[i]).item()

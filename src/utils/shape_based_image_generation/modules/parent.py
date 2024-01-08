@@ -42,7 +42,7 @@ class ParentStimuli:
     def center_shapes(self):
         cropped_canvas = self.canvas.crop(self.canvas.getbbox())
 
-        new_canvas = new("RGBA", self.initial_image_size, color=(0, 0, 0, 255))
+        new_canvas = new("RGBA", self.initial_image_size, color=(0, 0, 0, 0))
         new_canvas.paste(
             cropped_canvas,
             tuple(

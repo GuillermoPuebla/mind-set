@@ -6,16 +6,19 @@ import torch.backends.cudnn as cudnn
 # from rich import print
 from src.utils.callbacks import *
 from src.utils.dataset_utils import get_dataloader
+from src.utils.device_utils import set_global_device, to_global_device
 from src.utils.misc import pretty_print_dict, update_dict
-from src.utils.net_utils import load_pretraining, make_cuda, GrabNet
+from src.utils.net_utils import load_pretraining, GrabNet
 from tqdm import tqdm
 import pandas
 import toml
 import inspect
 
+import inspect
+
 
 def decoder_evaluate(
-    task_type=None, gpu_num=None, eval=None, network=None, saving_folders=None, **kwargs
+    task_type=None, gpu_idx=None, eval=None, network=None, saving_folders=None, **kwargs
 ):
     with open(os.path.dirname(__file__) + "/default_decoder_config.toml", "r") as f:
         toml_config = toml.load(f)
@@ -28,7 +31,7 @@ def decoder_evaluate(
     )
     pretty_print_dict(toml_config, name="PARAMETERS")
     use_cuda = torch.cuda.is_available()
-    torch.cuda.set_device(toml_config["gpu_num"]) if torch.cuda.is_available() else None
+    set_global_device(toml_config["gpu_idx"])
 
     test_loaders = [
         get_dataloader(
@@ -47,26 +50,35 @@ def decoder_evaluate(
         "resnet152_decoder_residual",
     ], f"Network.name needs to be either `resnet152_decoder` or `resnet152_decoder_residual`. You used {toml_config['network']['name']}"
 
+    label_cols = toml_config["training"]["dataset"]["label_cols"]
+    if toml_config["task_type"] == "regression":
+        num_classes = (
+            1
+            if isinstance(label_cols, str)
+            else len(toml_config["training"]["dataset"]["label_cols"])
+        )
+    elif toml_config["task_type"] == "classification":
+        num_classes = (
+            1 if isinstance(label_cols, str) else len(test_loaders[0].dataset.classes)
+        )
+
     net, _, _ = GrabNet.get_net(
         toml_config["network"]["architecture_name"],
         imagenet_pt=True if toml_config["network"]["imagenet_pretrained"] else False,
-        num_classes=toml_config["network"]["decoder_outputs"]
-        if toml_config["task_type"] == "regression"
-        else len(test_loaders[0].dataset.classes),
+        num_classes=num_classes,
     )
 
     load_pretraining(
         net=net,
         optimizers=None,
-        network_path=toml_config["network"]["load_path"],
+        net_state_dict_path=toml_config["network"]["state_dict_path"],
         optimizers_path=None,
     )
     net.eval()
 
     cudnn.benchmark = True if use_cuda else False
 
-    net.cuda() if use_cuda else None
-
+    net = to_global_device(net)
     results_folder = pathlib.Path(toml_config["saving_folders"]["results_folder"])
     num_decoders = len(net.decoders)
 
@@ -83,8 +95,8 @@ def decoder_evaluate(
 
         for _, data in enumerate(tqdm(dataloader, colour="yellow")):
             images, labels, path = data
-            images = make_cuda(images, use_cuda)
-            labels = make_cuda(labels, use_cuda)
+            images = to_global_device(images)
+            labels = to_global_device(labels)
             out_dec = net(images)
             for i in range(len(labels)):
                 # if task_type == "classification":

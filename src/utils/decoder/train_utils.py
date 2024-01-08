@@ -1,6 +1,6 @@
 import torch
 from torch import nn as nn
-from src.utils.net_utils import make_cuda
+from src.utils.device_utils import to_global_device
 from src.utils.misc import convert_lists_to_strings
 from copy import deepcopy
 
@@ -44,7 +44,6 @@ def decoder_step(
     model,
     loss_fn,
     optimizers,
-    use_cuda,
     logs,
     logs_prefix,
     train,
@@ -54,14 +53,12 @@ def decoder_step(
     num_decoders = len(model.decoders)
 
     images, labels = data
-    images = make_cuda(images, use_cuda)
-    labels = make_cuda(labels, use_cuda)
+    images = to_global_device(images)
+    labels = to_global_device(labels)
     if train:
         [optimizers[i].zero_grad() for i in range(num_decoders)]
     out_dec = model(images)
-    loss = make_cuda(
-        torch.tensor([0.0], dtype=torch.float, requires_grad=True), use_cuda
-    )
+    loss = to_global_device(torch.tensor([0.0], dtype=torch.float, requires_grad=True))
     loss_decoder = []
     for _, od in enumerate(out_dec):
         loss_decoder.append(loss_fn(od, labels))

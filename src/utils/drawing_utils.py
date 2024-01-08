@@ -22,7 +22,11 @@ class DrawStimuli:
         self.background_mode = (
             background if isinstance(background, str) else "one_color"
         )
-        self.background = background if isinstance(background, tuple) else None
+        self.background = (
+            tuple(background)
+            if isinstance(background, tuple) or isinstance(background, list)
+            else None
+        )
         self.canvas_size = canvas_size
         if width is None:
             width = int(np.round(canvas_size[0] * 0.00893))
@@ -51,7 +55,11 @@ class DrawStimuli:
     def create_canvas(self, borders=None, size=None, background=None):
         if background is not None:
             background_mode = background if isinstance(background, str) else "one_color"
-            background = background if isinstance(background, tuple) else None
+            background = (
+                tuple(background)
+                if isinstance(background, list) or isinstance(background, tuple)
+                else None
+            )
         else:
             background_mode = self.background_mode
             background = self.background
@@ -155,10 +163,6 @@ def get_mask_from_linedrawing(opencv_img, fill=True):
     contours, _ = cv2.findContours(
         binary_linedrawing, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE
     )
-    # cv2.drawContours(mask, contours, -1, (255), cv2.FILLED)
-    # cv2.drawContours(
-    #     mask, [contours[0]], -1, (255), thickness=cv2.FILLED if fill else 1
-    # )
 
     cv2.drawContours(mask, contours, -1, (255), thickness=cv2.FILLED if fill else 1)
 
@@ -177,7 +181,9 @@ def get_mask_from_linedrawing(opencv_img, fill=True):
     return mask
 
 
-def resize_image_keep_aspect_ratio(opencv_img, max_side_length):
+def resize_image_keep_aspect_ratio(
+    opencv_img: np.array, max_side_length: int
+) -> np.array:
     # Calculate new dimensions while keeping the aspect ratio
     height, width, *_ = opencv_img.shape
     aspect_ratio = float(width) / float(height)
@@ -196,17 +202,15 @@ def resize_image_keep_aspect_ratio(opencv_img, max_side_length):
 
 
 def paste_linedrawing_onto_canvas(
-    source_canvas, target_canvas, stroke_color
+    source_canvas: PIL.Image, target_canvas: PIL.Image, stroke_color: tuple
 ) -> PIL.Image:
     """
-    This function assumes the linedrawing is an Pillow img with black stroke on a white background. Returns a PIL.Image
+    This function assumes the linedrawing is an Pillow img with white stroke on a black background. Returns a PIL.Image
     """
-    mask = ImageOps.invert(source_canvas.convert("L"))
 
-    # Step 4: Create the new image with the line color
     new_image = Image.new("RGBA", source_canvas.size, stroke_color)
 
-    result = ImageChops.composite(new_image, target_canvas, mask)
+    result = ImageChops.composite(new_image, target_canvas, source_canvas)
 
     width_diff = target_canvas.size[0] - source_canvas.size[0]
     height_diff = target_canvas.size[1] - source_canvas.size[1]
@@ -216,3 +220,25 @@ def paste_linedrawing_onto_canvas(
 
     target_canvas.paste(result, position, result)
     return target_canvas
+
+
+def resize_and_paste(original_image, canvas):
+    canvas_size = canvas.size
+    original_aspect = original_image.width / original_image.height
+    canvas_aspect = canvas_size[0] / canvas_size[1]
+
+    if original_aspect > canvas_aspect:
+        new_size = (canvas_size[0], int(canvas_size[0] / original_aspect))
+    else:
+        new_size = (int(canvas_size[1] * original_aspect), canvas_size[1])
+
+    resized_image = original_image.resize(new_size, Image.LANCZOS)
+
+    paste_position = (
+        (canvas_size[0] - new_size[0]) // 2,
+        (canvas_size[1] - new_size[1]) // 2,
+    )
+
+    canvas.paste(resized_image, paste_position, resized_image)
+
+    return canvas

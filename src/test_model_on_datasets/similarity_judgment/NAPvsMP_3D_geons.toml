@@ -1,5 +1,5 @@
 [basic_info]
-annotation_file_path = 'datasets/coding_of_shapes/NAPvsMP_3D_geons/annotation.csv'
+annotation_file_path = 'data/low_mid_level_vision/NAP_vs_MP_3D_geons_standard/annotation.csv'
 match_factors = ["SampleName"]
 factor_variable = "Type"
 reference_level = "reference"
@@ -8,7 +8,7 @@ reference_level = "reference"
 pretraining = "ImageNet"
 
 [saving_folders]
-results_folder = "results/similarity_judgments/NAPvsMP_3D_geons"
+results_folder = "results/similarity_judgments/NAPvsMP_3D_geons_standard"
 
 [transformation]
 fill_color = [0, 0, 0]
@@ -16,6 +16,7 @@ matching_transform = true
 repetitions = 50
 
 [transformation.values]
-translation = [-0.2, 0.2]
+translation_X = [-0.2, 0.2]
+translation_Y = [-0.2, 0.2]
 scale = [0.8, 1.2]
 rotation = [-50, 50]

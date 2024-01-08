@@ -1,5 +1,7 @@
 import os
 import toml
+import inspect
+
 from src.utils.decoder.examples.regression.jastrow_utils import (
     adjust_csv,
 )
@@ -11,7 +13,7 @@ import pathlib
 dataset_folder = pathlib.Path("datasets_examples") / "jastrow_illusion"
 
 # We create a small Jastrow_Illusion dataset just for this example.
-from src.generate_datasets.low_level_vision.jastrow_illusion.generate_dataset import (
+from src.generate_datasets.visual_illusions.jastrow_illusion.generate_dataset import (
     generate_all as Jastrow_generate,
 )
 
