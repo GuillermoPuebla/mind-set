@@ -129,9 +129,7 @@ def generate_dataset_and_notebook_from_toml_file(toml_lines, source_toml, name_t
     toml_lines = modify_toml(
         toml_lines,
         modified_key_starts_with="output_folder",
-        modify_value_fun=lambda h, x: '"'
-        + str(Path("tests") / name_test / "data" / h.strip('"'))
-        + '"',
+        modify_value_fun=lambda h, x: f'"tests/{name_test}/data/{h.strip(chr(34))}"',
     )
 
     name_toml_file = Path("tests") / (
