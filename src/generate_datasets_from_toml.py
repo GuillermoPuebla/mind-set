@@ -13,6 +13,7 @@ DEFAULT = {"toml_file": "generate_all_datasets.toml"}
 
 def generate_datasets_from_toml(toml_file):
     print("Using TOML file: " + sty.fg.blue + f"{toml_file}" + sty.fg.rs)
+    print(toml_file)
     with open(toml_file, "r") as f:
         dataset_params = toml.load(f)
 

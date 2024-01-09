@@ -91,8 +91,8 @@ def generate_notebook(dataset_structure, save_to):
 
 
 def test_generate_toml():
-    # source_toml = "generate_subset_datasets.toml"
-    source_toml = "generate_all_datasets.toml"
+    source_toml = "generate_subset_datasets.toml"
+    # source_toml = "generate_all_datasets.toml"
 
     name_test = "small_black_bg"
     with open(source_toml, "r") as file:
@@ -121,7 +121,7 @@ def test_generate_toml():
         modified_key_starts_with="background_color",
         modify_value_fun=lambda h, x: '"rnd-uniform"',
     )
-
+    print(toml_lines)
     generate_dataset_and_notebook_from_toml_file(toml_lines, source_toml, name_test)
 
 

@@ -63,7 +63,7 @@ jobs:
       # --------
       - name: Test with pytest
         run: |
-          pytest
+          pytest -s
 
       - name: Additional steps for windows
         if: matrix.os == 'windows-latest'
