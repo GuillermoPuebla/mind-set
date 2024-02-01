@@ -93,7 +93,7 @@ name_dataset = os.path.basename(os.path.dirname(__file__))
 
 DEFAULTS.update(
     {
-        "num_samples": 5000,
+        "num_samples": 20,
         "moving_distance": 60,
         "shape_color": (255, 255, 255),
         "output_folder": f"data/{category_folder}/{name_dataset}",
@@ -102,7 +102,6 @@ DEFAULTS.update(
 
 
 def generate_all(
-    num_samples=DEFAULTS["num_samples"],
     moving_distance=DEFAULTS["moving_distance"],
     shape_color=DEFAULTS["shape_color"],
     output_folder=DEFAULTS["output_folder"],
@@ -126,14 +125,6 @@ def generate_all(
         }
         for shape_1_name, shape_2_name in combinations_familiar
     ]
-    if len(combinations_familiar) < num_samples:
-        print(
-            f"The number of target_image_pairs_num is too small, it has to be at least larger than the number of combinations of familiar shapes. We set it to {len(combinations_familiar) + 1}"
-        )
-        num_samples = len(combinations_familiar) + 1
-
-    if combinations_familiar:
-        combinations_familiar *= int(num_samples / len(combinations_familiar))
 
     combinations_unfamiliar = list(product(unfamiliar_shapes, unfamiliar_shapes))
     combinations_unfamiliar = [
@@ -143,13 +134,6 @@ def generate_all(
         }
         for shape_1_name, shape_2_name in combinations_unfamiliar
     ]
-    if len(combinations_unfamiliar) < num_samples:
-        print(
-            f"The number of target_image_pairs_num is too small, it has to be at least larger than the number of combinations of unfamiliar shapes. We set it to {len(combinations_unfamiliar) + 1}"
-        )
-        num_samples = len(combinations_unfamiliar) + 1
-    if combinations_unfamiliar:
-        combinations_unfamiliar *= int(num_samples / len(combinations_unfamiliar))
 
     shapes_types = {
         "familiar": combinations_familiar,
@@ -190,8 +174,11 @@ def generate_all(
                 "BackgroundColor",
                 "ShapeType",
                 "SplitType",
+                "LeftShape",
+                "RightShape",
                 "CutRotation",
-                "SampleId",
+                "PairShapeId",
+                "IterNum",
             ]
         )
         for name_comb, combs in tqdm(shapes_types.items()):
@@ -213,6 +200,8 @@ def generate_all(
                             ds.background,
                             name_comb,
                             split_type,
+                            c["shape_1_name"],
+                            c["shape_2_name"],
                             cut_rotation,
                             idx,
                         ]
@@ -228,13 +217,6 @@ if __name__ == "__main__":
     add_general_args(parser)
     parser.set_defaults(output_folder=DEFAULTS["output_folder"])
 
-    parser.add_argument(
-        "--num_samples",
-        "-ns",
-        default=DEFAULTS["num_samples"],
-        type=int,
-        help="Specify the value to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas",
-    )
     parser.add_argument(
         "--moving_distance",
         "-mv",

@@ -50,7 +50,7 @@ name_dataset = os.path.basename(os.path.dirname(__file__))
 
 DEFAULTS.update(
     {
-        "object_longest_side": 100,
+        "object_longest_side": 200,
         "input_folder": "assets/enns_rensink_1991/pngs",
         "output_folder": f"data/{category_folder}/{name_dataset}",
         "antialiasing": False,
@@ -97,13 +97,13 @@ def generate_all(
     image_files = jpg_files + png_files
     with open(output_folder / "annotation.csv", "w", newline="") as annfile:
         writer = csv.writer(annfile)
-        writer.writerow(["Path", "Class", "BackgroundColor", "IterNum"])
+        writer.writerow(["Path", "Class", "BackgroundColor", "Id", "IterNum"])
         for n, img_path in enumerate(tqdm(image_files)):
             class_name = img_path.parent.stem
             img = ds.get_linedrawings(img_path)
-            path = Path(class_name) / f"{n}.png"
+            path = Path(class_name) / f"{img_path.stem}.png"
             img.save(output_folder / path)
-            writer.writerow([path, class_name, ds.background, n])
+            writer.writerow([path, class_name, ds.background, img_path.stem, n])
     return str(output_folder)
 
 
