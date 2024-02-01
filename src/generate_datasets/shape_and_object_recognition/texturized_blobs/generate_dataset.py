@@ -116,9 +116,7 @@ class DrawPatternedCanvas(DrawStimuli):
 
         blob = Shapes(parent)
         blob.set_color((0, 0, 0, 255))
-
         blob.add_puddle(size=0.2, seed=blob_id)
-
         blob.register()
         self.create_canvas()  # dummy call to update the background for rnd-uniform mode
         parent.add_background((255, 255, 255))
@@ -307,7 +305,7 @@ if __name__ == "__main__":
         "--num_samples_per_blob",
         "-ns",
         default=DEFAULTS["num_samples_per_blob"],
-        help="The number of augmented samples to generate for each line drawings",
+        help="The number of augmented samples to generate for each blob",
         type=int,
     )
 

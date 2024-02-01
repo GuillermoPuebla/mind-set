@@ -259,12 +259,14 @@ if __name__ == "__main__":
         "--num_samples_scrambled",
         "-nscr",
         default=DEFAULTS["num_samples_scrambled"],
+        help="Number of samples for the scrambled configuration, in which the arrow caps and the lines are randomly placed in the canvas",
         type=int,
     )
     parser.add_argument(
         "--num_samples_illusory",
         "-nill",
         default=DEFAULTS["num_samples_illusory"],
+        help="Number of samples for the illusory configuration, with the standard Muller-Lyer illusion",
         type=int,
     )
     parser.set_defaults(antialiasing=False)

@@ -39,6 +39,7 @@ class DrawLinedrawings(DrawStimuli):
 
     def get_linedrawings(self, image_path, type):
         img = cv2.imread(str(image_path), cv2.IMREAD_GRAYSCALE)
+
         img = resize_image_keep_aspect_ratio(img, self.obj_longest_side)
         _, binary_img = cv2.threshold(img, 240, 255, cv2.THRESH_BINARY_INV)
         if self.convert_to_silhouettes:
@@ -121,7 +122,7 @@ name_dataset = os.path.basename(os.path.dirname(__file__))
 
 DEFAULTS.update(
     {
-        "object_longest_side": 100,
+        "object_longest_side": 200,
         "image_input_folder": "assets/baker_2018_linedrawings/cropped/",
         "output_folder": f"data/{category_folder}/{name_dataset}_from_linedrawings_baker_2018",
         "antialiasing": False,

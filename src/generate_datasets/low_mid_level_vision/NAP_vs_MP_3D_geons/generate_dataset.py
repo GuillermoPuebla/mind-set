@@ -34,7 +34,7 @@ category_folder = os.path.basename(os.path.dirname(os.path.dirname(__file__)))
 name_dataset = os.path.basename(os.path.dirname(__file__))
 DEFAULTS["output_folder"] = f"data/{category_folder}/{name_dataset}_standard"
 DEFAULTS["shape_folder"] = "assets/amir_geons/cropped/NAPvsMP"
-DEFAULTS["object_longest_side"] = 100
+DEFAULTS["object_longest_side"] = 200
 
 DEFAULTS_bis = DEFAULTS.copy()
 DEFAULTS_bis["output_folder"] = f"data/{category_folder}/{name_dataset}_no_shades"

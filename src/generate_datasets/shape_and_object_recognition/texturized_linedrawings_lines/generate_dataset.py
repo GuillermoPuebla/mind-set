@@ -223,6 +223,7 @@ if __name__ == "__main__":
         "-ns",
         type=int,
         default=DEFAULTS["num_samples"],
+        help="Number of different texturized sample for each image",
     )
     parser.add_argument(
         "--density",

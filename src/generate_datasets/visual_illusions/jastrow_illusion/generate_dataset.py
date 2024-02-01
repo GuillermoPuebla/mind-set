@@ -266,18 +266,21 @@ if __name__ == "__main__":
         "--num_samples_illusory",
         "-nis",
         default=DEFAULTS["num_samples_illusory"],
+        help="Number of samples for the illusory configuration, with the two objects aligned vertically and with the same size",
         type=int,
     )
     parser.add_argument(
         "--num_samples_aligned",
         "-nas",
         default=DEFAULTS["num_samples_aligned"],
+        help="Number of samples for a configuration in which the two objects are vertically aligned, but they don't have the same size",
         type=int,
     )
     parser.add_argument(
         "--num_samples_random",
         "-nrs",
         default=DEFAULTS["num_samples_random"],
+        help="Number of samples for condition in which the two objects are randomly placed in the canvas",
         type=int,
     )
     args = parser.parse_known_args()[0]

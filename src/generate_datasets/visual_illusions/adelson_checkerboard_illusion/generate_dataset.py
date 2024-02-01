@@ -14,7 +14,7 @@ from tqdm import tqdm
 import os
 import sty
 import pathlib
-from src.utils.drawing_utils import resize_and_paste, resize_image_keep_aspect_ratio
+from src.utils.drawing_utils import resize_and_paste
 
 from src.utils.misc import apply_antialiasing, delete_and_recreate_path
 import numpy as np

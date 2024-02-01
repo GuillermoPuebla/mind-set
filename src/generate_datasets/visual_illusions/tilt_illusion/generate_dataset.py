@@ -46,16 +46,19 @@ freq = 10
 
 class DrawTiltIllusion(DrawStimuli):
     def generate_illusion(
-        self, theta_test, radius, center_test, freq, theta_context=None
+        self, theta_center, radius, center_test, freq, theta_context=None
     ):
         if theta_context is not None:
             context = generate_grating(self.canvas_size, freq, theta_context)
             context = Image.fromarray(np.uint8(context * 255))
         else:
             context = self.create_canvas()
-        test = generate_grating(self.canvas_size, freq, theta_test)
-        test = Image.fromarray(np.uint8(test * 255))
-        mask = Image.new("L", test.size, 0)
+        if theta_center is not None:
+            center = generate_grating(self.canvas_size, freq, theta_center)
+            center = Image.fromarray(np.uint8(center * 255))
+        else:
+            center = self.create_canvas()
+        mask = Image.new("L", center.size, 0)
 
         draw = ImageDraw.Draw(mask)
         center_test = np.array(center_test) * self.canvas_size
@@ -69,7 +72,7 @@ class DrawTiltIllusion(DrawStimuli):
             fill=255,
         )
 
-        context.paste(test, mask=mask)
+        context.paste(center, mask=mask)
         return apply_antialiasing(context) if self.antialiasing else context
 
 
@@ -79,6 +82,7 @@ name_dataset = os.path.basename(os.path.dirname(__file__))
 DEFAULTS.update(
     {
         "num_samples_only_center": 1000,
+        "num_samples_only_context": 1000,
         "num_samples_center_context": 1000,
         "output_folder": f"data/{category_folder}/{name_dataset}",
     }
@@ -87,6 +91,7 @@ DEFAULTS.update(
 
 def generate_all(
     num_samples_only_center=DEFAULTS["num_samples_only_center"],
+    num_samples_only_context=DEFAULTS["num_samples_only_context"],
     num_samples_center_context=DEFAULTS["num_samples_center_context"],
     output_folder=DEFAULTS["output_folder"],
     canvas_size=DEFAULTS["canvas_size"],
@@ -120,7 +125,7 @@ def generate_all(
 
     [
         (output_folder / i).mkdir(exist_ok=True, parents=True)
-        for i in ["only_center", "center_context"]
+        for i in ["only_center", "only_context", "center_context"]
     ]
 
     ds = DrawTiltIllusion(
@@ -150,6 +155,16 @@ def generate_all(
             img.save(str(output_folder / path))
             writer.writerow(
                 [path, "only_center", ds.background, theta_center, radius, freq, "", i]
+            )
+        for i in tqdm(range(num_samples_only_context)):
+            unique_hex = uuid.uuid4().hex[:8]
+
+            theta_context, radius, _, freq = get_random_values()
+            path = Path("only_context") / f"{-theta_center:.3f}_0_{unique_hex}.png"
+            img = ds.generate_illusion(None, radius, (0.5, 0.5), freq, theta_context)
+            img.save(str(output_folder / path))
+            writer.writerow(
+                [path, "only_context", ds.background, 0, radius, freq, theta_context, i]
             )
 
         all_thetas = np.linspace(-np.pi / 2, np.pi / 2, num_samples_center_context)
@@ -185,15 +200,22 @@ if __name__ == "__main__":
     parser.add_argument(
         "--num_samples_only_center",
         "-ncenter",
-        help="Number of samples with only the center gabor patch",
+        help="Number of samples with only the center grating",
         default=DEFAULTS["num_samples_only_center"],
         type=int,
     )
     parser.add_argument(
-        "--num_samples_center_context",
+        "--num_samples_only_context",
         "-ncontext",
+        help="Number of samples with only the context grating",
+        default=DEFAULTS["num_samples_only_context"],
+        type=int,
+    )
+    parser.add_argument(
+        "--num_samples_center_context",
+        "-nboth",
         default=DEFAULTS["num_samples_center_context"],
-        help="Number of samples for center and context gabor patches",
+        help="Number of samples for center and context grating",
         type=int,
     )
     args = parser.parse_known_args()[0]

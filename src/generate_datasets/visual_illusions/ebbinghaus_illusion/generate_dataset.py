@@ -27,12 +27,15 @@ category_folder = os.path.basename(os.path.dirname(os.path.dirname(__file__)))
 name_dataset = os.path.basename(os.path.dirname(__file__))
 
 
-DEFAULTS["num_samples"] = 5000
+DEFAULTS["num_samples_scrambled"] = 5000
+DEFAULTS["num_samples_illusory"] = 50
+
 DEFAULTS["output_folder"] = f"data/{category_folder}/{name_dataset}"
 
 
 def generate_all(
-    num_samples=DEFAULTS["num_samples"],
+    num_samples_illusory=DEFAULTS["num_samples_illusory"],
+    num_samples_scrambled=DEFAULTS["num_samples_scrambled"],
     output_folder=DEFAULTS["output_folder"],
     canvas_size=DEFAULTS["canvas_size"],
     background_color=DEFAULTS["background_color"],
@@ -73,25 +76,25 @@ def generate_all(
                 "Shift",
             ]
         )
-        for i in tqdm(range(num_samples)):
-            r_c = np.random.uniform(0.05, 0.2)
+        for i in tqdm(range(num_samples_scrambled)):
+            r_c = np.random.uniform(0.1, 0.4)
             img = ds.create_random_ebbinghaus(
                 r_c=r_c,
                 n=5,
-                flankers_size_range=(0.05, 0.18),
+                flankers_size_range=(0.04, 0.3),
                 colour_center_circle=(255, 0, 0),
             )
             path = pathlib.Path("scrambled_circles") / f"{r_c:.5f}_{i}.png"
             img.save(output_folder / path)
             writer.writerow([path, "scrambled_circles", r_c, "", 5, ds.background, ""])
-
+        for i in tqdm(range(num_samples_illusory)):
             number_flankers = 5
-            r_c = np.random.uniform(0.08, 0.1)
-            r2 = np.random.uniform(0.12, 0.15)
+            r_c = np.random.uniform(0.1, 0.4)
+            r2 = np.random.uniform(0.24, 0.3)
             shift = np.random.uniform(0, np.pi)
             img = ds.create_ebbinghaus(
                 r_c=r_c,
-                d=0.02 + (r_c + r2),
+                d=0.02 + (r_c + r2) / 2,
                 r2=r2,
                 n=number_flankers,
                 shift=shift,
@@ -104,12 +107,12 @@ def generate_all(
             )
 
             number_flankers = 8
-            r_c = np.random.uniform(0.08, 0.1)
-            r2 = np.random.uniform(0.02, 0.08)
+            r_c = np.random.uniform(0.1, 0.4)
+            r2 = np.random.uniform(0.04, 0.15)
             shift = np.random.uniform(0, np.pi)
             img = ds.create_ebbinghaus(
                 r_c=r_c,
-                d=0.02 + (r_c + r2),
+                d=0.02 + (r_c + r2) / 2,
                 r2=r2,
                 n=number_flankers,
                 shift=shift,
@@ -130,11 +133,19 @@ if __name__ == "__main__":
     parser.set_defaults(output_folder=DEFAULTS["output_folder"])
 
     parser.add_argument(
-        "--num_samples",
-        "-ns",
+        "--num_samples_scrambled",
+        "-nss",
         type=int,
-        default=DEFAULTS["num_samples"],
-        help="Each `sample` corresponds to an entire set of pair of shape_based_image_generation, for each condition.",
+        default=DEFAULTS["num_samples_scrambled"],
+        help="How many samples to generated for the scrambled up conditions",
+    )
+
+    parser.add_argument(
+        "--num_samples_illusory",
+        "-nsi",
+        type=int,
+        default=DEFAULTS["num_samples_illusory"],
+        help="How many samples to generated for the illusory conditions (small and big flankers)",
     )
     args = parser.parse_known_args()[0]
     generate_all(**args.__dict__)

@@ -35,7 +35,7 @@ DEFAULTS.update(
     {
         "ETH_80_folder": "assets/ETH_80",
         "output_folder": f"data/{category_folder}/{name_dataset}",
-        "object_longest_side": 100,
+        "object_longest_side": 200,
         "azimuth_lim": [0, 365],
         "inclination_lim": [30, 90],
     }
@@ -43,12 +43,15 @@ DEFAULTS.update(
 
 
 class DrawETH(DrawStimuli):
-    def __init__(self, obj_longest_side, *args, **kwargs):
+    def __init__(self, obj_longest_side, map_path, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.obj_longest_side = obj_longest_side
+        self.map_path = map_path
 
     def create_ETH(self, img_path):
-        map_path = f"{os.path.dirname(img_path)}/maps/{Path(img_path).stem}-map.png"
+        path_parts = img_path.split(os.sep)
+        desired_path = os.path.join(*path_parts[-3:]).rstrip(".png")
+        map_path = f"{self.map_path}/{desired_path}-map.png"
 
         map_pil = Image.open(map_path).convert("L")
 
@@ -111,13 +114,14 @@ def generate_all(
         canvas_size=canvas_size,
         antialiasing=antialiasing,
         obj_longest_side=object_longest_side,
+        map_path=ETH_80_folder + "/maps/",
     )
     with open(output_folder / "annotation.csv", "w", newline="") as annfile:
         writer = csv.writer(annfile)
         writer.writerow(
             ["Path", "Class", "ObjectID", "Azimuth", "Inclination", "BackgroundColor"]
         )
-        all_images = glob.glob(ETH_80_folder + "/*/*/*.png", recursive=True)
+        all_images = glob.glob(ETH_80_folder + "/images/*/*/*.png", recursive=True)
         for img_path in tqdm(all_images):
             class_num = Path(img_path).parts[2]
             object_id = int(Path(img_path).parts[3])

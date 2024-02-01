@@ -199,7 +199,7 @@ DEFAULTS.update(
         "num_samples_scrambled": 5000,
         "num_samples_illusory": 500,
         "num_rail_lines": 5,
-        "train_with_rnd_col_lines": False,
+        "rnd_target_lines": False,
         "output_folder": f"data/{category_folder}/{name_dataset}",
     }
 )
@@ -209,7 +209,7 @@ def generate_all(
     num_samples_scrambled=DEFAULTS["num_samples_scrambled"],
     num_samples_illusory=DEFAULTS["num_samples_illusory"],
     num_rail_lines=DEFAULTS["num_rail_lines"],
-    train_with_rnd_col_lines=DEFAULTS["train_with_rnd_col_lines"],
+    rnd_target_lines=DEFAULTS["rnd_target_lines"],
     output_folder=DEFAULTS["output_folder"],
     canvas_size=DEFAULTS["canvas_size"],
     background_color=DEFAULTS["background_color"],
@@ -257,7 +257,7 @@ def generate_all(
         )
         for i in tqdm(range(num_samples_scrambled)):
             img, label, norm_label = ds.generate_rnd_lines_images(
-                colored_line_always_horizontal=not train_with_rnd_col_lines,
+                colored_line_always_horizontal=not rnd_target_lines,
                 antialias=antialiasing,
             )
             path = Path("scrambled_lines") / f"{norm_label:.3f}_{i}.png"
@@ -306,12 +306,14 @@ if __name__ == "__main__":
         "--num_samples_scrambled",
         "-nscr",
         default=DEFAULTS["num_samples_scrambled"],
+        help="Number of samples for the scrambled configuration, in which every line is randomly placed in the canvas. The target red and blue lines can be aligned vertically or be also placed randomly depending on the --rnd_target_lines argument",
         type=int,
     )
     parser.add_argument(
         "--num_samples_illusory",
         "-nill",
         default=DEFAULTS["num_samples_illusory"],
+        help="Number of samples for the illusory configuration, with the two target lines having the same length",
         type=int,
     )
 
@@ -319,14 +321,14 @@ if __name__ == "__main__":
         "--num_rail_lines",
         "-nrl",
         default=DEFAULTS["num_rail_lines"],
-        help="This refers to the number of horizontal lines (excluding the red and blue lines) in the proper illusion shape_based_image_generation. During training, we generate dataset matching the total number of lines, so that this parameter will affect both test and train shape_based_image_generation. Notice that, since in the minimal illusion, two oblique lines are always present, similarly in the train shape_based_image_generation there are always two lines, to which we add a number of lines specified by this parameter",
+        help="This refers to the number of horizontal lines (excluding the target ed and blue lines) in the proper illusion shape_based_image_generation. During training, we generate dataset matching the total number of lines, so that this parameter will affect both test and train shape_based_image_generation. Notice that, since in the minimal illusion, two oblique lines are always present, similarly in the train shape_based_image_generation there are always two lines, to which we add a number of lines specified by this parameter",
         type=int,
     )
 
     parser.add_argument(
-        "--train_with_rnd_col_lines",
+        "--rnd_target_lines",
         "-trc",
-        help="Specify whether the red and blue lines in  training dataset should be randomly placed, or should be horizontal like in the testing (illusion) condition",
+        help="Specify whether the target red and blue lines in  scrambled configuration should be randomly placed, or should be horizontal like in the testing (illusion) condition",
         action="store_true",
         default=False,
     )

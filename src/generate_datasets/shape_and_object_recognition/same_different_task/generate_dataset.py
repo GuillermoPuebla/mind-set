@@ -494,6 +494,7 @@ if __name__ == "__main__":
         "--num_samples",
         "-nis",
         default=DEFAULTS["num_samples"],
+        help="Number of generated samples for each type of dataset and each same/different condition",
         type=int,
     )
 
@@ -508,6 +509,7 @@ if __name__ == "__main__":
         "--type_dataset",
         "-nas",
         default=DEFAULTS["type_dataset"],
+        help="Specify the type of datasets. It could be `all` or any of `regular`, `irregular`, `open`, `wider_line`, `rnd_color`, `filled`, `open_squares`, `rectangles`, `straight_liens`, `closed_squares`",
     )
     args = parser.parse_known_args()[0]
     generate_all(**args.__dict__)

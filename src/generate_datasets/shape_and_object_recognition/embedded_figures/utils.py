@@ -86,7 +86,6 @@ class DrawEmbeddedFigures(DrawStimuli):
         extend_lines=False,
         num_shift_lines=5,
         num_rnd_lines=0,
-        debug=False,
     ):
         original_canvas_size = self.canvas_size
         self.canvas_size = tuple(np.array(self.canvas_size))
@@ -124,9 +123,5 @@ class DrawEmbeddedFigures(DrawStimuli):
                 x2, y2 = width, random.random() * height
             draw.line((x1, y1, x2, y2), **self.line_args)
 
-        if debug:
-            for i in range(len(points) - 1):
-                line = points[i] + points[i + 1]
-                draw.line(line, fill="red", width=self.line_args["width"])
         self.canvas_size = original_canvas_size
         return apply_antialiasing(canvas) if self.antialiasing else canvas

@@ -83,7 +83,6 @@ DEFAULTS.update(
     {
         "num_samples": 5000,
         "shape_size": 45,
-        "debug_mode": False,
         "output_folder": f"data/{category_folder}/{name_dataset}",
     }
 )
@@ -92,7 +91,6 @@ DEFAULTS.update(
 def generate_all(
     num_samples=DEFAULTS["num_samples"],
     shape_size=DEFAULTS["shape_size"],
-    debug_mode=DEFAULTS["debug_mode"],
     output_folder=DEFAULTS["output_folder"],
     canvas_size=DEFAULTS["canvas_size"],
     background_color=DEFAULTS["background_color"],
@@ -137,7 +135,6 @@ def generate_all(
                             extend_lines=False,
                             num_shift_lines=0,
                             num_rnd_lines=0,
-                            debug=debug_mode,
                         )
 
                     else:
@@ -146,7 +143,6 @@ def generate_all(
                             extend_lines=True,
                             num_shift_lines=10,
                             num_rnd_lines=10,
-                            debug=debug_mode,
                         )
                     unique_hex = uuid.uuid4().hex[:8]
                     img_path = pathlib.Path(cond) / shape_name / f"{unique_hex}.png"
@@ -162,8 +158,6 @@ if __name__ == "__main__":
 
     add_general_args(parser)
     parser.set_defaults(output_folder=DEFAULTS["output_folder"])
-
-    parser.add_argument("--debug_mode", "-debug", action="store_true")
 
     parser.add_argument(
         "--num_samples",
