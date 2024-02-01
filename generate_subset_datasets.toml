@@ -1,23 +1,15 @@
-["shape_and_object_recognition/texturized_linedrawings_chars"]
+["visual_illusions/ebbinghaus_illusion"]
 # The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
 canvas_size = [ 224, 224,]
-# Specify the background color. Could be a list of RGB values, or [random] for a randomly pixellated background, or [rnd-uniform] for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
+# Specify the background color. Could be a list of RGB values, or `rnd-uniform` for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
 background_color = [ 0, 0, 0,]
-antialiasing = false
+# Specify whether we want to enable antialiasing
+antialiasing = true
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
-# A folder containing linedrawings. We assume these to be black strokes-on-white canvas simple contour drawings.
-linedrawing_input_folder = "assets/baker_2018_linedrawings/cropped/"
-# The number of augmented samples to generate for each line drawings
-num_samples = 5
-# Specify the value to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
-object_longest_side = 200
-# The character to be used as background. Use `random` to use a random character for each sample
-background_char = " "
-# The character to be used as foreground. Write `random` to use a different character for each image
-foreground_char = "random"
-# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
-output_folder = "data/shape_and_object_recognition/texturized_linedrawings_chars"
-# If a number, it defines the size of the font for all images. It can be a string in the form A_B, in which case the size will be drawn from a uniform(A, B) distribution for each image
-font_size = [ 15, 20,]
-file = "src/generate_datasets/shape_and_object_recognition/texturized_linedrawings_chars/generate_dataset.py"
+# Each `sample` corresponds to an entire set of pair of shape_based_image_generation, for each condition.
+num_samples_illusory = 500
+num_samples_scrambled = 1 # 100000
+
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
+output_folder = "data/visual_illusions/ebbinghaus_illusion"

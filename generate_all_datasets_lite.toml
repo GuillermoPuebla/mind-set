@@ -8,9 +8,9 @@ antialiasing = true
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
 # Number of samples for the scrambled configuration, in which the arrow caps and the lines are randomly placed in the canvas
-num_samples_scrambled = 5000
+num_samples_scrambled = 50
 # Number of samples for the illusory configuration, with the standard Muller-Lyer illusion
-num_samples_illusory = 500
+num_samples_illusory = 50
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
 output_folder = "data/visual_illusions/muller_lyer_illusion"
 
@@ -24,11 +24,11 @@ antialiasing = true
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
 # Number of samples for the illusory configuration, with the two objects aligned vertically and with the same size
-num_samples_illusory = 500
+num_samples_illusory = 50
 # Number of samples for condition in which the two objects are randomly placed in the canvas
-num_samples_random = 5000
+num_samples_random = 50
 # Number of samples for a configuration in which the two objects are vertically aligned, but they don't have the same size
-num_samples_aligned = 1000
+num_samples_aligned = 50
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
 output_folder = "data/visual_illusions/jastrow_illusion"
 
@@ -42,7 +42,7 @@ antialiasing = true
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
 # Each `sample` corresponds to an entire set of pair of shape_based_image_generation, for each condition.
-num_samples = 5000
+num_samples = 50
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
 output_folder = "data/visual_illusions/ebbinghaus_illusion"
 
@@ -92,9 +92,9 @@ antialiasing = true
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
 # Number of samples for the scrambled configuration, in which every line is randomly placed in the canvas. The target red and blue lines can be aligned vertically or be also placed randomly depending on the --rnd_target_lines argument
-num_samples_scrambled = 5000
+num_samples_scrambled = 50
 # Number of samples for the illusory configuration, with the two target lines having the same length
-num_samples_illusory = 500
+num_samples_illusory = 50
 # This refers to the number of horizontal lines (excluding the target ed and blue lines) in the proper illusion shape_based_image_generation. During training, we generate dataset matching the total number of lines, so that this parameter will affect both test and train shape_based_image_generation. Notice that, since in the minimal illusion, two oblique lines are always present, similarly in the train shape_based_image_generation there are always two lines, to which we add a number of lines specified by this parameter
 num_rail_lines = 5
 # Specify whether the target red and blue lines in scrambled configuration should be randomly placed, or should be horizontal like in the testing (illusion) condition
@@ -128,9 +128,9 @@ antialiasing = true
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
 # Number of samples with only the center gabor patch
-num_samples_only_center = 1000
+num_samples_only_center = 50
 # Number of samples for center and context gabor patches
-num_samples_center_context = 1000
+num_samples_center_context = 50
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
 output_folder = "data/visual_illusions/tilt_illusion"
 
@@ -308,7 +308,7 @@ antialiasing = true
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
 # The number of samples to generate for each (embedded) polygons
-num_samples = 5000
+num_samples = 50
 # The shape of the embedded size (in pixels)
 shape_size = 45
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
@@ -342,7 +342,7 @@ behaviour_if_present = "overwrite"
 # A folder containing linedrawings. We assume these to be black strokes-on-white canvas simple contour drawings.
 linedrawing_input_folder = "assets/baker_2018_linedrawings/cropped/"
 # Number of different texturized sample for each image
-num_samples = 500
+num_samples = 50
 # Specify the value to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
 object_longest_side = 200
 # The desity of the pattern. The horizontal and vertical spacing are equal to line_length/density
@@ -372,7 +372,7 @@ scale = [ 0.5, 0.9,]
 # Rotation range in degree. From commandline, use MIN_MAX
 rotation = [ 0, 360,]
 # Number of transformation for each object
-num_samples = 5
+num_samples = 50
 
 ["shape_and_object_recognition/same_different_task"]
 # The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
@@ -384,7 +384,7 @@ antialiasing = true
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
 # Number of generated samples for each type of dataset and each same/different condition
-num_samples = 5000
+num_samples = 50
 # Specify the type of datasets. It could be `all` or any of `regular`, `irregular`, `open`, `wider_line`, `rnd_color`, `filled`, `open_squares`, `rectangles`, `straight_liens`, `closed_squares`
 type_dataset = "all"
 # either a number (both shapes the same, specific size), or rnd1 (different random sizes across samples, but same size within samples), rnd2 (different random sizes within samples and across samples). Different sizes for each shape are only applied when it makes sense for the task.
@@ -402,7 +402,7 @@ antialiasing = false
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
 # The number of augmented samples to generate for each line drawings
-num_samples_per_blob = 5
+num_samples_per_blob = 50
 num_blobs = 10
 # Specify the value to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
 object_longest_side = 200
@@ -427,7 +427,7 @@ behaviour_if_present = "overwrite"
 # A folder containing linedrawings. We assume these to be black strokes-on-white canvas simple contour drawings.
 linedrawing_input_folder = "assets/baker_2018_linedrawings/cropped/"
 # The number of augmented samples to generate for each line drawings
-num_samples = 500
+num_samples = 50
 # Specify the value to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
 object_longest_side = 200
 # The character to be used as background. Use `random` to use a random character for each sample
@@ -449,7 +449,7 @@ antialiasing = true
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
 # Each `sample` corresponds to an entire set of pair of shape_based_image_generation, for each condition.
-num_samples = 500
+num_samples = 50
 # The color of the circle object. If called from command line, the RGB value must be a string in the form R_G_B, e.g. 255_0_125. Write `random` to have a random color.
 circle_color = [ 255, 255, 255,]
 # The color of the square object. If called from command line, the RGB value must be a string in the form R_G_B, e.g. 255_0_125. Write `random` to have a random color.
@@ -520,7 +520,7 @@ background_color = [ 0, 0, 0,]
 antialiasing = true
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
-num_samples = 20
+num_samples = 50
 # Specify by how much each image is separated (same values for the whole dataset)
 moving_distance = 60
 # Specify the color of the shapes (same across the whole dataset). Specify in R_G_B format, e.g. 255_0_0 for red
@@ -570,9 +570,9 @@ antialiasing = false
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
 # The number of samples for each vernier type (left/right orientation) and condition. The vernier is places inside a flanker.
-num_samples_vernier_inside = 5000
+num_samples_vernier_inside = 50
 # The number of samples for each vernier type (left/right orientation) and condition. The vernier is placed outside of the flankers
-num_samples_vernier_outside = 5000
+num_samples_vernier_outside = 50
 # across samples
 random_size = true
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
@@ -588,7 +588,7 @@ antialiasing = true
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
 # Each `sample` corresponds to an entire set of pair of shape_based_image_generation, for each condition.
-num_samples = 1000
+num_samples = 50
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
 output_folder = "data/low_mid_level_vision/emergent_features"
 
@@ -618,7 +618,7 @@ antialiasing = true
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
 # The number of samples to generate for each length and brightness condition. This will vary the width, if width is [rnd]. If width is a specific value, num_samples_per_condition will be set to 1
-num_samples_per_condition = 10
+num_samples_per_condition = 50
 # The maximum line length (in pixels) to use
 max_line_length = 50
 # The minimum line length (in pixels) to use

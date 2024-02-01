@@ -2,7 +2,7 @@
 Script for regression test / revisit doc string later
 """
 from src.utils.generate_default_pars_toml_file import create_config
-from src.generate_datasets_from_toml import generate_datasets_from_toml
+from src.generate_datasets_from_toml import generate_datasets_from_toml_file
 from pathlib import Path
 import toml
 import inspect
@@ -141,7 +141,7 @@ def generate_dataset_and_notebook_from_toml_file(toml_lines, source_toml, name_t
     if Path(save_path).exists():
         shutil.rmtree(save_path)
 
-    generate_datasets_from_toml(name_toml_file)
+    generate_datasets_from_toml_file(name_toml_file)
     dataset_structure = defaultdict(dict)
     build_dataset_structure(save_path / "data", dataset_structure)
     generate_notebook(dataset_structure, save_path / "notebook.ipynb")
