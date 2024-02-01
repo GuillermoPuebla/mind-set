@@ -24,5 +24,3 @@ if not pathlib.Path(dataset_folder).exists():
 with open(os.path.dirname(__file__) + "/embedded_figures_train.toml", "r") as f:
     toml_config = toml.load(f)
 decoder_train(**toml_config)
-
-##

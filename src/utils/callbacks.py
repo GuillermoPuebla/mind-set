@@ -628,7 +628,6 @@ class DuringTrainingTest(Callback):
         multiple_sec_of_test_time=None,
         auto_increase=False,
         log_text="",
-        use_cuda=None,
         call_run=None,
         callbacks=None,
         compute_conf_mat=True,
@@ -640,7 +639,6 @@ class DuringTrainingTest(Callback):
         self.callbacks = [] if callbacks is None else callbacks
         self.testing_loader = testing_loaders
         self.compute_conf_mat = compute_conf_mat
-        self.use_cuda = use_cuda
         self.logs_prefix = logs_prefix
         self.every_x_epochs = every_x_epochs
         self.auto_increase = auto_increase  # this is also used as a multiplier.

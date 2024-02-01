@@ -196,7 +196,7 @@ def resize_image_keep_aspect_ratio(
         new_height = int(new_width / aspect_ratio)
 
     resized_img = cv2.resize(
-        opencv_img, (new_width, new_height), interpolation=cv2.INTER_AREA
+        opencv_img, (new_width, new_height), interpolation=cv2.INTER_LINEAR
     )
     return resized_img
 

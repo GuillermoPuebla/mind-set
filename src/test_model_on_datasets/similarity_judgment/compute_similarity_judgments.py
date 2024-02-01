@@ -1,8 +1,10 @@
 import argparse
 import glob
+import os
 import pathlib
 import toml
 import inspect
+from src.utils.similarity_judgment.generate_report import generate_report
 
 from src.utils.similarity_judgment.run import compute_distance
 
@@ -18,6 +20,11 @@ def run_similarity_judgment(toml_file):
         with open(toml_f, "r") as f:
             toml_config = toml.load(f)
         compute_distance(**toml_config)
+        generate_report(
+            os.path.join(
+                toml_config["saving_folders"]["results_folder"], "dataframe.csv"
+            )
+        )
 
 
 if __name__ == "__main__":

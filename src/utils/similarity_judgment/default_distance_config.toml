@@ -5,14 +5,17 @@ annotation_file_path = ""
 factor_variable = ""
 reference_level = ""
 
+## Select what columns you want to add to the final table, from the annotation.csv file. Two columns will be created for each factor specified, one for each image in the similarity pair. 
+add_columns = []
 # The comparison outlined above, utilizing the two configuration variables, can be further refined through the config parameter `match_factors`. Suppose we aim to compare images where `ObjectSize`= "Medium" against "Large" and "Small" images. But image we have another factor, called "Shape" (e.g. with levels "Square" and "Triangle"). We wish to make the "ObjectSize" comparisons on the condition that objects share the same "Shape" level.
 # That is, we want to make sure to compare LargeObject_Circle.png with MediumObject_Circle.png, and LargeObject_Square.png with MediumObject_Square.png. To do that, specify the factors that needs to match across comparison. E.g. match_factors = ["Shape"]. You can specify multiple match_factors.
-match_factors = ""
+match_factors = []
+
+# Only compare pairs in which the following factors DO NOT match. For example, you want to only compare images with different shapes, then non_match_factors = ["Shape"]
+non_match_factors = []
 
 # Put here any filter you want to apply to the annotation file. For example, if you only want to consider those images for which the "Type" column is equal to "random" and the "ObjectNum" is equal to 23, write
-# [filter_factor_level]
-# Type = "random"
-# ObjectNum = 23
+# filter_factor_level = {Type = "random", ObjectNum = 23}
 filter_factor_level = {}
 
 

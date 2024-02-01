@@ -87,7 +87,6 @@ def decoder_train(
     )
     pretty_print_dict(toml_config, name="PARAMETERS")
 
-    use_cuda = torch.cuda.is_available()
     set_global_device(toml_config["gpu_idx"])
 
     train_loader = get_dataloader(
@@ -121,7 +120,7 @@ def decoder_train(
     net, _, _ = GrabNet.get_net(
         toml_config["network"]["architecture_name"],
         imagenet_pt=True if toml_config["network"]["imagenet_pretrained"] else False,
-        num_classes=toml_config["network"]["decoder_outputs"]
+        num_classes=len(train_loader.dataset.label_cols)
         if toml_config["task_type"] == "regression"
         else len(train_loader.dataset.classes),
     )
@@ -155,8 +154,6 @@ def decoder_train(
         param.requires_grad = True
 
     net = to_global_device(net)
-
-    cudnn.benchmark = False if use_cuda else False
 
     net.train()
 
@@ -232,12 +229,13 @@ def decoder_train(
             mode="max",
             patience=1,
             value_to_reach=toml_config["training"]["stopping_conditions"][
-                "stop_at_epoch"
-            ],
+                "stop_after_n_epochs"
+            ]
+            - 1,
             check_after_batch=False,
             metric_name="epoch",
             action=stop,
-            action_name=f"{toml_config['training']['stopping_conditions']['stop_at_epoch']} epochs",
+            action_name=f"{toml_config['training']['stopping_conditions']['stop_after_n_epochs']} epochs",
         ),
         *[
             DuringTrainingTest(
@@ -247,7 +245,6 @@ def decoder_train(
                 auto_increase=False,
                 weblogger=weblogger,
                 log_text="test during train TRAINmode",
-                use_cuda=use_cuda,
                 logs_prefix=f"{tl.dataset.name}/",
                 call_run=partial(call_run, method=toml_config["task_type"]),
                 plot_samples_corr_incorr=False,
@@ -343,7 +340,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--toml_config_path",
-        "-toml",
+        "-tomlf",
         default=f"{os.path.dirname(__file__)}/default_decoder_config.toml",
     )
     args = parser.parse_known_args()[0]

@@ -30,7 +30,6 @@ def decoder_evaluate(
         {i: local_vars[i] for i in inspect.getfullargspec(decoder_evaluate)[0]},
     )
     pretty_print_dict(toml_config, name="PARAMETERS")
-    use_cuda = torch.cuda.is_available()
     set_global_device(toml_config["gpu_idx"])
 
     test_loaders = [
@@ -76,8 +75,6 @@ def decoder_evaluate(
     )
     net.eval()
 
-    cudnn.benchmark = True if use_cuda else False
-
     net = to_global_device(net)
     results_folder = pathlib.Path(toml_config["saving_folders"]["results_folder"])
     num_decoders = len(net.decoders)
@@ -99,13 +96,6 @@ def decoder_evaluate(
             labels = to_global_device(labels)
             out_dec = net(images)
             for i in range(len(labels)):
-                # if task_type == "classification":
-                #     prediction = torch.argmax(out_dec[decoder_idx][i]).item()
-                # else:
-                #     try:
-                #         prediction = out_dec[decoder_idx][i].item()
-                #     except IndexError:
-                #         prediction = [o.item() for o in out_dec][decoder_idx]
                 results_final.append(
                     {
                         "image_path": path[i],
@@ -138,7 +128,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
-    parser.add_argument("--toml_config_path", "-toml")
+    parser.add_argument("--toml_config_path", "-tomlf")
     args = parser.parse_known_args()[0]
     with open(args.toml_config_path, "r") as f:
         toml_config = toml.load(f)

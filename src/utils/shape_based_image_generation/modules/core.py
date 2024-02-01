@@ -377,6 +377,8 @@ class ShapeCoreFunctions:
                 colors.to_rgba(color, alpha=1) if isinstance(color, str) else self.color
             )
             self.color = tuple([int(i * 255) for i in self.color])
+        else:
+            self.color = color if color is not None else self.color
         canvas_array = np.asarray(self.canvas)
 
         mask = canvas_array[..., 3] > 0

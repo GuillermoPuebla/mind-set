@@ -148,15 +148,15 @@ class GrabNet:
         pass
 
 
+from src.utils.device_utils import GLOBAL_DEVICE
+
+
 def load_pretraining(
     net=None,
     optimizers=None,
     net_state_dict_path=None,
     optimizers_path=None,
-    use_cuda=None,
 ):
-    if use_cuda is None:
-        use_cuda = torch.cuda.is_available()
     if optimizers_path:
         print(
             fg.red
@@ -166,7 +166,7 @@ def load_pretraining(
         )
         opts_state = torch.load(
             optimizers_path,
-            map_location=torch.device("cuda") if use_cuda else torch.device("cpu"),
+            map_location=GLOBAL_DEVICE,
         )
         [opt.load_state_dict(lopt) for opt, lopt in zip(optimizers, opts_state)]
         print(fg.red + " Done." + rs.fg)
@@ -179,7 +179,7 @@ def load_pretraining(
         net.load_state_dict(
             torch.load(
                 net_state_dict_path,
-                map_location=torch.device("cuda") if use_cuda else torch.device("cpu"),
+                map_location=GLOBAL_DEVICE,
             )
         )
         print(fg.red + " Done." + rs.fg)
@@ -329,7 +329,6 @@ class CumulativeAverage(Logs):
 
 def run(
     data_loader,
-    use_cuda,
     net,
     callbacks: List[Callback] = None,
     optimizer=None,
@@ -364,9 +363,7 @@ def run(
         logs[f"{logs_prefix}epoch"] = epoch
         for batch_index, data in enumerate(data_loader, 0):
             callbacks.on_batch_begin(batch_index, logs)
-            iteration_step(
-                data, net, loss_fn, optimizer, use_cuda, logs, logs_prefix, **kwargs
-            )
+            iteration_step(data, net, loss_fn, optimizer, logs, logs_prefix, **kwargs)
             logs.update({"stop": False})
             logs[f"{logs_prefix}tot_iter"] += 1
 
@@ -442,6 +439,14 @@ def make_layer(block, in_channel, out_channel, num_blocks, stride):
     for _ in np.arange(num_blocks - 1):
         layers.append(block(channels1=out_channel, channels2=out_channel))
     return nn.Sequential(*layers)
+
+
+def replace_layer(model, old_layer, new_layer):
+    for name, module in model.named_children():
+        if isinstance(module, old_layer):
+            setattr(model, name, new_layer())
+        elif len(list(module.children())) > 0:
+            replace_layer(module, old_layer, new_layer)
 
 
 class ResNet152decoders(nn.Module):

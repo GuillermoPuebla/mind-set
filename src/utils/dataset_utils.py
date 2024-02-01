@@ -183,7 +183,10 @@ def compute_mean_and_std_from_dataset(
 
 def fix_dataset(dataset, transf_values, fill_color, name_ds=""):
     dataset.name = name_ds
-    dataset.stats = {"mean": [0.491, 0.482, 0.44], "std": [0.247, 0.243, 0.262]}
+    dataset.stats = {
+        "mean": [0.485, 0.456, 0.406],
+        "std": [0.229, 0.224, 0.225],
+    }  # ImageNet Normalization Values
     add_resize = False
     if next(iter(dataset))[0].size[0] != 244:
         add_resize = True
@@ -191,11 +194,18 @@ def fix_dataset(dataset, transf_values, fill_color, name_ds=""):
     dataset.transform = torchvision.transforms.Compose(
         [
             AffineTransform(
-                transf_values["translation"]
-                if transf_values["translation"]
+                transf_values["translation_X"]
+                if not transf_values["translation_X"] is False
                 else (0, 0),
-                transf_values["rotation"] if transf_values["rotation"] else (0, 0),
-                transf_values["scale"] if transf_values["scale"] else (1, 1),
+                transf_values["translation_Y"]
+                if not transf_values["translation_Y"] is False
+                else (0, 0),
+                transf_values["rotation"]
+                if not transf_values["rotation"] is False
+                else (0, 0),
+                transf_values["scale"]
+                if not transf_values["scale"] is False
+                else (1, 1),
                 fill_color=fill_color,
             ),
             torchvision.transforms.ToTensor(),
@@ -210,10 +220,13 @@ def fix_dataset(dataset, transf_values, fill_color, name_ds=""):
 
 
 def get_dataloader(
-    toml_config, task_type, ds_config, transf_config, batch_size, return_path=False
+    task_type,
+    ds_config,
+    transf_config,
+    batch_size,
+    return_path=False,
 ):
     ds = ImageDatasetAnnotations(
-        toml_config=toml_config,
         task_type=task_type,
         csv_file=ds_config["annotation_file"],
         img_path_col=ds_config["img_path_col_name"],
@@ -263,6 +276,9 @@ class ImageNetClasses:
     def add_to_annotation_file_path(
         self, annotation_file_path, name_cols_imagenet, annotation_output_path=None
     ):
+        """
+        This function adds a column to the annotation file, with the ImageNet class index.
+        """
         annotation_output_path = (
             annotation_file_path
             if annotation_output_path is None
@@ -275,7 +291,6 @@ class ImageNetClasses:
                 self.label2idx[class_name] if class_name in self.label2idx else "none"
             )
 
-        #
         df["ImageNetClassIdx"] = df[name_cols_imagenet].apply(fun)
         df.to_csv(annotation_output_path)
         print(
@@ -286,7 +301,6 @@ class ImageNetClasses:
 class ImageDatasetAnnotations(Dataset):
     def __init__(
         self,
-        toml_config: dict,
         task_type: str,
         csv_file: str,
         img_path_col: str,
@@ -321,23 +335,6 @@ class ImageDatasetAnnotations(Dataset):
         self.transform = transform
         self.dataframe = self.dataframe.reset_index(drop=True)
 
-        # normalise configs
-        self.does_normalize = toml_config["training"]["dataset"].get(
-            "normalize_labels", False
-        )
-        self.label_range = toml_config["training"]["dataset"].get("label_range", False)
-        self.normalize_range = toml_config["training"]["dataset"].get(
-            "normalize_range", [-1, 1]
-        )
-
-        if self.does_normalize and not self.label_range:
-            self.label_range = (
-                self.dataframe[self.label_cols].min(),
-                self.dataframe[self.label_cols].max(),
-            )
-        if self.does_normalize:
-            self.scaler = MinMaxScaler(feature_range=self.normalize_range)
-
     def __len__(self) -> int:
         return len(self.dataframe)
 
@@ -350,10 +347,6 @@ class ImageDatasetAnnotations(Dataset):
             label_tensor_dtype = torch.long
         else:
             labels = self.dataframe.loc[idx, self.label_cols].values.astype(float)
-            if self.does_normalize:
-                labels = labels.reshape(-1, 1)
-                labels = self.scaler.transform(labels)
-                labels = labels.flatten()
             label_tensor_dtype = torch.float32
 
         image = Image.open(img_path).convert("RGB")
@@ -368,21 +361,24 @@ class ImageDatasetAnnotations(Dataset):
 
 
 class AffineTransform:
-    def __init__(self, translate_b, rotate_b, scale_b, fill_color=None) -> None:
-        self.translate_b = translate_b
-        self.rotate_b = rotate_b
-        self.scale_b = scale_b
+    def __init__(
+        self, translate_X, translate_Y, rotate, scale, fill_color=None
+    ) -> None:
+        self.translate_X = translate_X
+        self.translate_Y = translate_Y
+        self.rotate = rotate
+        self.scale = scale
         self.fill_color = [0, 0, 0] if fill_color is None else fill_color
 
     def __call__(self, img):
         return F.affine(
             img,
-            angle=random.uniform(*self.rotate_b),
+            angle=random.uniform(*self.rotate),
             translate=(
-                random.uniform(*self.translate_b),
-                random.uniform(*self.translate_b),
+                random.uniform(*self.translate_X),
+                random.uniform(*self.translate_Y),
             ),
-            scale=random.uniform(*self.scale_b),
+            scale=random.uniform(*self.scale),
             shear=0,
             fill=self.fill_color,
         )

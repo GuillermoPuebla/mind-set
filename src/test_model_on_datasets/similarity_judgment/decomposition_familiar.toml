@@ -1,6 +1,6 @@
 [basic_info]
-annotation_file_path = 'datasets/low_mid_level_vision/decomposition/annotation.csv'
-match_factors = ['SampleId']
+annotation_file_path = 'data/low_mid_level_vision/decomposition/annotation.csv'
+match_factors = ['PairShapeId']
 filter_factor_level = { ShapeType = "familiar" }
 factor_variable = "SplitType"
 reference_level = "no_split"
@@ -9,7 +9,7 @@ reference_level = "no_split"
 pretraining = "ImageNet"
 
 [saving_folders]
-results_folder = "results/similarity_judgments/decomposition/familiar"
+results_folder = "results/examples/decomposition/familiar"
 
 [transformation]
 fill_color = [0, 0, 0]
@@ -20,4 +20,4 @@ repetitions = 50
 translation_X = [-0.2, 0.2]
 translation_Y = [-0.2, 0.2]
 scale = [0.8, 1.2]
-rotation = [-50, 50]
+rotation = [0, 360]

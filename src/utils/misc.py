@@ -36,7 +36,6 @@ def conditional_tqdm(iterable, enable_tqdm, **kwargs):
 
 class ConfigSimple:
     def __init__(self, **kwargs):
-        self.use_cuda = torch.cuda.is_available()
         self.verbose = True
         [self.__setattr__(k, v) for k, v in kwargs.items()]
 
@@ -222,7 +221,7 @@ def add_general_args(parser):
     parser.add_argument(
         "--output_folder",
         "-o",
-        help="The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset",
+        help="The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script",
     )
     parser.add_argument(
         "--canvas_size",
@@ -238,7 +237,7 @@ def add_general_args(parser):
         "--background_color",
         "-bg",
         default=DEFAULTS["background_color"],
-        help="Specify the background color. Could be a list of RGB values, or [random] for a randomly pixellated background, or [rnd-uniform] for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B",
+        help="Specify the background color. Could be a list of RGB values, or `rnd-uniform` for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B",
         type=lambda x: (tuple([int(i) for i in x.split("_")]) if "_" in x else x)
         if isinstance(x, str)
         else x,
@@ -358,6 +357,7 @@ def check_download_ETH_80_dataset(destination_dir):
             f"ETH-80 dataset, used for the viewpoint invariance dataset, is not found in {destination_dir}. It will be downloaded (~308MB)."
         )
         subprocess.run(["git", "clone", repo_url, destination_dir])
+        reorganize_ETH_80(destination_dir)
 
     else:
         print(f"ETH-80 dataset found in {destination_dir}")
@@ -423,3 +423,51 @@ def modify_toml(
             line = f"{key} = {modified_value}\n"
         lines.append(line)
     return lines
+
+
+def reorganize_ETH_80(base_dir):
+    base_dir = "assets/ETH_80"
+
+    images_dir = os.path.join(base_dir, "images")
+
+    if not os.path.exists(images_dir):
+        os.makedirs(images_dir)
+
+    for folder in os.listdir(base_dir):
+        folder_path = os.path.join(base_dir, folder)
+        if os.path.isdir(folder_path) and folder != "images":
+            shutil.move(folder_path, images_dir)
+
+    source_dir = os.path.join(base_dir, "images")
+    target_dir = os.path.join(base_dir, "maps")
+
+    # Create the target directory if it does not exist
+    if not os.path.exists(target_dir):
+        os.makedirs(target_dir)
+
+    # Iterate over each class folder
+    for class_folder in os.listdir(source_dir):
+        class_path = os.path.join(source_dir, class_folder)
+        if os.path.isdir(class_path):
+            # Iterate over each object folder within the class folder
+            for object_folder in os.listdir(class_path):
+                object_path = os.path.join(class_path, object_folder)
+                if os.path.isdir(object_path):
+                    # Check if the "map" folder exists in the object folder
+                    map_folder_path = os.path.join(object_path, "maps")
+                    if os.path.exists(map_folder_path):
+                        # Define the target path for the map folder
+                        target_map_folder_path = os.path.join(
+                            target_dir, class_folder, object_folder
+                        )
+                        # Create target map folder if it doesn't exist
+                        os.makedirs(target_map_folder_path, exist_ok=True)
+                        # Move the map folder to the target location
+                        for map_file in os.listdir(map_folder_path):
+                            shutil.move(
+                                os.path.join(map_folder_path, map_file),
+                                target_map_folder_path,
+                            )
+                        shutil.rmtree(map_folder_path)
+
+    print("Map folders have been reorganized.")

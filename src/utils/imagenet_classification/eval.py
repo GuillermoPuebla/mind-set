@@ -39,7 +39,6 @@ def classification_evaluate(
 
     test_loaders = [
         get_dataloader(
-            toml_config,
             "classification",
             ds_config=i,
             transf_config=toml_config["transformation"],
@@ -49,10 +48,14 @@ def classification_evaluate(
         for i in toml_config["eval"]["datasets"]
     ]
 
+    for ts in test_loaders:
+        ts.dataset.classes_dict = {
+            i: i for i in test_loaders[0].dataset.classes_dict.keys()
+        }
     net, _, _ = GrabNet.get_net(
         toml_config["network"]["architecture_name"],
         imagenet_pt=True if toml_config["network"]["imagenet_pretrained"] else False,
-        num_classes=1000,  # num classes of ImageNet
+        num_classes=None,  # any number will overwrite the original fully connected network at the end. None will just use whatever the networks was trained on, in this case 1000 classes for Imagenet
     )
 
     load_pretraining(
@@ -84,7 +87,8 @@ def classification_evaluate(
             labels = to_global_device(labels)
             output = net(images)
             for i in range(len(labels)):
-                prediction = torch.argmax(output[i]).item()
+                # Top 5 prediction
+                prediction = torch.topk(output[i], 5).indices.tolist()
 
                 results_final.append(
                     {
@@ -93,8 +97,16 @@ def classification_evaluate(
                         "label_class_name": imagenet_classes.idx2label[
                             labels[i].item()
                         ],
-                        "prediction_idx": prediction,
-                        "prediction_class_name": imagenet_classes.idx2label[prediction],
+                        **{f"prediction_idx_top_{i}": prediction[i] for i in range(5)},
+                        **{
+                            f"prediction_class_name_top_{i}": imagenet_classes.idx2label[
+                                prediction[i]
+                            ]
+                            for i in range(5)
+                        },
+                        "Top-5 At Least One Correct": np.any(
+                            [labels[i].item() in prediction]
+                        ),
                     }
                 )
 
@@ -103,5 +115,28 @@ def classification_evaluate(
             str(results_folder / dataloader.dataset.name / "predictions.csv"),
             index=False,
         )
+
+        top_5_accuracy = np.mean(
+            [
+                results_final_pandas["label_idx"][i]
+                in list(
+                    results_final_pandas[
+                        [
+                            "prediction_idx_top_0",
+                            "prediction_idx_top_1",
+                            "prediction_idx_top_2",
+                            "prediction_idx_top_3",
+                            "prediction_idx_top_4",
+                        ]
+                    ].iloc[i]
+                )
+                for i in range(len(results_final_pandas))
+            ]
+        )
+        print(
+            f"Accuracy: {np.mean(results_final_pandas['label_idx'] == results_final_pandas['prediction_idx_top_0'])}"
+        )
+
+        print(f"Top 5 Accuracy: {top_5_accuracy}")
 
     [evaluate_one_dataloader(dataloader) for dataloader in test_loaders]

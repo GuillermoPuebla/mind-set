@@ -4,7 +4,7 @@ import toml
 import inspect
 
 import torch
-from src.utils.device_utils import set_global_device
+from src.utils.device_utils import set_global_device, to_global_device
 from src.utils.net_utils import GrabNet, load_pretraining
 from src.utils.misc import delete_and_recreate_path, update_dict, pretty_print_dict
 from sty import fg, rs
@@ -62,7 +62,7 @@ def compute_distance(
         net_state_dict_path=toml_config["network"]["state_dict_path"],
         optimizers_path=None,
     )
-
+    to_global_device(network)
     transf_list = [
         x
         for x in [
@@ -83,9 +83,9 @@ def compute_distance(
 
     transform = torchvision.transforms.Compose(transf_list)
 
-    delete_and_recreate_path(
-        pathlib.Path(toml_config["saving_folders"]["results_folder"])
-    )
+    # delete_and_recreate_path(
+    #     pathlib.Path(toml_config["saving_folders"]["results_folder"])
+    # )
 
     toml.dump(
         {
@@ -115,12 +115,12 @@ def compute_distance(
     recorder = RecordDistance(
         annotation_filepath=toml_config["basic_info"]["annotation_file_path"],
         match_factors=toml_config["basic_info"]["match_factors"],
+        non_match_factors=toml_config["basic_info"]["non_match_factors"],
         factor_variable=toml_config["basic_info"]["factor_variable"],
         reference_level=toml_config["basic_info"]["reference_level"],
         filter_factor_level=toml_config["basic_info"]["filter_factor_level"],
         distance_metric=toml_config["options"]["distance_metric"],
         net=network,
-        use_cuda=False,
         only_save=toml_config["options"]["save_layers"],
     )
 
@@ -131,15 +131,17 @@ def compute_distance(
         transf_boundaries=toml_config["transformation"]["values"],
         transformed_repetition=toml_config["transformation"]["repetitions"],
         path_save_fig=debug_image_path if save_debug_images else None,
+        add_columns=toml_config["basic_info"]["add_columns"],
     )
     save_folder = pathlib.Path(toml_config["saving_folders"]["results_folder"])
-    distance_df.to_csv(save_folder / "dataframe.csv", index=False)
+    dataframe_path = save_folder / "dataframe.csv"
+    distance_df.to_csv(dataframe_path, index=False)
 
     print(
         fg.red
-        + f"CSV dataframe and Layer Names List saved in "
+        + f"CSV dataframe and saved in "
         + fg.green
-        + f"{str(save_folder)}"
+        + f"{str(dataframe_path)}"
         + rs.fg
     )
 

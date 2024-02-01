@@ -6,7 +6,7 @@ evaluate_during_training = false
 save_at_epoch_end = false
 
 [training.stopping_conditions]
-stop_at_epoch = 20
+stop_after_n_epochs = 20
 
 [training.dataset]
 name = "polygons"

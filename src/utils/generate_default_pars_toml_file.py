@@ -75,7 +75,7 @@ def parse_help_text(help_text):
     # Regular expression to extract arguments and their help text
     help_text = help_text.split("show this help message and exit")[1]
     pattern = re.compile(
-        r"--(\w+)(?:, -\w+)? [^\n]+\n\s+(.*?)(?=\(default:|\n  --|\n\n|\Z)", re.DOTALL
+        r"--(\w+)(?:, -\w+)?[^\n]+\n\s+(.*?)(?=\(default:|\n  --|\n\n|\Z)", re.DOTALL
     )
 
     # Extract arguments and their descriptions
@@ -104,15 +104,13 @@ def create_config(datasets, save_to):
 
         if isinstance(module.DEFAULTS, list):
             for i, defaults in enumerate(module.DEFAULTS):
-                section_name = f"{dataset_name}_{i}"
+                section_name = f"{dataset_name}.{i}"
                 config[section_name] = defaults
                 comments[section_name] = arg_help
-                config[section_name]["file"] = dataset_path
 
         else:
             config[dataset_name] = module.DEFAULTS
             comments[dataset_name] = arg_help
-            config[dataset_name]["file"] = dataset_path
     # Convert the config to TOML format
     toml_str = toml.dumps(config)
 
