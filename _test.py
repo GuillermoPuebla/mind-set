@@ -2,7 +2,7 @@
 Script for regression test / revisit doc string later
 """
 
-from src.utils.generate_default_pars_toml_file import create_config
+from src.utils.generate_default_pars_toml_file import create_config, generate_lite
 from src.generate_datasets_from_toml import generate_datasets_from_toml_file
 from pathlib import Path
 import toml
@@ -110,11 +110,10 @@ import sty
 
 def test_generate_toml():
     source_toml = "tests/generate_all_datasets.toml"
-
+    source_toml_lite = "tests/generate_all_datasets_list.toml"
     print("*** GENERATING DEFAULT TOML FILES: tests/generate_all_datasets.toml ***")
-    src.utils.generate_default_pars_toml_file.main(
-        output="tests/generate_all_datasets.toml"
-    )
+    create_config(source_toml)
+    generate_lite(source_toml, source_toml_lite)
 
     print(sty.fg.blue + "*** DONE *** " + sty.rs.fg)
     print(

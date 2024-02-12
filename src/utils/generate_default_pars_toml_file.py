@@ -150,10 +150,13 @@ def create_config(save_to):
         f.write(toml_str_with_comments)
 
 
-def main(toml_all_path):
+def main(toml_all_path, toml_all_lite_path):
     create_config(toml_all_path)
-    generate_lite(toml_all_path)
+    generate_lite(toml_all_path, toml_all_lite_path)
 
 
 if __name__ == "__main__":
-    main(toml_all_path="generate_all_datasets.toml")
+    main(
+        toml_all_path="generate_all_datasets.toml",
+        toml_all_lite_path="generate_all_datasets_lite.toml",
+    )

@@ -1,4 +1,4 @@
-# MindSet
+# MindSet: Vision
 ![](https://i.ibb.co/pvTVHKw/0-05254-67.png)     ![](https://i.ibb.co/4SvMvCt/28.png)![](https://i.ibb.co/9N4YVxF/c-0.png)
 
 
@@ -10,68 +10,41 @@
 
 
 ## Overview
-The MindSet datasets are designed to facilitate the testing of DNNs against controlled experiments in psychology. MindSet will focus on a range of low-, middle-, and high-level visual findings that provide important constraints for theory. It also provides materials for DNN testing and demonstrates how to evaluate a DNN for each experiment using DNNs pretrained on ImageNet.
-
-> **Note:** This README is under active development and will be updated regularly.
-
+The `MindSet: Vision` datasets are designed to facilitate the testing of DNNs against controlled experiments in psychology. MindSet will focus on a range of low-, middle-, and high-level visual findings that provide important constraints for theory. It also provides materials for DNN testing and demonstrates how to evaluate a DNN for each experiment using DNNs pretrained on ImageNet.
 
 [Generalisation in Mind and Machine, Bristol University, UK](https://mindandmachine.blogs.bristol.ac.uk/) 
 
 ## Datasets
 
-MindSet datasets are divided into three categories: `low_mid_level_vision`, `visual_illusions`, and `shape_and_object_recognition`. Each of this category contains many datasets. You can explore the datasets in Kaggle without downloading them. 
-Every dataset is further structured into subfolders (conditions), which are organized based on the dataset's specific characteristics. At the root of each dataset, there's an `annotation.csv` file. This file lists the paths to individual images (starting from the dataset folder) along with their associated parameters. Such organization enables users to use the datasets either exploting their folder structure (e.g. through PyTorch's  ImageFolder) or by directly referencing the annotation file. In our provided Decoder, Classification and Similarity Judgment methods we always use the annotation.csv approach.
+`MindSet: Vision` datasets are divided into three categories: `low_mid_level_vision`, `visual_illusions`, and `shape_and_object_recognition`. Each of this category contains many datasets. You can explore the datasets in Kaggle without downloading them. 
+Every dataset is further structured into subfolders (conditions), which are organized based on the dataset's specific characteristics. At the root of each dataset, there's an `annotation.csv` file. This file lists the paths to individual images (starting from the dataset folder) along with their associated parameters. Such organization enables users to use the datasets either exploting their folder structure (e.g. through PyTorch's  ImageFolder) or by directly referencing the annotation file.
+
+ In our provided Decoder, Classification and Similarity Judgment methods we always use the `annotation.csv` approach.
 
 ### Ready-To-Download Version
 
-MindSet is model-agnostic and offers flexibility in the way each dataset is employed. Depending on the testing method, you may need a few samples or several thousand images. To cater to these needs, we provide two variants of the dataset on Kaggle:
+`MindSet: Vision` is model-agnostic and offers flexibility in the way each dataset is employed. Depending on the testing method, you may need a few samples or several thousand images. To cater to these needs, we provide two variants of the dataset on Kaggle:
 
 - [Large Version](https://www.kaggle.com/datasets/valerio1988/mindset) with ~5000 samples for each condition.
 - [Lite Version](https://www.kaggle.com/datasets/valerio1988/mindset-lite) with ~100 samples for each condition.
 
 
-Both versions of the MindSet dataset are structured into folders, each containing a specific dataset. Due to Kaggle's current limitations, it's not possible to download these folders individually. Hence, if you need access to a specific dataset, you'll have to download the entire MindSet version. Alternatively, you can generate the desired dataset on your own following the provided guidelines in the next section.
+Both versions of the `MindSet: Vision` dataset are structured into folders, each containing a specific dataset. Due to Kaggle's current limitations, it's not possible to download these folders individually. Hence, if you need access to a specific dataset, you'll have to download the entire collection of datasets. Alternatively, you can generate the desired dataset on your own following the provided guidelines in the next section.
 
-Similarly, if your research or project requires datasets with more than the provided 5000 samples, you can regenerate the datasets with a specific sample size. 
+Similarly, if your research or project requires datasets with more than the provided samples, you can regenerate the datasets with a specific sample size. 
 
 # Generate datasets from scratch
 We provide an intuitive interface to generate each dataset from scratch, allowing users to modify various parameters.
-There are two ways to generate the datasets: through running the corresponding script (as a a module) passing all arguments in the command line; or through a toml file. The second approach also allows for the generation of all datasets in one go.
-<details>
-<summary> <b>Command Line Generation </b></summary>
+There are two ways to generate the datasets: through a TOML file (which allows for batch generation of many datasets in one go), or by running the script for each dataset (as a a module) passing all arguments in the command line. The TOML approach is the reccomended one. 
 
-From the root folder, call the desired script. For example:
 
-```python
-python -m src.generate_datasets.visual_illusions.ebbinghaus_illusion.generate_dataset
-```
-to generate the Ebbinghaus Illusion with default parameters in the default folder (`data/visual_illusions/ebbinghaus_illusion`). Add `-h` at the end of the line above to see all possible command line arguments:
-
-```cli
---output_folder OUTPUT_FOLDER, -o OUTPUT_FOLDER
-                    The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
---canvas_size CANVAS_SIZE, -csize CANVAS_SIZE
-                    The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
---background_color BACKGROUND_COLOR, -bg BACKGROUND_COLOR
-                    Specify the background color. Could be a list of RGB values, or `rnd-uniform` for a random (but uniform) color. If called from command line, the RGB value must be a
-                    string in the form R_G_B
---antialiasing, -antial
-                    Specify whether we want to enable antialiasing
---behaviour_if_present BEHAVIOUR_IF_PRESENT, -if_pres BEHAVIOUR_IF_PRESENT
-                    What to do if the dataset folder is already present? Choose between [overwrite], [skip]
---num_samples_scrambled NUM_SAMPLES_SCRAMBLED, -nss NUM_SAMPLES_SCRAMBLED
-                    How many samples to generated for the scrambled up conditions
---num_samples_illusory NUM_SAMPLES_ILLUSORY, -nsi NUM_SAMPLES_ILLUSORY
-                    How many samples to generated for the illusory conditions (small and big 
-```
-</details>
-
-<br>
 <details><summary><b>TOML generation</b></summary>
+<br>
 
 You can either generate one single dataset with this approach, or several (all) of them. 
-This is done through a `toml` configuration file, a simple text file that specifies what datasets should be generated, and what parameters to use for each one of them. The `toml` file used to generate the lite and the full version uploaded to Kaggle are provided in the root folder: [`generate_all_datasets.toml`](generate_all_datasets.toml) and [`generate_all_datasets_lite.toml`](generate_all_datasets_lite.toml).
-The file contains a series of config options for each dataset. For example, the dataset `un_crowding` in the category `low_mid_level_vision` is specified as: 
+This is done through a TOML configuration file, a simple text file that specifies what datasets should be generated, and what parameters to use for each one of them. The TOML file used to generate the lite and the full version uploaded to Kaggle are provided in the root folder: [`generate_all_datasets.toml`](generate_all_datasets.toml) and [`generate_all_datasets_lite.toml`](generate_all_datasets_lite.toml).
+The file contains a series of config options for each dataset. For example, the dataset `un_crowding` in the category `low_mid_level_vision` is specified as:
+
 ```toml
 ["low_mid_level_vision/un_crowding"]
 # The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
@@ -90,20 +63,64 @@ num_samples_vernier_outside = 5000
 random_size = true
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script 
 output_folder = "data/low_mid_level_vision/un_crowding"
-file = "src/generate_datasets/low_mid_level_vision/un_crowding/generate_dataset.py"
 ```
 
 To regenerate datasets:
 
-1. We suggest to not modify the original toml files but duplicate them: create a file  `my_datasets.toml`.
-2. Copy over from `generate_all_datasets.toml` only the config options for the datasets you want to generate.
-3. Adjust parameters in the config as needed. 
-4. From the root directory, execute `python -m src.generate_datasets -tomlf my_datasets.toml`.
+1. We suggest to not modify the original TOML files but duplicate them: create a file  `my_datasets.toml`.
+2. Copy over from `generate_all_datasets.toml` only the config options for the datasets you want to generate (for example, the code block above to generate just the Crowding/Uncrowding dataset) .
+3. Adjust parameters in the config as needed. For example set `num_samples_vernier_inside = 50` and `num_samples_vernier_outside=50` for a quick test.  
+4. From the root directory, execute `python -m src.generate_datasets_from_toml my_datasets.toml`.
 
-The generated dataset will be saved in the `output_folder` specified in the toml file.
+The generated dataset will be saved in the `output_folder` specified in the TOML file.
+Of course, you can simply run `python -m src.generate_datasets_from_toml generate_all_datasets.toml` to regenerate all dataset with default parameters. Note that this will take a while, as there are 30+ datasets! 
+
 </details>
+<br>
+<details>
+<summary> <b>Command Line Generation </b></summary>
+<br>
+From the root folder, call the desired script. For example:
 
-## Generate the same dataset multiple times from the same file
+```python
+python -m src.generate_datasets.visual_illusions.ebbinghaus_illusion.generate_dataset
+```
+to generate the Ebbinghaus Illusion with default parameters in the default folder (`data/visual_illusions/ebbinghaus_illusion`). Add `-h` at the end of the line above to see all possible command line arguments:
+
+```
+--output_folder OUTPUT_FOLDER, -o OUTPUT_FOLDER
+                    The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
+--canvas_size CANVAS_SIZE, -csize CANVAS_SIZE
+                    The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
+--background_color BACKGROUND_COLOR, -bg BACKGROUND_COLOR
+                    Specify the background color. Could be a list of RGB values, or `rnd-uniform` for a random (but uniform) color. If called from command line, the RGB value must be a
+                    string in the form R_G_B
+--antialiasing, -antial
+                    Specify whether we want to enable antialiasing
+--behaviour_if_present BEHAVIOUR_IF_PRESENT, -if_pres BEHAVIOUR_IF_PRESENT
+                    What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+--num_samples_scrambled NUM_SAMPLES_SCRAMBLED, -nss NUM_SAMPLES_SCRAMBLED
+                    How many samples to generated for the scrambled up conditions
+--num_samples_illusory NUM_SAMPLES_ILLUSORY, -nsi NUM_SAMPLES_ILLUSORY
+                    How many samples to generated for the illusory conditions (small and big flankers)
+```
+
+Specify the ones you wish to modify:
+
+```python
+python -m src.generate_datasets.visual_illusions.ebbinghaus_illusion.generate_dataset --num_samples_scrambled 500000
+```
+
+Note: Due to the way the datasets are organized, `-h` won't report the default values for the arguments. However all defaults are showed in the [`TOML file`](generate_all_datasets.toml).
+</details>
+<br>
+You might want to generate the same dataset multiple times using the same TOML file. To do that, follow these instructions:
+<br>
+
+<p>
+<details> <summary> <b>Generate the same dataset multiple times using TOML </b></summary> 
+
+## 
 If you need to generate the same dataset multiple times, each with different configurations or parameters, you can include multiple configurations for the same dataset within a single TOML file. However, TOML requires each table (denoted by names within [square brackets]) to have a unique name. To accomplish this, you can use different suffixes or identifiers for each configuration, like so:
 ```TOML
 ["low_mid_level_vision/un_crowding.TRAIN"]
@@ -114,7 +131,8 @@ output_folder = 'blabla/train'
 output_folder = 'blabla/eval'
 ```
 In this example, `TRAIN` and `EVAL` are distinct identifiers that allow you to define different settings for the same dataset under the `low_mid_level_vision/un_crowding` category. Ensure that the main name remains consistent, as it is used to locate the corresponding dataset generation file in the `src/generate_datasets` folder.
-
+</details>
+</p>
 
 # Testing Methods
 Although we encourage researchers to use MindSet datasets in a variety of different experimental setups to compare DNNs to humans, we provide the resources to perform a set of basic comparisons between humans and DNNs outputs.
@@ -127,10 +145,7 @@ The three methods employed are:
 
 Each dataset has a suggested method it could be evaluated on. We provide examples for each method in the corresponding folder.
 
-<!-- - [Similarity Judgment](https://github.com/ValerioB88/mind-set/tree/master/src/utils/similarity_judgment)
-- [Decoder Approach](https://github.com/ValerioB88/mind-set/tree/master/src/utils/decoder) -->
-
-**Note:** Always set the working directory to the project root (`MindSet`). To manage module dependencies, run the script as a module, e.g., `python -m src.generate_datasets --toml_file generate_all_datasets_lite.toml`.
+**Note:** Always set the working directory to the project root (`MindSet`). To manage module dependencies, run the script as a module, e.g., `python -m src.generate_datasets_from_toml generate_all_datasets_lite.toml`.
 
 
 ### Publications 
