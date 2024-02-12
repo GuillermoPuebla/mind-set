@@ -139,7 +139,7 @@ class DrawPonzo(DrawStimuli):
         label = red_length - blue_length
         norm_label = label / max_length
 
-        return img, label, norm_label, upper_line_color
+        return img, red_length, blue_length, upper_line_color
 
     def generate_rnd_lines_images(
         self, colored_line_always_horizontal=False, antialias=True
@@ -182,13 +182,19 @@ class DrawPonzo(DrawStimuli):
         blue_length = np.linalg.norm(np.array(blue_ep) - np.array(blue_sp))
 
         max_length = self.canvas_size[0] // 2 - self.canvas_size[0] // 10
-        label = red_length - blue_length
-        norm_label = label / max_length
+        # label = red_length - blue_length
+        # norm_label = label / max_length
         if antialias:
             img = img.resize(tuple(np.array(self.canvas_size) * 2)).resize(
                 self.canvas_size, resample=Image.Resampling.LANCZOS
             )
-        return apply_antialiasing(img) if self.antialiasing else img, label, norm_label
+        upper_line_color = ""
+        return (
+            apply_antialiasing(img) if self.antialiasing else img,
+            red_length,
+            blue_length,
+            upper_line_color,
+        )
 
 
 category_folder = os.path.basename(os.path.dirname(os.path.dirname(__file__)))
@@ -248,27 +254,28 @@ def generate_all(
                 "Path",
                 "Type",
                 "BackgroundColor",
-                "Label",
-                "NormalizedLabel",
-                "UpperLinEColor",
+                "RedLength",
+                "BlueLegnth",
+                "UpperLineColor",
                 "NumRailLines",
                 "IterNum",
             ]
         )
         for i in tqdm(range(num_samples_scrambled)):
-            img, label, norm_label = ds.generate_rnd_lines_images(
+            img, red_l, blue_l, _ = ds.generate_rnd_lines_images(
                 colored_line_always_horizontal=not rnd_target_lines,
                 antialias=antialiasing,
             )
-            path = Path("scrambled_lines") / f"{norm_label:.3f}_{i}.png"
+            unique_hex = uuid.uuid4().hex[:8]
+            path = Path("scrambled_lines") / f"{unique_hex}.png"
             img.save(output_folder / path)
             writer.writerow(
                 [
                     path,
                     "scrambled_lines",
                     ds.background,
-                    label,
-                    norm_label,
+                    red_l,
+                    blue_l,
                     "",
                     num_rail_lines,
                     i,
@@ -276,19 +283,19 @@ def generate_all(
             )
         for i in tqdm(range(num_samples_illusory)):
             for c in ["ponzo_same_length", "ponzo_diff_length"]:
-                img, label, norm_label, upper_line_color = ds.generate_illusory_images(
+                img, red_l, blue_l, upper_line_color = ds.generate_illusory_images(
                     same_length=(True if c == "ponzo_same_length" else False)
                 )
                 unique_hex = uuid.uuid4().hex[:8]
-                path = Path(c) / f"{norm_label:.3f}_{upper_line_color}_{unique_hex}.png"
+                path = Path(c) / f"{upper_line_color}_{unique_hex}.png"
                 img.save(output_folder / path)
                 writer.writerow(
                     [
                         path,
                         c,
                         ds.background,
-                        label,
-                        norm_label,
+                        red_l,
+                        blue_l,
                         upper_line_color,
                         i,
                     ]

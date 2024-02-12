@@ -49,8 +49,13 @@ class DrawDecomposition(DrawStimuli):
         # create shapes -------------------------------------------
         shape_1 = Shapes(parent)
         shape_2 = Shapes(parent)
-        getattr(shape_1, f"add_{shape_1_name}")(**{"size": self.shape_size})
-        getattr(shape_2, f"add_{shape_2_name}")(**{"size": self.shape_size})
+
+        if shape_1_name.split("_")[0] == "puddle":
+            shape_1.add_puddle(size=self.shape_size, seed=shape_1_name.split("_")[1])
+            shape_2.add_puddle(size=self.shape_size, seed=shape_2_name.split("_")[1])
+        else:
+            getattr(shape_1, f"add_{shape_1_name}")(**{"size": self.shape_size})
+            getattr(shape_2, f"add_{shape_2_name}")(**{"size": self.shape_size})
         shape_1.rotate(30)
         shape_2.rotate(30)
 
@@ -93,10 +98,10 @@ name_dataset = os.path.basename(os.path.dirname(__file__))
 
 DEFAULTS.update(
     {
-        "num_samples": 20,
         "moving_distance": 60,
-        "shape_color": (255, 255, 255),
+        "shape_color": [255, 255, 255],
         "output_folder": f"data/{category_folder}/{name_dataset}",
+        "number_unfamiliar_shapes": 5,
     }
 )
 
@@ -105,6 +110,7 @@ def generate_all(
     moving_distance=DEFAULTS["moving_distance"],
     shape_color=DEFAULTS["shape_color"],
     output_folder=DEFAULTS["output_folder"],
+    number_unfamiliar_shapes=DEFAULTS["number_unfamiliar_shapes"],
     canvas_size=DEFAULTS["canvas_size"],
     background_color=DEFAULTS["background_color"],
     antialiasing=DEFAULTS["antialiasing"],
@@ -115,7 +121,7 @@ def generate_all(
     config = {f"{category_folder}/{name_dataset}": args}
 
     familiar_shapes = ["arc", "circle", "square", "rectangle", "polygon", "triangle"]
-    unfamiliar_shapes = ["puddle"]
+    unfamiliar_shapes = [f"puddle_{i}" for i in range(number_unfamiliar_shapes)]
 
     combinations_familiar = list(product(familiar_shapes, familiar_shapes))
     combinations_familiar = [
@@ -228,10 +234,16 @@ if __name__ == "__main__":
         "--shape_color",
         "-shpc",
         default=DEFAULTS["shape_color"],
-        type=lambda x: tuple([int(i) for i in x.split("_")])
-        if isinstance(x, str)
-        else x,
+        type=lambda x: ([int(i) for i in x.split("_")] if isinstance(x, str) else x),
         help="Specify the color of the shapes (same across the whole dataset). Specify in R_G_B format, e.g. 255_0_0 for red",
     )
+    parser.add_argument(
+        "--number_unfamiliar_shapes",
+        "-nunfs",
+        default=DEFAULTS["number_unfamiliar_shapes"],
+        type=int,
+        help="Specify the number of unfamiliar shapes to use",
+    )
+
     args = parser.parse_known_args()[0]
     generate_all(**args.__dict__)

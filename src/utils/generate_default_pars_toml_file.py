@@ -25,6 +25,31 @@ from tqdm import tqdm
 from src.utils.misc import modify_toml
 
 
+def add_lite(path):
+    parts = path.split("/")
+    parts[0] += "_lite"
+    return "/".join(parts)
+
+
+def generate_lite(toml_file, output_toml_file):
+    # Replace these paths with the actual paths of your files
+    with open(toml_file, "r") as file:
+        lines = file.readlines()
+
+    new_lines = modify_toml(
+        lines,
+        modified_key_starts_with="num_samples",
+        modify_value_fun=lambda h, x: max(int(x) // 100, 50),
+    )
+    new_lines = modify_toml(
+        new_lines,
+        modified_key_starts_with="output_folder",
+        modify_value_fun=lambda h, x: add_lite(x),
+    )
+    with open(output_toml_file, "w") as file:
+        file.writelines(new_lines)
+
+
 def extract_help_text(script_path):
     """Run the script with the -h flag and capture the output."""
     ".".join(list(Path(script_path).parts)).strip(".py")
@@ -91,7 +116,10 @@ def parse_help_text(help_text):
     return args_dict
 
 
-def create_config(datasets, save_to):
+def create_config(save_to):
+    datasets = glob.glob(
+        "src/generate_datasets/**/generate_dataset**.py", recursive=True
+    )
     config = {}
     comments = {}
     for dataset_path in tqdm(datasets):
@@ -120,21 +148,12 @@ def create_config(datasets, save_to):
     # Write the final TOML file
     with open(save_to, "w") as f:
         f.write(toml_str_with_comments)
-    # Replace these paths with the actual paths of your files
-    with open(save_to, "r") as file:
-        lines = file.readlines()
 
-    new_lines = modify_toml(
-        lines,
-        modified_key_starts_with="num_samples",
-        modify_value_fun=lambda h, x: max(int(x) // 100, 50),
-    )
-    with open(os.path.splitext(save_to)[0] + "_lite.toml", "w") as file:
-        file.writelines(new_lines)
+
+def main(toml_all_path):
+    create_config(toml_all_path)
+    generate_lite(toml_all_path)
 
 
 if __name__ == "__main__":
-    datasets = glob.glob(
-        "src/generate_datasets/**/generate_dataset**.py", recursive=True
-    )
-    create_config(datasets, "generate_all_datasets.toml")
+    main(toml_all_path="generate_all_datasets.toml")

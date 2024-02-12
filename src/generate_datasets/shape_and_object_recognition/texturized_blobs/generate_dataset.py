@@ -170,7 +170,7 @@ DEFAULTS.update(
         "foreground_char": "random",
         "output_folder": f"data/{category_folder}/{name_dataset}",
         "antialiasing": False,
-        "font_size": (15, 20),
+        "font_size": [15, 20],
     }
 )
 
@@ -254,7 +254,7 @@ def generate_all(
                 rotation_angle = random.randint(-60, 60)
                 font_s = (
                     random.randint(font_size[0], font_size[1])
-                    if isinstance(font_size, tuple)
+                    if isinstance(font_size, list)
                     else font_size
                 )
                 background_c = (
@@ -336,7 +336,7 @@ if __name__ == "__main__":
         "-fs",
         help="If a number, it defines the size of the font for all images. It can be a string in the form A_B, in which case the size will be drawn from a uniform(A, B) distribution for each image",
         default=DEFAULTS["font_size"],
-        type=lambda x: (([int(i) for i in x.split("_")]) if "_" in x else x),
+        type=lambda x: ([[int(i) for i in x.split("_")]] if "_" in x else x),
     )
 
     args = parser.parse_known_args()[0]

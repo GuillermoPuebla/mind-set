@@ -47,6 +47,8 @@ class DrawEmergentFeaturesdots(DrawStimuli):
                     "orientation",
                     "linearity",
                 ]
+                a = self.draw_all_dots(pp_single[0])
+
                 pps = [
                     pp_empty,
                     pp_empty_single,
@@ -63,7 +65,6 @@ class DrawEmergentFeaturesdots(DrawStimuli):
                 return sets, ppsdict
 
             except ConstrainedError:
-                # print('Regenerating...')
                 continue
 
     def from_radians_get_line(self, radius, r):
@@ -232,8 +233,6 @@ class DrawEmergentFeaturesdots(DrawStimuli):
 
             A = np.array([x0, y0])
             B = np.array([xor, yor])
-            Diff = A - B
-            s = Diff[1] / Diff[0]
 
             dd = np.random.uniform((r * 2) / (np.linalg.norm(A - B)), 0.4)
             L = B + dd * (A - B)

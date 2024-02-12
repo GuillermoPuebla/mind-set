@@ -34,8 +34,43 @@ Both versions of the MindSet dataset are structured into folders, each containin
 
 Similarly, if your research or project requires datasets with more than the provided 5000 samples, you can regenerate the datasets with a specific sample size. 
 
-### Generate datasets from scratch
-We provide an intuitive interface to generate each dataset from scratch, allowing users to modify various parameters. This is done through a `toml` configuration file, a simple text file that specifies what datasets should be generated, and what parameters to use for each one of them. The `toml` file used to generate the lite and the full version uploaded to Kaggle are provided in the root folder: [`generate_all_datasets.toml`](generate_all_datasets.toml) and [`generate_all_datasets_lite.toml`](generate_all_datasets_lite.toml).
+# Generate datasets from scratch
+We provide an intuitive interface to generate each dataset from scratch, allowing users to modify various parameters.
+There are two ways to generate the datasets: through running the corresponding script (as a a module) passing all arguments in the command line; or through a toml file. The second approach also allows for the generation of all datasets in one go.
+<details>
+<summary> <b>Command Line Generation </b></summary>
+
+From the root folder, call the desired script. For example:
+
+```python
+python -m src.generate_datasets.visual_illusions.ebbinghaus_illusion.generate_dataset
+```
+to generate the Ebbinghaus Illusion with default parameters in the default folder (`data/visual_illusions/ebbinghaus_illusion`). Add `-h` at the end of the line above to see all possible command line arguments:
+
+```cli
+--output_folder OUTPUT_FOLDER, -o OUTPUT_FOLDER
+                    The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
+--canvas_size CANVAS_SIZE, -csize CANVAS_SIZE
+                    The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
+--background_color BACKGROUND_COLOR, -bg BACKGROUND_COLOR
+                    Specify the background color. Could be a list of RGB values, or `rnd-uniform` for a random (but uniform) color. If called from command line, the RGB value must be a
+                    string in the form R_G_B
+--antialiasing, -antial
+                    Specify whether we want to enable antialiasing
+--behaviour_if_present BEHAVIOUR_IF_PRESENT, -if_pres BEHAVIOUR_IF_PRESENT
+                    What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+--num_samples_scrambled NUM_SAMPLES_SCRAMBLED, -nss NUM_SAMPLES_SCRAMBLED
+                    How many samples to generated for the scrambled up conditions
+--num_samples_illusory NUM_SAMPLES_ILLUSORY, -nsi NUM_SAMPLES_ILLUSORY
+                    How many samples to generated for the illusory conditions (small and big 
+```
+</details>
+
+<br>
+<details><summary><b>TOML generation</b></summary>
+
+You can either generate one single dataset with this approach, or several (all) of them. 
+This is done through a `toml` configuration file, a simple text file that specifies what datasets should be generated, and what parameters to use for each one of them. The `toml` file used to generate the lite and the full version uploaded to Kaggle are provided in the root folder: [`generate_all_datasets.toml`](generate_all_datasets.toml) and [`generate_all_datasets_lite.toml`](generate_all_datasets_lite.toml).
 The file contains a series of config options for each dataset. For example, the dataset `un_crowding` in the category `low_mid_level_vision` is specified as: 
 ```toml
 ["low_mid_level_vision/un_crowding"]
@@ -66,6 +101,7 @@ To regenerate datasets:
 4. From the root directory, execute `python -m src.generate_datasets -tomlf my_datasets.toml`.
 
 The generated dataset will be saved in the `output_folder` specified in the toml file.
+</details>
 
 ## Generate the same dataset multiple times from the same file
 If you need to generate the same dataset multiple times, each with different configurations or parameters, you can include multiple configurations for the same dataset within a single TOML file. However, TOML requires each table (denoted by names within [square brackets]) to have a unique name. To accomplish this, you can use different suffixes or identifiers for each configuration, like so:
@@ -107,4 +143,5 @@ The scripts and functionalities have been tested and are confirmed to work on *m
 <!-- ## Similarity Judgement
 [![Demo for Similarity Judgement](assets/similarity_judgement.png)](https://youtu.be/a7k5viGmxnk)
  -->
+
 

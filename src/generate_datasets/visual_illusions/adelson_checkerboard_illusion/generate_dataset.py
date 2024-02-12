@@ -27,7 +27,7 @@ DEFAULTS = {
     "antialiasing": False,
     "behaviour_if_present": "overwrite",
     "steps_arrow": 5,
-    "canvas_size": (224, 224),
+    "canvas_size": [224, 224],
     "output_folder": f"data/{category_folder}/{name_dataset}",
     "grayscale_background": 0,
 }

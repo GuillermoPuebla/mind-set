@@ -12,7 +12,7 @@ num_samples_scrambled = 50
 # Number of samples for the illusory configuration, with the standard Muller-Lyer illusion
 num_samples_illusory = 50
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
-output_folder = "data/visual_illusions/muller_lyer_illusion"
+output_folder = "data_lite/visual_illusions/muller_lyer_illusion"
 
 ["visual_illusions/jastrow_illusion"]
 # The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
@@ -30,7 +30,7 @@ num_samples_random = 50
 # Number of samples for a configuration in which the two objects are vertically aligned, but they don't have the same size
 num_samples_aligned = 50
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
-output_folder = "data/visual_illusions/jastrow_illusion"
+output_folder = "data_lite/visual_illusions/jastrow_illusion"
 
 ["visual_illusions/ebbinghaus_illusion"]
 # The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
@@ -41,10 +41,12 @@ background_color = [ 0, 0, 0,]
 antialiasing = true
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
-# Each `sample` corresponds to an entire set of pair of shape_based_image_generation, for each condition.
-num_samples = 50
+# How many samples to generated for the scrambled up conditions
+num_samples_scrambled = 50
+# How many samples to generated for the illusory conditions (small and big flankers)
+num_samples_illusory = 50
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
-output_folder = "data/visual_illusions/ebbinghaus_illusion"
+output_folder = "data_lite/visual_illusions/ebbinghaus_illusion"
 
 ["visual_illusions/adelson_checkerboard_illusion"]
 # Specify whether we want to use antialiasing
@@ -56,7 +58,7 @@ steps_arrow = 5
 # The size of the canvas. If called through command line, a string in the format NxM.
 canvas_size = [ 224, 224,]
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
-output_folder = "data/visual_illusions/adelson_checkerboard_illusion"
+output_folder = "data_lite/visual_illusions/adelson_checkerboard_illusion"
 # The background in grayscale value
 grayscale_background = 0
 
@@ -70,7 +72,7 @@ num_samples = 50
 # The size of the canvas. If called through command line, a string in the format NxM.
 canvas_size = [ 224, 224,]
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
-output_folder = "data/visual_illusions/grayscale_shapes"
+output_folder = "data_lite/visual_illusions/grayscale_shapes"
 
 ["visual_illusions/thatcher_illusion"]
 # The size of the canvas. If called through command line, a string in the format NxM.
@@ -78,7 +80,7 @@ canvas_size = [ 224, 224,]
 # The folder containing faces that need to be Thatcherized. These faces will also be resized to `canvas_size` size.
 face_folder = "assets/celebA_sample/normal"
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
-output_folder = "data/visual_illusions/thatcher_illusion"
+output_folder = "data_lite/visual_illusions/thatcher_illusion"
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
 
@@ -100,7 +102,7 @@ num_rail_lines = 5
 # Specify whether the target red and blue lines in scrambled configuration should be randomly placed, or should be horizontal like in the testing (illusion) condition
 rnd_target_lines = false
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
-output_folder = "data/visual_illusions/ponzo_illusion"
+output_folder = "data_lite/visual_illusions/ponzo_illusion"
 
 ["visual_illusions/lightness_contrast_illusion"]
 # The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
@@ -116,7 +118,7 @@ square_color = 200
 # It will generate items which background varies from 0 to 255 in steps specified by this parameter.
 steps_bg_color = 20
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure used to create the dataset
-output_folder = "data/visual_illusions/lightness_contrast_illusion"
+output_folder = "data_lite/visual_illusions/lightness_contrast_illusion"
 
 ["visual_illusions/tilt_illusion"]
 # The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
@@ -127,12 +129,14 @@ background_color = [ 0, 0, 0,]
 antialiasing = true
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
-# Number of samples with only the center gabor patch
+# Number of samples with only the center grating
 num_samples_only_center = 50
-# Number of samples for center and context gabor patches
+# Number of samples with only the context grating
+num_samples_only_context = 50
+# Number of samples for center and context grating
 num_samples_center_context = 50
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
-output_folder = "data/visual_illusions/tilt_illusion"
+output_folder = "data_lite/visual_illusions/tilt_illusion"
 
 ["shape_and_object_recognition/gridded_images"]
 # The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
@@ -146,7 +150,7 @@ behaviour_if_present = "overwrite"
 # A folder containing linedrawings. We assume these to be black strokes-on-white canvas simple contour drawings.
 linedrawing_input_folder = "assets/baker_2018_linedrawings/cropped"
 # Specify the value to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
-object_longest_side = 100
+object_longest_side = 200
 # The rotation of the grid, in angles.
 grid_degree = 45
 # The size of each cell of the grid (in pixels)
@@ -154,7 +158,7 @@ grid_size = 8
 # The thickness of the grid (in pixels)
 grid_thickness = 4
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
-output_folder = "data/shape_and_object_recognition/gridded_images"
+output_folder = "data_lite/shape_and_object_recognition/gridded_images"
 
 ["shape_and_object_recognition/dotted_linedrawings"]
 # The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
@@ -166,7 +170,7 @@ antialiasing = false
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
 # Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
-object_longest_side = 100
+object_longest_side = 200
 # A folder containing linedrawings. We assume these to be black strokes-on-white canvas simple contour drawings.
 linedrawing_input_folder = "assets/baker_2018_linedrawings/cropped/"
 # Distance between dots
@@ -174,7 +178,7 @@ dot_distance = 5
 # Size of each dot
 dot_size = 1
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
-output_folder = "data/shape_and_object_recognition/dotted_linedrawings"
+output_folder = "data_lite/shape_and_object_recognition/dotted_linedrawings"
 
 ["shape_and_object_recognition/fragmented_frankenstein.0"]
 # The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
@@ -186,11 +190,11 @@ antialiasing = false
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
 # Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
-object_longest_side = 100
+object_longest_side = 200
 # A folder containing the image input types (linedrawings/silhouettes). We assume these to be black strokes-on-white canvas simple contour drawings.
 image_input_folder = "assets/baker_2018_linedrawings/cropped/"
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
-output_folder = "data/shape_and_object_recognition/fragmented_frankenstein_from_linedrawings_baker_2018"
+output_folder = "data_lite/shape_and_object_recognition/fragmented_frankenstein_from_linedrawings_baker_2018"
 # Use 1 to convert to silhouettes, 0 to not convert. Set to 0 if the images are already silhouettes!
 convert_to_silhouettes = 0
 
@@ -204,11 +208,11 @@ antialiasing = false
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
 # Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
-object_longest_side = 100
+object_longest_side = 200
 # A folder containing the image input types (linedrawings/silhouettes). We assume these to be black strokes-on-white canvas simple contour drawings.
 image_input_folder = "assets/baker_2022_silhouettes/cropped"
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
-output_folder = "data/shape_and_object_recognition/fragmented_frankenstein_from_silhouettes_baker_2022"
+output_folder = "data_lite/shape_and_object_recognition/fragmented_frankenstein_from_silhouettes_baker_2022"
 # Use 1 to convert to silhouettes, 0 to not convert. Set to 0 if the images are already silhouettes!
 convert_to_silhouettes = 0
 
@@ -222,11 +226,11 @@ antialiasing = false
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
 # Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
-object_longest_side = 100
+object_longest_side = 200
 # A folder containing the image input types (linedrawings/silhouettes). We assume these to be black strokes-on-white canvas simple contour drawings.
 image_input_folder = "assets/baker_2018_linedrawings/cropped/"
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
-output_folder = "data/shape_and_object_recognition/fragmented_frankenstein_silhouettes_from_linedrawings_baker_2018"
+output_folder = "data_lite/shape_and_object_recognition/fragmented_frankenstein_silhouettes_from_linedrawings_baker_2018"
 # Use 1 to convert to silhouettes, 0 to not convert. Set to 0 if the images are already silhouettes!
 convert_to_silhouettes = 1
 
@@ -240,7 +244,7 @@ antialiasing = true
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
-output_folder = "data/shape_and_object_recognition/leuven_embedded_figures_test"
+output_folder = "data_lite/shape_and_object_recognition/leuven_embedded_figures_test"
 
 ["shape_and_object_recognition/viewpoint_invariance"]
 # The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
@@ -254,9 +258,9 @@ behaviour_if_present = "overwrite"
 # A folder containing the original ETH-80 dataset. If the dataset is not present, it will be downloaded in this folder.
 ETH_80_folder = "assets/ETH_80"
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
-output_folder = "data/shape_and_object_recognition/viewpoint_invariance"
+output_folder = "data_lite/shape_and_object_recognition/viewpoint_invariance"
 # Specify the value to which the longest side of the object will be resized (keeping the aspect ratio), before pasting the image into a canvas
-object_longest_side = 100
+object_longest_side = 200
 # Limits of the azimuth viewpoints. For the ETH-80 dataset, they go from 0 to 338. Specify whether you want to only consider some values between A and B inclusive. If provided as a command line argument, use a string in the format A_B, e.g. 45_200.
 azimuth_lim = [ 0, 365,]
 # Limits of the inclination viewpoints. For the ETH-80 dataset, they go from 0 (top-view) to 90 (plane-view). Specify whether you want to only consider some values between A and B inclusive. If provided as a command line argument, use a string in the format A_B, e.g. 45_90.
@@ -272,11 +276,11 @@ antialiasing = false
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
 # Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
-object_longest_side = 100
+object_longest_side = 200
 # A folder containing the image input types (linedrawings/silhouettes). We assume these to be black strokes-on-white canvas simple contour drawings.
 image_input_folder = "assets/baker_2018_linedrawings/cropped/"
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
-output_folder = "data/shape_and_object_recognition/silhouettes_from_linedrawings_baker_2018"
+output_folder = "data_lite/shape_and_object_recognition/silhouettes_from_linedrawings_baker_2018"
 # Either [silhouettes] or [linedrawings]. Default is [linedrawings]. Both are supposed to be blackstroke over a black canvas. If using linedrawings, they will first be converted into silhouettes.
 input_image_type = "linedrawings"
 
@@ -290,11 +294,11 @@ antialiasing = false
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
 # Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
-object_longest_side = 100
+object_longest_side = 200
 # A folder containing the image input types (linedrawings/silhouettes). We assume these to be black strokes-on-white canvas simple contour drawings.
 image_input_folder = "assets/baker_2022_silhouettes/cropped"
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
-output_folder = "data/shape_and_object_recognition/silhouettes_from_silhouettes_baker_2022"
+output_folder = "data_lite/shape_and_object_recognition/silhouettes_from_silhouettes_baker_2022"
 # Either [silhouettes] or [linedrawings]. Default is [linedrawings]. Both are supposed to be blackstroke over a black canvas. If using linedrawings, they will first be converted into silhouettes.
 input_image_type = "silhouettes"
 
@@ -312,7 +316,7 @@ num_samples = 50
 # The shape of the embedded size (in pixels)
 shape_size = 45
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
-output_folder = "data/shape_and_object_recognition/embedded_figures"
+output_folder = "data_lite/shape_and_object_recognition/embedded_figures"
 
 ["shape_and_object_recognition/linedrawings"]
 # The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
@@ -324,11 +328,11 @@ antialiasing = false
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
 # Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
-object_longest_side = 100
+object_longest_side = 200
 # A folder containing linedrawings. We assume these to be black strokes-on-white canvas simple contour drawings.
 linedrawing_input_folder = "assets/baker_2018_linedrawings/cropped/"
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
-output_folder = "data/shape_and_object_recognition/linedrawings"
+output_folder = "data_lite/shape_and_object_recognition/linedrawings"
 
 ["shape_and_object_recognition/texturized_linedrawings_lines"]
 # The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
@@ -348,7 +352,7 @@ object_longest_side = 200
 # The desity of the pattern. The horizontal and vertical spacing are equal to line_length/density
 density = 1.8
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
-output_folder = "data/shape_and_object_recognition/texturized_linedrawings_lines"
+output_folder = "data_lite/shape_and_object_recognition/texturized_linedrawings_lines"
 
 ["shape_and_object_recognition/2d_transformations"]
 # The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
@@ -362,7 +366,7 @@ behaviour_if_present = "overwrite"
 # A folder of input images
 input_folder = "assets/baker_2018_linedrawings/cropped/"
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
-output_folder = "data/shape_and_object_recognition/2d_transformations"
+output_folder = "data_lite/shape_and_object_recognition/2d_transformations"
 # Maximum absolute fraction for horizontal translation, from -1 to 1. From commandline, use MIN_MAX.
 translation_X = [ -0.2, 0.2,]
 # Maximum absolute fraction for vertical translation, from -1 to 1. From commandline, use MIN_MAX.
@@ -390,7 +394,7 @@ type_dataset = "all"
 # either a number (both shapes the same, specific size), or rnd1 (different random sizes across samples, but same size within samples), rnd2 (different random sizes within samples and across samples). Different sizes for each shape are only applied when it makes sense for the task.
 size_shapes = 20
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
-output_folder = "data/shape_and_object_recognition/same_different_task"
+output_folder = "data_lite/shape_and_object_recognition/same_different_task"
 
 ["shape_and_object_recognition/texturized_blobs"]
 # The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
@@ -401,7 +405,7 @@ background_color = [ 0, 0, 0,]
 antialiasing = false
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
-# The number of augmented samples to generate for each line drawings
+# The number of augmented samples to generate for each blob
 num_samples_per_blob = 50
 num_blobs = 10
 # Specify the value to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
@@ -411,7 +415,7 @@ background_char = " "
 # The character to be used as foreground. Write `random` to use a different character for each image
 foreground_char = "random"
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
-output_folder = "data/shape_and_object_recognition/texturized_blobs"
+output_folder = "data_lite/shape_and_object_recognition/texturized_blobs"
 # If a number, it defines the size of the font for all images. It can be a string in the form A_B, in which case the size will be drawn from a uniform(A, B) distribution for each image
 font_size = [ 15, 20,]
 
@@ -435,180 +439,11 @@ background_char = " "
 # The character to be used as foreground. Write `random` to use a different character for each image
 foreground_char = "random"
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
-output_folder = "data/shape_and_object_recognition/texturized_linedrawings_chars"
+output_folder = "data_lite/shape_and_object_recognition/texturized_linedrawings_chars"
 # If a number, it defines the size of the font for all images. It can be a string in the form A_B, in which case the size will be drawn from a uniform(A, B) distribution for each image
 font_size = [ 15, 20,]
 
-["low_mid_level_vision/contour_completion"]
-# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
-canvas_size = [ 224, 224,]
-# Specify the background color. Could be a list of RGB values, or `rnd-uniform` for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
-background_color = [ 100, 100, 100,]
-# Specify whether we want to enable antialiasing
-antialiasing = true
-# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
-behaviour_if_present = "overwrite"
-# Each `sample` corresponds to an entire set of pair of shape_based_image_generation, for each condition.
-num_samples = 50
-# The color of the circle object. If called from command line, the RGB value must be a string in the form R_G_B, e.g. 255_0_125. Write `random` to have a random color.
-circle_color = [ 255, 255, 255,]
-# The color of the square object. If called from command line, the RGB value must be a string in the form R_G_B, e.g. 255_0_125. Write `random` to have a random color.
-square_color = [ 0, 0, 0,]
-# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
-output_folder = "data/low_mid_level_vision/contour_completion"
-
-["low_mid_level_vision/NAP_vs_MP_3D_geons.0"]
-# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
-canvas_size = [ 224, 224,]
-# Specify the background color. Could be a list of RGB values, or `rnd-uniform` for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
-background_color = [ 0, 0, 0,]
-# Specify whether we want to enable antialiasing
-antialiasing = true
-# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
-behaviour_if_present = "overwrite"
-# Specify the color of the shape. The shading will be preserved. Leave it empty to not change the color of the shape. Specify it as a rgb tuple in the format of 255_255_255
-stroke_color = ""
-# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
-output_folder = "data/low_mid_level_vision/NAP_vs_MP_3D_geons_standard"
-# The folder containing the shapes.
-shape_folder = "assets/amir_geons/cropped/NAPvsMP"
-# Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
-object_longest_side = 100
-
-["low_mid_level_vision/NAP_vs_MP_3D_geons.1"]
-# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
-canvas_size = [ 224, 224,]
-# Specify the background color. Could be a list of RGB values, or `rnd-uniform` for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
-background_color = [ 0, 0, 0,]
-# Specify whether we want to enable antialiasing
-antialiasing = true
-# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
-behaviour_if_present = "overwrite"
-# Specify the color of the shape. The shading will be preserved. Leave it empty to not change the color of the shape. Specify it as a rgb tuple in the format of 255_255_255
-stroke_color = ""
-# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
-output_folder = "data/low_mid_level_vision/NAP_vs_MP_3D_geons_no_shades"
-# The folder containing the shapes.
-shape_folder = "assets/amir_geons/cropped/NAPvsMP_no_shades"
-# Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
-object_longest_side = 100
-
-["low_mid_level_vision/NAP_vs_MP_3D_geons.2"]
-# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
-canvas_size = [ 224, 224,]
-# Specify the background color. Could be a list of RGB values, or `rnd-uniform` for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
-background_color = [ 0, 0, 0,]
-# Specify whether we want to enable antialiasing
-antialiasing = true
-# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
-behaviour_if_present = "overwrite"
-# Specify the color of the shape. The shading will be preserved. Leave it empty to not change the color of the shape. Specify it as a rgb tuple in the format of 255_255_255
-stroke_color = ""
-# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
-output_folder = "data/low_mid_level_vision/NAP_vs_MP_3D_geons_silhouettes"
-# The folder containing the shapes.
-shape_folder = "assets/amir_geons/cropped/NAPvsMP_silhouettes"
-# Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
-object_longest_side = 100
-
-["low_mid_level_vision/decomposition"]
-# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
-canvas_size = [ 224, 224,]
-# Specify the background color. Could be a list of RGB values, or `rnd-uniform` for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
-background_color = [ 0, 0, 0,]
-# Specify whether we want to enable antialiasing
-antialiasing = true
-# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
-behaviour_if_present = "overwrite"
-num_samples = 50
-# Specify by how much each image is separated (same values for the whole dataset)
-moving_distance = 60
-# Specify the color of the shapes (same across the whole dataset). Specify in R_G_B format, e.g. 255_0_0 for red
-shape_color = [ 255, 255, 255,]
-# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
-output_folder = "data/low_mid_level_vision/decomposition"
-
-["low_mid_level_vision/relational_vs_coordinate"]
-# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
-canvas_size = [ 224, 224,]
-# Specify the background color. Could be a list of RGB values, or `rnd-uniform` for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
-background_color = [ 0, 0, 0,]
-# Specify whether we want to enable antialiasing
-antialiasing = false
-# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
-behaviour_if_present = "overwrite"
-# Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
-object_longest_side = 80
-# A folder containing the hummel-stankiewicz stimuli
-input_folder = "assets/hummel_stankiewicz_1996/pngs"
-# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
-output_folder = "data/low_mid_level_vision/relational_vs_coordinate"
-
-["low_mid_level_vision/NAP_vs_MP_2D_lines"]
-# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
-canvas_size = [ 224, 224,]
-# Specify the background color. Could be a list of RGB values, or `rnd-uniform` for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
-background_color = [ 0, 0, 0,]
-# Specify whether we want to enable antialiasing
-antialiasing = false
-# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
-behaviour_if_present = "overwrite"
-# Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
-object_longest_side = 100
-# A folder containing the NAP vs MP 2D lines stimuli.
-input_folder = "assets/kubilius_2017/pngs"
-# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
-output_folder = "data/low_mid_level_vision/NAP_vs_MP_2D_lines"
-
-["low_mid_level_vision/un_crowding"]
-# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
-canvas_size = [ 224, 224,]
-# Specify the background color. Could be a list of RGB values, or `rnd-uniform` for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
-background_color = [ 0, 0, 0,]
-# Specify whether we want to enable antialiasing
-antialiasing = false
-# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
-behaviour_if_present = "overwrite"
-# The number of samples for each vernier type (left/right orientation) and condition. The vernier is places inside a flanker.
-num_samples_vernier_inside = 50
-# The number of samples for each vernier type (left/right orientation) and condition. The vernier is placed outside of the flankers
-num_samples_vernier_outside = 50
-# across samples
-random_size = true
-# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
-output_folder = "data/low_mid_level_vision/un_crowding"
-
-["low_mid_level_vision/emergent_features"]
-# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
-canvas_size = [ 224, 224,]
-# Specify the background color. Could be a list of RGB values, or `rnd-uniform` for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
-background_color = [ 0, 0, 0,]
-# Specify whether we want to enable antialiasing
-antialiasing = true
-# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
-behaviour_if_present = "overwrite"
-# Each `sample` corresponds to an entire set of pair of shape_based_image_generation, for each condition.
-num_samples = 50
-# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
-output_folder = "data/low_mid_level_vision/emergent_features"
-
-["low_mid_level_vision/depth_perception"]
-# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
-canvas_size = [ 224, 224,]
-# Specify the background color. Could be a list of RGB values, or `rnd-uniform` for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
-background_color = [ 0, 0, 0,]
-# Specify whether we want to enable antialiasing
-antialiasing = false
-# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
-behaviour_if_present = "overwrite"
-# Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
-object_longest_side = 100
-# A folder containing the Depth Perception stimuli from Enns and Rensink 1991.
-input_folder = "assets/enns_rensink_1991/pngs"
-# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
-output_folder = "data/low_mid_level_vision/depth_perception"
-
-["low_mid_level_vision/webers_law"]
+["low_mid_level_vision/weber_law"]
 # The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
 canvas_size = [ 224, 224,]
 # Specify the background color. Could be a list of RGB values, or `rnd-uniform` for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
@@ -634,4 +469,173 @@ interval_grayscale = 20
 # Width of the line. [rnd] to use a random width, otherwise specify a value (in pixel).
 width = 2
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
-output_folder = "data/low_mid_level_vision/webers_law"
+output_folder = "data_lite/low_mid_level_vision/weber_law"
+
+["low_mid_level_vision/contour_completion"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
+canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or `rnd-uniform` for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
+background_color = [ 100, 100, 100,]
+# Specify whether we want to enable antialiasing
+antialiasing = true
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# Each `sample` corresponds to an entire set of pair of shape_based_image_generation, for each condition.
+num_samples = 50
+# The color of the circle object. If called from command line, the RGB value must be a string in the form R_G_B, e.g. 255_0_125. Write `random` to have a random color.
+circle_color = [ 255, 255, 255,]
+# The color of the square object. If called from command line, the RGB value must be a string in the form R_G_B, e.g. 255_0_125. Write `random` to have a random color.
+square_color = [ 0, 0, 0,]
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
+output_folder = "data_lite/low_mid_level_vision/contour_completion"
+
+["low_mid_level_vision/NAP_vs_MP_3D_geons.0"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
+canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or `rnd-uniform` for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
+background_color = [ 0, 0, 0,]
+# Specify whether we want to enable antialiasing
+antialiasing = true
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# Specify the color of the shape. The shading will be preserved. Leave it empty to not change the color of the shape. Specify it as a rgb tuple in the format of 255_255_255
+stroke_color = ""
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
+output_folder = "data_lite/low_mid_level_vision/NAP_vs_MP_3D_geons_standard"
+# The folder containing the shapes.
+shape_folder = "assets/amir_geons/cropped/NAPvsMP"
+# Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
+object_longest_side = 200
+
+["low_mid_level_vision/NAP_vs_MP_3D_geons.1"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
+canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or `rnd-uniform` for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
+background_color = [ 0, 0, 0,]
+# Specify whether we want to enable antialiasing
+antialiasing = true
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# Specify the color of the shape. The shading will be preserved. Leave it empty to not change the color of the shape. Specify it as a rgb tuple in the format of 255_255_255
+stroke_color = ""
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
+output_folder = "data_lite/low_mid_level_vision/NAP_vs_MP_3D_geons_no_shades"
+# The folder containing the shapes.
+shape_folder = "assets/amir_geons/cropped/NAPvsMP_no_shades"
+# Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
+object_longest_side = 200
+
+["low_mid_level_vision/NAP_vs_MP_3D_geons.2"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
+canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or `rnd-uniform` for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
+background_color = [ 0, 0, 0,]
+# Specify whether we want to enable antialiasing
+antialiasing = true
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# Specify the color of the shape. The shading will be preserved. Leave it empty to not change the color of the shape. Specify it as a rgb tuple in the format of 255_255_255
+stroke_color = ""
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
+output_folder = "data_lite/low_mid_level_vision/NAP_vs_MP_3D_geons_silhouettes"
+# The folder containing the shapes.
+shape_folder = "assets/amir_geons/cropped/NAPvsMP_silhouettes"
+# Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
+object_longest_side = 200
+
+["low_mid_level_vision/decomposition"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
+canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or `rnd-uniform` for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
+background_color = [ 0, 0, 0,]
+# Specify whether we want to enable antialiasing
+antialiasing = true
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+num_samples = 50
+# Specify by how much each image is separated (same values for the whole dataset)
+moving_distance = 60
+# Specify the color of the shapes (same across the whole dataset). Specify in R_G_B format, e.g. 255_0_0 for red
+shape_color = [ 255, 255, 255,]
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
+output_folder = "data_lite/low_mid_level_vision/decomposition"
+
+["low_mid_level_vision/relational_vs_coordinate"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
+canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or `rnd-uniform` for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
+background_color = [ 0, 0, 0,]
+# Specify whether we want to enable antialiasing
+antialiasing = false
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
+object_longest_side = 200
+# A folder containing the hummel-stankiewicz stimuli
+input_folder = "assets/hummel_stankiewicz_1996/pngs"
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
+output_folder = "data_lite/low_mid_level_vision/relational_vs_coordinate"
+
+["low_mid_level_vision/NAP_vs_MP_2D_lines"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
+canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or `rnd-uniform` for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
+background_color = [ 0, 0, 0,]
+# Specify whether we want to enable antialiasing
+antialiasing = false
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
+object_longest_side = 200
+# A folder containing the NAP vs MP 2D lines stimuli.
+input_folder = "assets/kubilius_2017/pngs"
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
+output_folder = "data_lite/low_mid_level_vision/NAP_vs_MP_2D_lines"
+
+["low_mid_level_vision/un_crowding"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
+canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or `rnd-uniform` for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
+background_color = [ 0, 0, 0,]
+# Specify whether we want to enable antialiasing
+antialiasing = false
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# The number of samples for each vernier type (left/right orientation) and condition. The vernier is places inside a flanker.
+num_samples_vernier_inside = 50
+# The number of samples for each vernier type (left/right orientation) and condition. The vernier is placed outside of the flankers
+num_samples_vernier_outside = 50
+# across samples
+random_size = true
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
+output_folder = "data_lite/low_mid_level_vision/un_crowding"
+
+["low_mid_level_vision/emergent_features"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
+canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or `rnd-uniform` for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
+background_color = [ 0, 0, 0,]
+# Specify whether we want to enable antialiasing
+antialiasing = true
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# Each `sample` corresponds to an entire set of pair of shape_based_image_generation, for each condition.
+num_samples = 50
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
+output_folder = "data_lite/low_mid_level_vision/emergent_features"
+
+["low_mid_level_vision/depth_perception"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
+canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or `rnd-uniform` for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
+background_color = [ 0, 0, 0,]
+# Specify whether we want to enable antialiasing
+antialiasing = false
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
+object_longest_side = 200
+# A folder containing the Depth Perception stimuli from Enns and Rensink 1991.
+input_folder = "assets/enns_rensink_1991/pngs"
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
+output_folder = "data_lite/low_mid_level_vision/depth_perception"

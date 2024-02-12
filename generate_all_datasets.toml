@@ -41,8 +41,10 @@ background_color = [ 0, 0, 0,]
 antialiasing = true
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
-# Each `sample` corresponds to an entire set of pair of shape_based_image_generation, for each condition.
-num_samples = 5000
+# How many samples to generated for the scrambled up conditions
+num_samples_scrambled = 5000
+# How many samples to generated for the illusory conditions (small and big flankers)
+num_samples_illusory = 50
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
 output_folder = "data/visual_illusions/ebbinghaus_illusion"
 
@@ -127,9 +129,11 @@ background_color = [ 0, 0, 0,]
 antialiasing = true
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
-# Number of samples with only the center gabor patch
+# Number of samples with only the center grating
 num_samples_only_center = 1000
-# Number of samples for center and context gabor patches
+# Number of samples with only the context grating
+num_samples_only_context = 1000
+# Number of samples for center and context grating
 num_samples_center_context = 1000
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
 output_folder = "data/visual_illusions/tilt_illusion"
@@ -146,7 +150,7 @@ behaviour_if_present = "overwrite"
 # A folder containing linedrawings. We assume these to be black strokes-on-white canvas simple contour drawings.
 linedrawing_input_folder = "assets/baker_2018_linedrawings/cropped"
 # Specify the value to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
-object_longest_side = 100
+object_longest_side = 200
 # The rotation of the grid, in angles.
 grid_degree = 45
 # The size of each cell of the grid (in pixels)
@@ -166,7 +170,7 @@ antialiasing = false
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
 # Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
-object_longest_side = 100
+object_longest_side = 200
 # A folder containing linedrawings. We assume these to be black strokes-on-white canvas simple contour drawings.
 linedrawing_input_folder = "assets/baker_2018_linedrawings/cropped/"
 # Distance between dots
@@ -186,7 +190,7 @@ antialiasing = false
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
 # Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
-object_longest_side = 100
+object_longest_side = 200
 # A folder containing the image input types (linedrawings/silhouettes). We assume these to be black strokes-on-white canvas simple contour drawings.
 image_input_folder = "assets/baker_2018_linedrawings/cropped/"
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
@@ -204,7 +208,7 @@ antialiasing = false
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
 # Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
-object_longest_side = 100
+object_longest_side = 200
 # A folder containing the image input types (linedrawings/silhouettes). We assume these to be black strokes-on-white canvas simple contour drawings.
 image_input_folder = "assets/baker_2022_silhouettes/cropped"
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
@@ -222,7 +226,7 @@ antialiasing = false
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
 # Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
-object_longest_side = 100
+object_longest_side = 200
 # A folder containing the image input types (linedrawings/silhouettes). We assume these to be black strokes-on-white canvas simple contour drawings.
 image_input_folder = "assets/baker_2018_linedrawings/cropped/"
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
@@ -256,7 +260,7 @@ ETH_80_folder = "assets/ETH_80"
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
 output_folder = "data/shape_and_object_recognition/viewpoint_invariance"
 # Specify the value to which the longest side of the object will be resized (keeping the aspect ratio), before pasting the image into a canvas
-object_longest_side = 100
+object_longest_side = 200
 # Limits of the azimuth viewpoints. For the ETH-80 dataset, they go from 0 to 338. Specify whether you want to only consider some values between A and B inclusive. If provided as a command line argument, use a string in the format A_B, e.g. 45_200.
 azimuth_lim = [ 0, 365,]
 # Limits of the inclination viewpoints. For the ETH-80 dataset, they go from 0 (top-view) to 90 (plane-view). Specify whether you want to only consider some values between A and B inclusive. If provided as a command line argument, use a string in the format A_B, e.g. 45_90.
@@ -272,7 +276,7 @@ antialiasing = false
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
 # Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
-object_longest_side = 100
+object_longest_side = 200
 # A folder containing the image input types (linedrawings/silhouettes). We assume these to be black strokes-on-white canvas simple contour drawings.
 image_input_folder = "assets/baker_2018_linedrawings/cropped/"
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
@@ -290,7 +294,7 @@ antialiasing = false
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
 # Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
-object_longest_side = 100
+object_longest_side = 200
 # A folder containing the image input types (linedrawings/silhouettes). We assume these to be black strokes-on-white canvas simple contour drawings.
 image_input_folder = "assets/baker_2022_silhouettes/cropped"
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
@@ -324,7 +328,7 @@ antialiasing = false
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
 # Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
-object_longest_side = 100
+object_longest_side = 200
 # A folder containing linedrawings. We assume these to be black strokes-on-white canvas simple contour drawings.
 linedrawing_input_folder = "assets/baker_2018_linedrawings/cropped/"
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
@@ -401,7 +405,7 @@ background_color = [ 0, 0, 0,]
 antialiasing = false
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
-# The number of augmented samples to generate for each line drawings
+# The number of augmented samples to generate for each blob
 num_samples_per_blob = 5
 num_blobs = 10
 # Specify the value to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
@@ -439,6 +443,34 @@ output_folder = "data/shape_and_object_recognition/texturized_linedrawings_chars
 # If a number, it defines the size of the font for all images. It can be a string in the form A_B, in which case the size will be drawn from a uniform(A, B) distribution for each image
 font_size = [ 15, 20,]
 
+["low_mid_level_vision/weber_law"]
+# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
+canvas_size = [ 224, 224,]
+# Specify the background color. Could be a list of RGB values, or `rnd-uniform` for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
+background_color = [ 0, 0, 0,]
+# Specify whether we want to enable antialiasing
+antialiasing = true
+# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
+behaviour_if_present = "overwrite"
+# The number of samples to generate for each length and brightness condition. This will vary the width, if width is [rnd]. If width is a specific value, num_samples_per_condition will be set to 1
+num_samples_per_condition = 10
+# The maximum line length (in pixels) to use
+max_line_length = 50
+# The minimum line length (in pixels) to use
+min_line_length = 5
+# The Interval line length to use
+interval_line_length = 1
+# The minumum grayscale value to use for the brightness condition
+min_grayscale = 50
+# The maximum grayscale value to use for the brightness condition
+max_grayscale = 255
+# The Interval grayscale value to use
+interval_grayscale = 20
+# Width of the line. [rnd] to use a random width, otherwise specify a value (in pixel).
+width = 2
+# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
+output_folder = "data/low_mid_level_vision/weber_law"
+
 ["low_mid_level_vision/contour_completion"]
 # The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
 canvas_size = [ 224, 224,]
@@ -473,7 +505,7 @@ output_folder = "data/low_mid_level_vision/NAP_vs_MP_3D_geons_standard"
 # The folder containing the shapes.
 shape_folder = "assets/amir_geons/cropped/NAPvsMP"
 # Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
-object_longest_side = 100
+object_longest_side = 200
 
 ["low_mid_level_vision/NAP_vs_MP_3D_geons.1"]
 # The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
@@ -491,7 +523,7 @@ output_folder = "data/low_mid_level_vision/NAP_vs_MP_3D_geons_no_shades"
 # The folder containing the shapes.
 shape_folder = "assets/amir_geons/cropped/NAPvsMP_no_shades"
 # Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
-object_longest_side = 100
+object_longest_side = 200
 
 ["low_mid_level_vision/NAP_vs_MP_3D_geons.2"]
 # The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
@@ -509,7 +541,7 @@ output_folder = "data/low_mid_level_vision/NAP_vs_MP_3D_geons_silhouettes"
 # The folder containing the shapes.
 shape_folder = "assets/amir_geons/cropped/NAPvsMP_silhouettes"
 # Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
-object_longest_side = 100
+object_longest_side = 200
 
 ["low_mid_level_vision/decomposition"]
 # The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
@@ -538,7 +570,7 @@ antialiasing = false
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
 # Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
-object_longest_side = 80
+object_longest_side = 200
 # A folder containing the hummel-stankiewicz stimuli
 input_folder = "assets/hummel_stankiewicz_1996/pngs"
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
@@ -554,7 +586,7 @@ antialiasing = false
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
 # Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
-object_longest_side = 100
+object_longest_side = 200
 # A folder containing the NAP vs MP 2D lines stimuli.
 input_folder = "assets/kubilius_2017/pngs"
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
@@ -602,36 +634,8 @@ antialiasing = false
 # What to do if the dataset folder is already present? Choose between [overwrite], [skip]
 behaviour_if_present = "overwrite"
 # Specify the value in pixels to which the longest side of the line drawings will be resized (keeping the aspect ratio), before pasting the image into a canvas
-object_longest_side = 100
+object_longest_side = 200
 # A folder containing the Depth Perception stimuli from Enns and Rensink 1991.
 input_folder = "assets/enns_rensink_1991/pngs"
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
 output_folder = "data/low_mid_level_vision/depth_perception"
-
-["low_mid_level_vision/webers_law"]
-# The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.
-canvas_size = [ 224, 224,]
-# Specify the background color. Could be a list of RGB values, or `rnd-uniform` for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B
-background_color = [ 0, 0, 0,]
-# Specify whether we want to enable antialiasing
-antialiasing = true
-# What to do if the dataset folder is already present? Choose between [overwrite], [skip]
-behaviour_if_present = "overwrite"
-# The number of samples to generate for each length and brightness condition. This will vary the width, if width is [rnd]. If width is a specific value, num_samples_per_condition will be set to 1
-num_samples_per_condition = 10
-# The maximum line length (in pixels) to use
-max_line_length = 50
-# The minimum line length (in pixels) to use
-min_line_length = 5
-# The Interval line length to use
-interval_line_length = 1
-# The minumum grayscale value to use for the brightness condition
-min_grayscale = 50
-# The maximum grayscale value to use for the brightness condition
-max_grayscale = 255
-# The Interval grayscale value to use
-interval_grayscale = 20
-# Width of the line. [rnd] to use a random width, otherwise specify a value (in pixel).
-width = 2
-# The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
-output_folder = "data/low_mid_level_vision/webers_law"

@@ -509,7 +509,7 @@ if __name__ == "__main__":
         "--type_dataset",
         "-nas",
         default=DEFAULTS["type_dataset"],
-        help="Specify the type of datasets. It could be `all` or any of `regular`, `irregular`, `open`, `wider_line`, `rnd_color`, `filled`, `open_squares`, `rectangles`, `straight_liens`, `closed_squares`",
+        help="Specify the type of datasets. It could be `all` or any of `regular`, `irregular`, `open`, `wider_line`, `rnd_color`, `filled`, `open_squares`, `rectangles`, `straight_lines`, `closed_squares`",
     )
     args = parser.parse_known_args()[0]
     generate_all(**args.__dict__)

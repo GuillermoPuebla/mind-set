@@ -157,7 +157,7 @@ if __name__ == "__main__":
         "-sc",
         default=DEFAULTS[0]["stroke_color"],
         help="Specify the color of the shape. The shading will be preserved. Leave it empty to not change the color of the shape. Specify it as a rgb tuple in the format of 255_255_255",
-        type=lambda x: (tuple([int(i) for i in x.split("_")]) if "_" in x else x)
+        type=lambda x: [int(i) for i in x.split("_")] if "_" in x else x
         if isinstance(x, str)
         else x,
     )

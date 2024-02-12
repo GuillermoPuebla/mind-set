@@ -210,8 +210,8 @@ def convert_lists_to_strings(obj):
 
 
 DEFAULTS = {
-    "canvas_size": (224, 224),
-    "background_color": (0, 0, 0),
+    "canvas_size": [224, 224],
+    "background_color": [0, 0, 0],
     "antialiasing": True,
     "behaviour_if_present": "overwrite",
 }
@@ -228,9 +228,7 @@ def add_general_args(parser):
         "-csize",
         default=DEFAULTS["canvas_size"],
         help="The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.",
-        type=lambda x: tuple([int(i) for i in x.split("x")])
-        if isinstance(x, str)
-        else x,
+        type=lambda x: [int(i) for i in x.split("x")] if isinstance(x, str) else x,
     )
 
     parser.add_argument(
@@ -238,9 +236,11 @@ def add_general_args(parser):
         "-bg",
         default=DEFAULTS["background_color"],
         help="Specify the background color. Could be a list of RGB values, or `rnd-uniform` for a random (but uniform) color. If called from command line, the RGB value must be a string in the form R_G_B",
-        type=lambda x: (tuple([int(i) for i in x.split("_")]) if "_" in x else x)
-        if isinstance(x, str)
-        else x,
+        type=lambda x: (
+            [int(i) for i in x.split("_")]
+            if "_" in x
+            else x if isinstance(x, str) else x
+        ),
     )
 
     parser.add_argument(
@@ -298,20 +298,24 @@ def update_dict(dictA, dictB, replace=True):
                 if replace or (not replace and key not in dictA):
                     old_value = dictA[key] if key in dictA else "none"
                     dictA[key] = dictB[key]
-                    print(
-                        key_color
-                        + f"Updated {key} : "
-                        + reset_color
-                        + old_value_color
-                        + f"{old_value} => "
-                        + reset_color
-                        + key_color
-                        + f"{key}: "
-                        + reset_color
-                        + new_value_color
-                        + f"{dictB[key]}"
-                        + reset_color
-                    ) if old_value != dictB[key] else None
+                    (
+                        print(
+                            key_color
+                            + f"Updated {key} : "
+                            + reset_color
+                            + old_value_color
+                            + f"{old_value} => "
+                            + reset_color
+                            + key_color
+                            + f"{key}: "
+                            + reset_color
+                            + new_value_color
+                            + f"{dictB[key]}"
+                            + reset_color
+                        )
+                        if old_value != dictB[key]
+                        else None
+                    )
                 else:
                     print(
                         key_color
@@ -369,12 +373,16 @@ def get_affine_rnd_fun(transf_values):
     }
 
     tr = lambda: [
-        draw_random_from_ranges(transf_ranges["translation_X"])
-        if "translation_X" in transf_values and transf_values["translation_X"]
-        else 0,
-        draw_random_from_ranges(transf_ranges["translation_Y"])
-        if "translation_Y" in transf_values and transf_values["translation_Y"]
-        else 0,
+        (
+            draw_random_from_ranges(transf_ranges["translation_X"])
+            if "translation_X" in transf_values and transf_values["translation_X"]
+            else 0
+        ),
+        (
+            draw_random_from_ranges(transf_ranges["translation_Y"])
+            if "translation_Y" in transf_values and transf_values["translation_Y"]
+            else 0
+        ),
     ]
 
     scale = (

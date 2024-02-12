@@ -23,8 +23,8 @@ name_dataset = os.path.basename(os.path.dirname(__file__))
 DEFAULTS = {
     "antialiasing": False,
     "behaviour_if_present": True,
-    "num_samples": 50,
-    "canvas_size": (224, 224),
+    "num_samples": 5000,
+    "canvas_size": [224, 224],
     "output_folder": f"data/{category_folder}/{name_dataset}",
 }
 
@@ -102,9 +102,9 @@ if __name__ == "__main__":
         "-csize",
         default=DEFAULTS["canvas_size"],
         help="The size of the canvas. If called through command line, a string in the format NxM.",
-        type=lambda x: tuple([int(i) for i in x.split("x")])
-        if isinstance(x, str)
-        else x,
+        type=lambda x: (
+            tuple([int(i) for i in x.split("x")]) if isinstance(x, str) else x
+        ),
     )
 
     parser.add_argument(

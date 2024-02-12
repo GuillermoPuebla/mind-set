@@ -9,35 +9,34 @@ def generate_slug(name):
     return slug
 
 
-data_type = "full"
+def publish(data_type="full"):
+    if data_type == "lite":
+        folder_name = "data_lite"
+    else:
+        folder_name = "data"
 
-if data_type == "lite":
-    folder_name = "datasets_lite"
-else:
-    folder_name = "datasets"
+    title = "MindSet: Vision" + (" (lite)" if data_type == "lite" else "")
 
-title = "MindSet" + ("-lite" if data_type == "lite" else "")
+    print(sty.fg.red + f"Generating {title}" + sty.rs.fg)
 
-print(sty.fg.red + f"Generating {title}" + sty.rs.fg)
+    metadata = {
+        "title": title,
+        "id": f"Valerio1988/{title}",
+        "licenses": [{"name": "CC0-1.0"}],
+    }
 
-metadata = {
-    "title": title,
-    "id": f"Valerio1988/{title}",
-    "licenses": [{"name": "CC0-1.0"}],
-}
+    metadata_path = os.path.join(f"{folder_name}", "dataset-metadata.json")
+    with open(metadata_path, "w") as f:
+        json.dump(metadata, f)
 
-metadata_path = os.path.join(f"{folder_name}", "dataset-metadata.json")
-with open(metadata_path, "w") as f:
-    json.dump(metadata, f)
-
-subprocess.call(
-    [
-        "kaggle",
-        "datasets",
-        "create",
-        "-p",
-        f"{folder_name}",
-        "-r",
-        "zip",  # Upload folder as a zip
-    ]
-)
+    subprocess.call(
+        [
+            "kaggle",
+            "datasets",
+            "create",
+            "-p",
+            f"{folder_name}",
+            "-r",
+            "zip",  # Upload folder as a zip
+        ]
+    )

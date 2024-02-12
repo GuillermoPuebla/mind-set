@@ -65,7 +65,7 @@ class DrawStimuli:
             background = self.background
         size = self.canvas_size if size is None else size
         if background_mode == "one_color":
-            if isinstance(background, tuple):
+            if isinstance(background, tuple) or isinstance(background, list):
                 img = Image.new("RGB", size, background)  # x and y
 
         if background_mode == "random":

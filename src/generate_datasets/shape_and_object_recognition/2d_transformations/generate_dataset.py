@@ -34,10 +34,14 @@ from tqdm import tqdm
 
 
 class DrawTransform(DrawStimuli):
+    def __init__(self, obj_longest_side, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.obj_longest_side = obj_longest_side
+
     def get_image_transformed(self, image_path, tr, rt, sc, sh):
         img = Image.fromarray(
             resize_image_keep_aspect_ratio(
-                np.array(Image.open(image_path)), max(self.canvas_size)
+                np.array(Image.open(image_path)), self.obj_longest_side
             )
         )
 
@@ -71,12 +75,13 @@ DEFAULTS.update(
     {
         "input_folder": "assets/baker_2018_linedrawings/cropped/",
         "output_folder": f"data/{category_folder}/{name_dataset}",
-        "translation_X": (-0.2, 0.2),
-        "translation_Y": (-0.2, 0.2),
-        "scale": (0.5, 0.9),
-        "rotation": (0, 360),
-        "num_samples": 5,
-        "background_color": (255, 255, 255),
+        "object_longest_side": 200,
+        "translation_X": [-0.2, 0.2],
+        "translation_Y": [-0.2, 0.2],
+        "scale": [0.5, 0.9],
+        "rotation": [0, 360],
+        "num_samples": 50,
+        "background_color": [255, 255, 255],
     }
 )
 
@@ -86,6 +91,7 @@ def generate_all(
     output_folder=DEFAULTS["output_folder"],
     canvas_size=DEFAULTS["canvas_size"],
     background_color=DEFAULTS["background_color"],
+    object_longest_side=DEFAULTS["object_longest_side"],
     antialiasing=DEFAULTS["antialiasing"],
     translation_X=DEFAULTS["translation_X"],
     translation_Y=DEFAULTS["translation_Y"],
@@ -108,6 +114,7 @@ def generate_all(
     delete_and_recreate_path(output_folder)
     toml.dump(config, open(str(output_folder / "config.toml"), "w"))
     ds = DrawTransform(
+        obj_longest_side=object_longest_side,
         background=background_color,
         canvas_size=canvas_size,
         antialiasing=antialiasing,
@@ -189,6 +196,13 @@ if __name__ == "__main__":
     parser.set_defaults(background_color=DEFAULTS["background_color"])
 
     parser.add_argument(
+        "--object_longest_side",
+        "-objlside",
+        default=DEFAULTS["object_longest_side"],
+        type=int,
+        help="Specify the value to which the longest side of the object will be resized (keeping the aspect ratio),  before pasting the image into a canvas",
+    )
+    parser.add_argument(
         "--num_samples",
         "-ns",
         default=DEFAULTS["num_samples"],
@@ -199,21 +213,21 @@ if __name__ == "__main__":
         "--translation_X",
         "-trX",
         default=DEFAULTS["translation_X"],
-        type=lambda x: (tuple([float(i) for i in x.split("_")]) if "_" in x else x),
+        type=lambda x: [float(i) for i in x.split("_")] if "_" in x else x,
         help="Maximum absolute fraction for horizontal translation, from -1 to 1. From commandline, use MIN_MAX.",
     )
     parser.add_argument(
         "--translation_Y",
         "-trY",
         default=DEFAULTS["translation_Y"],
-        type=lambda x: (tuple([float(i) for i in x.split("_")]) if "_" in x else x),
+        type=lambda x: [float(i) for i in x.split("_")] if "_" in x else x,
         help="Maximum absolute fraction for vertical translation, from -1 to 1. From commandline, use MIN_MAX.",
     )
     parser.add_argument(
         "--scale",
         "-sc",
         default=DEFAULTS["scale"],
-        type=lambda x: (tuple([float(i) for i in x.split("_")]) if "_" in x else x),
+        type=lambda x: [float(i) for i in x.split("_")] if "_" in x else x,
         help="Scaling factor range, where 1 is the original scale. From commandline, use MIN_MAX.",
     )
     parser.add_argument(

@@ -65,8 +65,8 @@ class DrawCompletion(DrawStimuli):
                     (x_c - radius_circle, y_c - radius_circle),
                     (x_c + radius_circle, y_c + radius_circle),
                 ],
-                outline=circle_color,
-                fill=square_color,
+                outline=tuple(circle_color),
+                fill=tuple(square_color),
             )
             if notched:
                 draw.rectangle(
@@ -98,8 +98,8 @@ class DrawCompletion(DrawStimuli):
                 (x_s - side_square / 2, y_s - side_square / 2),
                 (x_s + side_square / 2, y_s + side_square / 2),
             ],
-            outline=circle_color if top == "s" else square_color,
-            fill=square_color,
+            outline=tuple(circle_color) if top == "s" else tuple(square_color),
+            fill=tuple(square_color),
         )
 
         if top == "c":
@@ -124,8 +124,8 @@ class DrawCompletion(DrawStimuli):
                     (x_c - radius_circle, y_c - radius_circle),
                     (x_c + radius_circle, y_c + radius_circle),
                 ],
-                outline=square_color,
-                fill=circle_color,
+                outline=tuple(square_color),
+                fill=tuple(circle_color),
             )
 
         return apply_antialiasing(img) if self.antialiasing else img
@@ -137,10 +137,10 @@ name_dataset = os.path.basename(os.path.dirname(__file__))
 DEFAULTS.update(
     {
         "num_samples": 500,
-        "circle_color": (255, 255, 255),
-        "square_color": (0, 0, 0),
+        "circle_color": [255, 255, 255],
+        "square_color": [0, 0, 0],
         "output_folder": f"data/{category_folder}/{name_dataset}",
-        "background_color": (100, 100, 100),
+        "background_color": [100, 100, 100],
     }
 )
 
@@ -216,10 +216,6 @@ def generate_all(
             side_square = radius_circle * 1.5
             diagonal_square = side_square * np.sqrt(2)
             center_circle = np.array(canvas_size) // 2
-            # center_circle = (
-            #     random.randint(0 + radius_circle, canvas_size[1] - radius_circle),
-            #     random.randint(0 + radius_circle, canvas_size[0] - radius_circle),
-            # )
             theta = np.random.uniform(0, np.pi * 2)
 
             # Generate unoccluded
@@ -335,14 +331,15 @@ if __name__ == "__main__":
         "-ccol",
         default=DEFAULTS["circle_color"],
         help="The color of the circle object. If called from command line, the RGB value must be a string in the form R_G_B, e.g. 255_0_125. Write `random` to have a random color.",
-        type=lambda x: (tuple([int(i) for i in x.split("_")]) if "_" in x else x),
-    )
+        type=lambda x: ([int(i) for i in x.split("_")]) if "_" in x else x,
+    ),
+
     parser.add_argument(
         "--square_color",
         "-scol",
         default=DEFAULTS["square_color"],
         help="The color of the square object. If called from command line, the RGB value must be a string in the form R_G_B, e.g. 255_0_125. Write `random` to have a random color.",
-        type=lambda x: (tuple([int(i) for i in x.split("_")]) if "_" in x else x),
+        type=lambda x: ([int(i) for i in x.split("_")] if "_" in x else x),
     )
     args = parser.parse_known_args()[0]
     generate_all(**args.__dict__)

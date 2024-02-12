@@ -1,6 +1,7 @@
 """
 Script for regression test / revisit doc string later
 """
+
 from src.utils.generate_default_pars_toml_file import create_config
 from src.generate_datasets_from_toml import generate_datasets_from_toml_file
 from pathlib import Path
@@ -12,7 +13,7 @@ import os
 from collections import defaultdict
 import base64
 from nbformat import v4 as nbf
-
+from nbconvert import PDFExporter
 from src.utils.misc import modify_toml
 
 
@@ -83,16 +84,42 @@ def check_up_config(project_name: str):
     return ""
 
 
+from nbconvert import HTMLExporter
+
+
 def generate_notebook(dataset_structure, save_to):
+    # Create a new notebook
     nb = nbf.new_notebook()
     generate_headers(nb, dataset_structure)
+
+    # Save the notebook file
     with open(save_to, "w") as f:
         f.write(nbf.writes(nb))
 
+    # Convert and save the notebook as HTML
+    html_exporter = HTMLExporter()
+    html_data, _ = html_exporter.from_notebook_node(nb)
+    save_to_html = str(save_to).replace(".ipynb", ".html")
+    with open(save_to_html, "w") as f:
+        f.write(html_data)
+
+
+import src.utils.generate_default_pars_toml_file
+import sty
+
 
 def test_generate_toml():
-    # source_toml = "generate_subset_datasets.toml"
-    source_toml = "generate_all_datasets.toml"
+    source_toml = "tests/generate_all_datasets.toml"
+
+    print("*** GENERATING DEFAULT TOML FILES: tests/generate_all_datasets.toml ***")
+    src.utils.generate_default_pars_toml_file.main(
+        output="tests/generate_all_datasets.toml"
+    )
+
+    print(sty.fg.blue + "*** DONE *** " + sty.rs.fg)
+    print(
+        sty.fg.blue + "*** GENERATING SMALL SAMPLES, BLACK BACKGROUND ***" + sty.rs.fg
+    )
 
     name_test = "small_black_bg"
     with open(source_toml, "r") as file:
@@ -104,8 +131,13 @@ def test_generate_toml():
         modify_value_fun=lambda h, x: 5,
     )
 
-    generate_dataset_and_notebook_from_toml_file(toml_lines, source_toml, name_test)
+    generate_test_dataset_and_notebook_from_toml_file(
+        toml_lines, source_toml, name_test
+    )
 
+    print(
+        sty.fg.blue + "*** GENERATING SMALL SAMPLES, RANDOM BACKGROUND ***" + sty.rs.fg
+    )
     name_test = "small_random_bg"
     with open(source_toml, "r") as file:
         toml_lines = file.readlines()
@@ -122,19 +154,21 @@ def test_generate_toml():
         modify_value_fun=lambda h, x: '"rnd-uniform"',
     )
     print(toml_lines)
-    generate_dataset_and_notebook_from_toml_file(toml_lines, source_toml, name_test)
+    generate_test_dataset_and_notebook_from_toml_file(
+        toml_lines, source_toml, name_test
+    )
 
 
-def generate_dataset_and_notebook_from_toml_file(toml_lines, source_toml, name_test):
+def generate_test_dataset_and_notebook_from_toml_file(
+    toml_lines, source_toml, name_test
+):
     toml_lines = modify_toml(
         toml_lines,
         modified_key_starts_with="output_folder",
         modify_value_fun=lambda h, x: f'"tests/{name_test}/data/{h.strip(chr(34))}"',
     )
 
-    name_toml_file = Path("tests") / (
-        os.path.splitext(source_toml)[0] + "_" + f"{name_test}.toml"
-    )
+    name_toml_file = Path(os.path.splitext(source_toml)[0] + "_" + f"{name_test}.toml")
     with open(name_toml_file, "w") as file:
         file.writelines(toml_lines)
     save_path = Path("tests") / name_test

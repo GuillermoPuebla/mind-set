@@ -151,8 +151,6 @@ def generate_all(
                 / str(object_id)
                 / f"{Path(img_path).stem}_{unique_hex}.png"
             )
-            if class_name == "horse1":
-                stop = 1
             img.save(output_folder / img_save_path)
             writer.writerow(
                 [
@@ -191,14 +189,14 @@ if __name__ == "__main__":
         "-incl",
         help="Limits of the inclination viewpoints. For the ETH-80 dataset, they go from 0 (top-view) to 90 (plane-view). Specify whether you want to only consider some values between A and B inclusive. If provided as a command line argument, use a string in the format A_B, e.g. 45_90.",
         default=DEFAULTS["inclination_lim"],
-        type=lambda x: (tuple([int(i) for i in x.split("_")])),
+        type=lambda x: [int(i) for i in x.split("_")],
     )
     parser.add_argument(
         "--azimuth_lim",
         "-azil",
         help="Limits of the azimuth viewpoints. For the ETH-80 dataset, they go from 0 to 338. Specify whether you want to only consider some values between A and B inclusive. If provided as a command line argument, use a string in the format A_B, e.g. 45_200.",
         default=DEFAULTS["azimuth_lim"],
-        type=lambda x: (tuple([int(i) for i in x.split("_")])),
+        type=lambda x: [int(i) for i in x.split("_")],
     )
 
     args = parser.parse_known_args()[0]

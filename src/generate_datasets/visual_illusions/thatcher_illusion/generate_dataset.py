@@ -26,7 +26,7 @@ name_dataset = os.path.basename(os.path.dirname(__file__))
 
 
 DEFAULTS = {
-    "canvas_size": (224, 224),
+    "canvas_size": [224, 224],
     "face_folder": "assets/celebA_sample/normal",
     "output_folder": f"data/{category_folder}/{name_dataset}",
     "behaviour_if_present": "overwrite",
@@ -143,7 +143,7 @@ if __name__ == "__main__":
         "-csize",
         default=DEFAULTS["canvas_size"],
         help="The size of the canvas. If called through command line, a string in the format NxM.",
-        type=lambda x: tuple([int(i) for i in x.split("x")]),
+        type=lambda x: [int(i) for i in x.split("x")],
     )
     parser.add_argument(
         "--behaviour_if_present",

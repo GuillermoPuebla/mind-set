@@ -1,9 +1,10 @@
 """
-The code in this page is copied from the GPL 3.0 licened GitHub repo:
+The code in this page is copied from the GPL 3.0 licensed GitHub repo:
 https://github.com/Erfaniaa/thatcher-effect-dataset-generator/tree/master
 The function get_image_facial_landmark has been rewritten to get rid of the dependency from the (heavy and error-prone) dlib. main() function has been removed.
 Notice that this requires the installation of opencv-contrib: pip install opencv-contrib-python --user
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 from math import inf
