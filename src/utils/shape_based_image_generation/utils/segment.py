@@ -4,7 +4,6 @@ as in some research the image shape_based_image_generation is not available as u
 (strong complaints.......)
 """
 
-
 import cv2
 import numpy as np
 from skimage import measure
