@@ -213,7 +213,8 @@ def generate_all(
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
+    description = "The dataset consists of texturized familiar objects by using as a base items the line drawings from Baker et al. (2018), but the user can specify a different folder oe line drawings (which should be images of black strokes on a white background). The texturization consists of lines placed at random degree. This is an alternative texturization method to the 'texturized_linedrawings_chars'. We suggest using the 'chars' method instead.  \nREF: Baker, Nicholas, Hongjing Lu, Gennady Erlikhman, and Philip J. Kellman. 'Deep Convolutional Networks Do Not Classify Based on Global Object Shape'. PLoS Computational Biology 14, no. 12 (2018): 1-43. https://doi.org/10.1371/journal.pcbi.1006613."
+    parser = argparse.ArgumentParser(description=description)
     add_general_args(parser)
     parser.set_defaults(antialiasing=DEFAULTS["antialiasing"])
     parser.set_defaults(output_folder=DEFAULTS["output_folder"])

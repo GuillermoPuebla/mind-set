@@ -108,8 +108,9 @@ def generate_all(
 
 
 if __name__ == "__main__":
+    description = "2D line segments recreated through vector graphics based on Kubilius et al. 2017. A feature dimension (such as the curvature of a Geon) is altered from a singular value (e.g. straight contour with 0 curvature) to two different values (e.g. slightly curved or very curved). The `reference` condition is the item with the intermediate value; the `MP change` condition consists of the sample with a greater non-singular value (that is, from slight curvature to greater curvature, which corresponds to a MP change), and the `NAP` change condition includes the samples with the singular value (that is, from slight curvature to non curvature, which corresponds to a NAP change). \nREF: Kubilius, Jonas, Charlotte Sleurs, and Johan Wagemans. 'Sensitivity to Nonaccidental Configurations of Two-Line Stimuli'. I-Perception 8, no. 2 (1 April 2017): 1-12. https://doi.org/10.1177/2041669517699628/"
     parser = argparse.ArgumentParser(
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+        description=description, formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
     add_general_args(parser)

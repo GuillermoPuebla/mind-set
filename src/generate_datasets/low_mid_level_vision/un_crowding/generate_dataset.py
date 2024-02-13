@@ -9,6 +9,7 @@ Main changes to the main code:
     - changed naming convention from CamelCase to snake_case.
     - added optional arguments part for generating dataset from the command line
 """
+
 import csv
 import uuid
 from pathlib import Path
@@ -578,8 +579,8 @@ name_dataset = os.path.basename(os.path.dirname(__file__))
 
 DEFAULTS.update(
     {
-        "num_samples_vernier_inside": 5000,
-        "num_samples_vernier_outside": 5000,
+        "num_samples_vernier_inside": 100,
+        "num_samples_vernier_outside": 100,
         "random_size": True,
         "output_folder": f"data/{category_folder}/{name_dataset}",
         "antialiasing": False,
@@ -652,9 +653,13 @@ def generate_all(
                     f"In order to have at least one sample per condition, the total number of sample has been increased to {len(t)}"
                 )
                 samples_per_cond = 1
-            print(
-                f"You specified {num_requested_samples} for {v_in_out} but to keep the number of sample per subcategory equal, {samples_per_cond * len(t)} samples will be generated ({len(t)} categories, {samples_per_cond} samples per category)"
-            ) if samples_per_cond * len(t) != num_requested_samples else None
+            (
+                print(
+                    f"You specified {num_requested_samples} for {v_in_out} but to keep the number of sample per subcategory equal, {samples_per_cond * len(t)} samples will be generated ({len(t)} categories, {samples_per_cond} samples per category)"
+                )
+                if samples_per_cond * len(t) != num_requested_samples
+                else None
+            )
             for v in vernier_type:
                 for s in tqdm(t, leave=False):
                     for n in range(samples_per_cond):
@@ -706,7 +711,9 @@ def generate_all(
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
+    description = "Based on Doerig & Herzog (2019), code adapted with authors' permission. Consists of a 'vernier' stimulus (two parallel lines segment with some offset) placed either inside or outside a set of random flankers (squares, circles, hexagons, octagons, stars, diamonds). Each configuration has from 1 to 7 columns and from 1 to 3 rows of flankers with a variety of same/different shape patterns used. The vernier can be left/right oriented. User can specify whether the size of the flankers vary or is fixed across samples.\nREF: Doerig, A †, and A † Herzog. 'Crowding Reveals Fundamental Differences in Local vs. Global Processing in Humans and Machines', n.d. Accessed 18 May 2023."
+
+    parser = argparse.ArgumentParser(description=description)
     add_general_args(parser)
     parser.set_defaults(output_folder=DEFAULTS["output_folder"])
     parser.set_defaults(antialiasing=DEFAULTS["antialiasing"])

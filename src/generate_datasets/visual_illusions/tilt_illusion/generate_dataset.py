@@ -190,8 +190,9 @@ def generate_all(
 
 
 if __name__ == "__main__":
+    description = "We provide one illusory condition, in which an oriented grating pattern is presented within a circular mask (`center grating') and a differently oriented grating is placed as the background (`context' grating); and two non-illusory conditions: one in which the background is uniformly colored and only a center mask contains the oriented grating pattern; and vice versa. The samples are varied in their orientation and frequency of the gratings, and in the size of the central grating."
     parser = argparse.ArgumentParser(
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+        description=description, formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
     add_general_args(parser)

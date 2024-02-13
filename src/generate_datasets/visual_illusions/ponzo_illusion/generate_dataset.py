@@ -304,7 +304,8 @@ def generate_all(
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
+    description = "Two target lines (red and blue) are placed across a railway track pattern. In the `illusory' condition, the target lines have the same length (varying across samples). In the `scrambled' condition, the target lines have different length, are still placed horizontally one on top of the other, but all the other segments are randomly placed across the canvas. We include an additional condition, `different lengths`, in which the railway track pattern is used on target lines of different lengths. The railway track pattern for the `illusory' and `different lengths` conditions is composed of converging segments (with a varying degree of convergence), and horizontal segments (randomly placed at different horizontal position). For the three conditions, the user can specify the number of horizontal segments to use. "
+    parser = argparse.ArgumentParser(description=description)
 
     add_general_args(parser)
     parser.set_defaults(output_folder=DEFAULTS["output_folder"])

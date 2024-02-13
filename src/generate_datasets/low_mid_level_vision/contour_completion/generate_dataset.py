@@ -65,8 +65,8 @@ class DrawCompletion(DrawStimuli):
                     (x_c - radius_circle, y_c - radius_circle),
                     (x_c + radius_circle, y_c + radius_circle),
                 ],
-                outline=tuple(circle_color),
-                fill=tuple(square_color),
+                outline=tuple(square_color),
+                fill=tuple(circle_color),
             )
             if notched:
                 draw.rectangle(
@@ -136,7 +136,7 @@ name_dataset = os.path.basename(os.path.dirname(__file__))
 
 DEFAULTS.update(
     {
-        "num_samples": 500,
+        "num_samples": 50,
         "circle_color": [255, 255, 255],
         "square_color": [0, 0, 0],
         "output_folder": f"data/{category_folder}/{name_dataset}",
@@ -250,10 +250,7 @@ def generate_all(
                     top=top_shape,
                 )
                 unique_hex = uuid.uuid4().hex[:8]
-                path = (
-                    Path("no_occlusion")
-                    / f"{top_shape}_{completed_samples}_{unique_hex}.png"
-                )
+                path = Path("no_occlusion") / f"{top_shape}_{unique_hex}.png"
                 img.save(output_folder / path)
                 writer.writerow(
                     [
@@ -288,9 +285,10 @@ def generate_all(
                         notched=notched,
                         top=top_shape,
                     )
+                    unique_hex = uuid.uuid4().hex[:8]
                     path = (
                         Path("notched" if notched else "occlusion")
-                        / f"{top_shape}_{completed_samples}.png"
+                        / f"{top_shape}_{unique_hex}.png"
                     )
                     img.save(output_folder / path)
                     writer.writerow(
@@ -314,7 +312,9 @@ def generate_all(
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
+    description = "Samples that look like the stimuli used in Rensink & Enns (1998) and explained in detail above. Configurable parameters include the colour of the shapes. We generated samples for the `no occlusion', `occlusion', and `notched' conditions, with either the square occluding of the circle or vice versa. The occluding shape is placed at a variety of es from the occluded shape. Each `occluded' image has a corresponding `notched' image (that is, using the same shapes configuration)  so that they can be directly compared. There is also a corresponding `no occluded` sample in which the occluding shape is moved radially away from the occluded shape, maintaining the same orientation.\nNote: the top shape is normally the shape 'on top' in the occluded version, and the shape with a visible border in the notched and unoccluded version.\nREF:Rensink, Ronald A., and James T. Enns. 'Early Completion of Occluded Objects'. Vision Research 38, no. 15-16 (1 August 1998): 2489-2505. https://doi.org/10.1016/S0042-6989(98)00051-0."
+
+    parser = argparse.ArgumentParser(description)
     add_general_args(parser)
     parser.set_defaults(background_color=DEFAULTS["background_color"])
     parser.set_defaults(output_folder=DEFAULTS["output_folder"])

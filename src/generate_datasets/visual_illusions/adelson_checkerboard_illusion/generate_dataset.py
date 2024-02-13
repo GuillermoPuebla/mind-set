@@ -87,7 +87,8 @@ def generate_all(
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
+    description = "This dataset simply consists of the Adelson Checker Shadow illusory image replicated many times, grayscaled, with a white arrow systematically placed at different locations of the canvas, covering the whole checkerboard. This dataset is supposed to be used in conjunction with a color-picker decoder, that is a decoder trained on the Grayscale Shape dataset. "
+    parser = argparse.ArgumentParser(description=description)
     parser.add_argument(
         "--output_folder",
         "-o",
@@ -113,9 +114,9 @@ if __name__ == "__main__":
         "-csize",
         default=DEFAULTS["canvas_size"],
         help="The size of the canvas. If called through command line, a string in the format NxM.",
-        type=lambda x: tuple([int(i) for i in x.split("x")])
-        if isinstance(x, str)
-        else x,
+        type=lambda x: (
+            tuple([int(i) for i in x.split("x")]) if isinstance(x, str) else x
+        ),
     )
 
     parser.add_argument(

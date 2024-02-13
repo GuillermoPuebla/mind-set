@@ -108,8 +108,10 @@ def generate_all(
 
 
 if __name__ == "__main__":
+    description = "We recreated through vector graphics the images originally contained in  Hummel & Stankiewicz (1996), Experiment 5, using white strokes on a uniform background.\nREF: Hummel, John E., and Brian J. Stankiewicz. 'Categorical Relations in Shape Perception'. Spatial Vision 10, no. 3 (1996): 201-36. https://doi.org/10.1163/156856896X00141."
+
     parser = argparse.ArgumentParser(
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+        description=description, formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
     add_general_args(parser)

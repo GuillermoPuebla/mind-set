@@ -166,7 +166,8 @@ def generate_all(
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
+    description = "We use the ETH-80 dataset (https://github.com/chenchkx/ETH-80/tree/master), which contains 8 different categories (apples, cars, cows,cups, dogs, horses, pears and tomatoes), each consisting of 10 object instances, each object captured from 41 different viewpoints. The ETH-80 dataset is automatically downloaded when this dataset is generated, if not already present. "
+    parser = argparse.ArgumentParser(description=description)
     add_general_args(parser)
     parser.set_defaults(output_folder=DEFAULTS["output_folder"])
 

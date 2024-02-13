@@ -114,7 +114,8 @@ def generate_all(
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
+    description = "The dataset consists of the standard Lightness Contrast configuration of square within a uniform canvas, having two different grayscale values. The user can specify the grayscale value of the center square, which is kept fixed, while the value of the background is varied. Importantly, each sample is replicated many times with the white arrow marker placed at different location in the canvas. This simple configuration is modified so that it is easy to use in conjunction with a color-picker decoder, that is a decoder trained on the Grayscale Shape dataset. "
+    parser = argparse.ArgumentParser(description=description)
     parser.add_argument(
         "--output_folder",
         "-o",
@@ -126,9 +127,9 @@ if __name__ == "__main__":
         "-csize",
         default=DEFAULTS["canvas_size"],
         help="The size of the canvas. If called through command line, a string in the format NxM eg `224x224`.",
-        type=lambda x: tuple([int(i) for i in x.split("x")])
-        if isinstance(x, str)
-        else x,
+        type=lambda x: (
+            tuple([int(i) for i in x.split("x")]) if isinstance(x, str) else x
+        ),
     )
 
     parser.add_argument(

@@ -14,7 +14,6 @@ The shapes including:
 3. an add arrow function
 """
 
-
 from PIL import ImageDraw
 import PIL.Image as Image
 
@@ -459,8 +458,12 @@ class ColorPickerStimuli:
 
         coord_1 = tuple(map(self._multiply_by_canvas_size, coord_1))
         coord_2 = tuple(map(self._multiply_by_canvas_size, coord_2))
+        # this conversion is performed to avoid a bug in Pillow
+        # https://github.com/python-pillow/Pillow/issues/7149
+        coord_1 = tuple(map(int, coord_1))
+        coord_2 = tuple(map(int, coord_2))
         radius = self._multiply_by_canvas_size(radius)
-        self.draw.rounded_rectangle((coord_1, coord_2), radius, fill=fill)
+        self.draw.rounded_rectangle(xy=(coord_1, coord_2), radius=radius, fill=fill)
 
     def _add_indicator_circle(self, coord: tuple[float, float]):
         fill = None

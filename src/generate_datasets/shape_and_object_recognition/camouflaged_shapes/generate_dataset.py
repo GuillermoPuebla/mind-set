@@ -81,7 +81,7 @@ name_dataset = os.path.basename(os.path.dirname(__file__))
 
 DEFAULTS.update(
     {
-        "num_samples": 5000,
+        "num_samples": 100,
         "shape_size": 45,
         "output_folder": f"data/{category_folder}/{name_dataset}",
     }
@@ -152,8 +152,9 @@ def generate_all(
 
 
 if __name__ == "__main__":
+    description = "We developed our version of the Leuven Camouflaged Shapes from Torfs et al. (2014)  by generating 5 irregular polygons and adding a set of lines to camouflage them. This consisted of pre-generated polygons and the polygons camouflaged by adding a variety of lines. Some of the added lines extends the lines that composed the polygon itself, and some have a slightly different slope than the polygon's lines. \nREF: Torfs, Katrien, Kathleen Vancleef, Christophe Lafosse, Johan Wagemans, and Lee De-Wit. 'The Leuven Perceptual Organization Screening Test (L-POST), an Online Test to Assess Mid-Level Visual Perception'. Behavior Research Methods 46, no. 2 (5 November 2014): 472-87. https://doi.org/10.3758/S13428-013-0382-6/"
     parser = argparse.ArgumentParser(
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+        description=description, formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
     add_general_args(parser)

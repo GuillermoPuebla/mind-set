@@ -106,8 +106,9 @@ def generate_all(
 
 
 if __name__ == "__main__":
+    description = "This dataset consists of simple line-drawings. We use the line-drawing stimuli from Baker et al. (2018), consisting of 36 classes from ImageNet (one line-drawing per class). The line-drawings are white stroke on a uniform canvas (black by default). The user can specify a different line-drawing folders, which should consist of images of black strokes on a white background.\nREF: Baker, Nicholas, Hongjing Lu, Gennady Erlikhman, and Philip J. Kellman. 'Deep Convolutional Networks Do Not Classify Based on Global Object Shape'. PLoS Computational Biology 14, no. 12 (2018): 1-43. https://doi.org/10.1371/journal.pcbi.1006613."
     parser = argparse.ArgumentParser(
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+        description=description, formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
     add_general_args(parser)

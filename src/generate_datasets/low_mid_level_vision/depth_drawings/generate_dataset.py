@@ -108,8 +108,10 @@ def generate_all(
 
 
 if __name__ == "__main__":
+    description = "we recreated through vector graphics the stimuli appearing in Enns & Rensink (1991), using white strokes on a uniform background. \nREF:Enns, James T., and Ronald A. Rensink. 'Preattentive Recovery of Three-Dimensional Orientation from Line Drawing'. Psychological Review 98, no. 3 (1991): 335-51. https://doi.org/10.1037/0033-295X.98.3.335."
+
     parser = argparse.ArgumentParser(
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+        description=description, formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
     add_general_args(parser)

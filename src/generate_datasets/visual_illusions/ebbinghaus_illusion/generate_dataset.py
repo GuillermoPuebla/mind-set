@@ -128,7 +128,8 @@ def generate_all(
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
+    description = "A red target circle is surrounded by a fixed number of white circles (flankers) on a uniform background. In the two illusory conditions (`big' and `small' flankers) the flankers are disposed around the target circle, and they all have the same size within each sample. In the `scrambled' condition the target circle is still placed in the center, but white circles with random sizes are randomly placed on the canvas. Across illusory samples, we varied the radii of the flankers, the radius of the target circle, the displacement of the flankers around the target. "
+    parser = argparse.ArgumentParser(description=description)
     add_general_args(parser)
     parser.set_defaults(output_folder=DEFAULTS["output_folder"])
 

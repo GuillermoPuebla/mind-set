@@ -63,7 +63,7 @@ class DrawWeberLength(DrawStimuli):
 category_folder = os.path.basename(os.path.dirname(os.path.dirname(__file__)))
 name_dataset = os.path.basename(os.path.dirname(__file__))
 
-DEFAULTS["num_samples_per_condition"] = 10
+DEFAULTS["num_samples_per_condition"] = 50
 DEFAULTS["max_line_length"] = 50
 DEFAULTS["min_line_length"] = 5
 DEFAULTS["interval_line_length"] = 1
@@ -141,7 +141,8 @@ def generate_all(
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
+    description = "A simple horizontal white line with varying length and brightness. Configurable parameters include line width, min/max length/brightnes"
+    parser = argparse.ArgumentParser(description=description)
     add_general_args(parser)
     parser.set_defaults(output_folder=DEFAULTS["output_folder"])
 

@@ -144,7 +144,8 @@ def generate_all(
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
+    description = "We generate a dataset of silhouettes by using samples from Baker & Elder (2022) (9 classes from ImageNet, each class containing 40 samples). The user can specify any folder containing silhouettes. Alternatively, the user can also specify a folder containing line-drawings (black strokes on a white background), which will be converted into silhouettes.\nREF: Baker, Nicholas, and James H. Elder. 'Deep Learning Models Fail to Capture the Configural Nature of Human Shape Perception'. iScience 25, no. 9 (16 September 2022): 104913. https://doi.org/10.1016/J.ISCI.2022.104913."
+    parser = argparse.ArgumentParser(description=description,
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 

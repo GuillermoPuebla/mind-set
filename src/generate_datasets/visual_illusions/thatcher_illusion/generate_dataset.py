@@ -121,8 +121,9 @@ def generate_all(
 
 
 if __name__ == "__main__":
+    description = "We provide a small face celebrity dataset using a subset of CelebA: https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html, but the user can specify any folder containing images of faces. Each image is resized according to parameters specified by the user and then reoriented into both an upright and a 180-degree inverted configuration. Furthermore, it is either 'Thatcherized' or unaltered. To `Thatcherize' an image we compute the landmarks of the eyes and the mouth, compute the bounding rectangle for each, and rotate them around their centre of mass. Blurring on the edge is applied to minimize artefacts."
     parser = argparse.ArgumentParser(
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+        description=description, formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
     parser.add_argument(

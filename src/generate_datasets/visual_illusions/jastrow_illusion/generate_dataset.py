@@ -92,15 +92,19 @@ class DrawJastrow(DrawStimuli):
                 arcs_sizes = [np.mean(arcs_sizes)] * 2
             arc_1 = Shapes(parent=parent)
             arc_1.add_arc(size=arcs_sizes[0], arc=arc, width=width)
-            arc_1.move_to(position_fun()).rotate(
-                rotation_fun()
-            ) if "random" in type_stimulus else None
+            (
+                arc_1.move_to(position_fun()).rotate(rotation_fun())
+                if "random" in type_stimulus
+                else None
+            )
 
             arc_2 = Shapes(parent=parent)
             arc_2.add_arc(size=arcs_sizes[1], arc=arc, width=width)
-            arc_2.move_to(position_fun()).rotate(
-                rotation_fun()
-            ) if "random" in type_stimulus else None
+            (
+                arc_2.move_to(position_fun()).rotate(rotation_fun())
+                if "random" in type_stimulus
+                else None
+            )
             parent.center_shapes()
 
             if type_stimulus == "aligned" or type_stimulus == "illusory":
@@ -131,9 +135,10 @@ name_dataset = os.path.basename(os.path.dirname(__file__))
 
 DEFAULTS.update(
     {
-        "num_samples_illusory": 500,
-        "num_samples_random": 5000,
-        "num_samples_aligned": 1000,
+        "num_samples_illusory": 50,
+        "num_samples_random": 1000,
+        "num_samples_aligned": 50,
+        "num_samples_random_same_size": 50,
         "output_folder": f"data/{category_folder}/{name_dataset}",
     }
 )
@@ -143,6 +148,7 @@ def generate_all(
     num_samples_illusory=DEFAULTS["num_samples_illusory"],
     num_samples_random=DEFAULTS["num_samples_random"],
     num_samples_aligned=DEFAULTS["num_samples_aligned"],
+    num_samples_random_same_size=DEFAULTS["num_samples_random_same_size"],
     output_folder=DEFAULTS["output_folder"],
     canvas_size=DEFAULTS["canvas_size"],
     background_color=DEFAULTS["background_color"],
@@ -208,7 +214,7 @@ def generate_all(
                 "illusory": num_samples_illusory,
                 "aligned": num_samples_aligned,
                 "random": num_samples_random,
-                "random_same_size": num_samples_random,
+                "random_same_size": num_samples_random_same_size,
             }[type]
             for idx in tqdm(range(num_samples), leave=False):
                 for top_color in on_top_cols:
@@ -242,9 +248,11 @@ def generate_all(
                             width,
                             size_red,
                             size_blue,
-                            "none"
-                            if type in ["random", "random_same_size"]
-                            else top_color,
+                            (
+                                "none"
+                                if type in ["random", "random_same_size"]
+                                else top_color
+                            ),
                             idx,
                             size_red,
                             size_blue,
@@ -255,8 +263,9 @@ def generate_all(
 
 
 if __name__ == "__main__":
+    description = "We used a red and a blue shape arc shape, either one on top of the other at the centre of the canvas (`illusory' and `different lengths' conditions) or randomly placed in the canvas with a random orientation (`scrambled' condition). In the `scrambled' and `different lengths' conditions the two shapes have different sizes. The size is the same (thus eliciting the illusion) in the `illusory' condition. For all conditions, which shape is on top, the shapes' size, the shapes' curvature, and their position and orientation for the `scrambled' condition."
     parser = argparse.ArgumentParser(
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+        description=description, formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
     add_general_args(parser)
@@ -281,6 +290,13 @@ if __name__ == "__main__":
         "-nrs",
         default=DEFAULTS["num_samples_random"],
         help="Number of samples for condition in which the two objects are randomly placed in the canvas",
+        type=int,
+    )
+    parser.add_argument(
+        "--num_samples_random_same_size",
+        "-nrss",
+        default=DEFAULTS["num_samples_random_same_size"],
+        help="Number of samples for condition in which the two objects are randomly placed in the canvas and they are the same size",
         type=int,
     )
     args = parser.parse_known_args()[0]

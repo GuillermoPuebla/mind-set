@@ -130,7 +130,6 @@ class DrawPatternedCanvas(DrawStimuli):
             ),
             mask=mask,
         )
-        canvas.save("tmp.png")
         return apply_antialiasing(canvas) if self.antialiasing else canvas
 
 
@@ -262,7 +261,8 @@ def generate_all(
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
+    description = "The dataset consists of texturized familiar objects by using as a base items the line drawings from Baker et al. (2018), but the user can specify a different folder oe line drawings (which should be images of black strokes on a white background). The texturization consists of masking the internal contour of a line drawing/silhouette with a pattern of a repeated character with a randomized font size, rotated by a random degree. The character is randomly selected between an letters, digits, or punctuation. The user can specify the texturization of the background as well, although we have found that doing so will turn object recognition from trivial to very  challenging, depending on the selected character, and thus suggest not using it.\nREF: Baker, Nicholas, Hongjing Lu, Gennady Erlikhman, and Philip J. Kellman. 'Deep Convolutional Networks Do Not Classify Based on Global Object Shape'. PLoS Computational Biology 14, no. 12 (2018): 1-43. https://doi.org/10.1371/journal.pcbi.1006613."
+    parser = argparse.ArgumentParser(description=description)
     add_general_args(parser)
     parser.set_defaults(output_folder=DEFAULTS["output_folder"])
     parser.set_defaults(antialiasing=DEFAULTS["antialiasing"])

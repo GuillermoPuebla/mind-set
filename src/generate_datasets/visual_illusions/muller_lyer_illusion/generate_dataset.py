@@ -248,8 +248,9 @@ def generate_all(
 
 
 if __name__ == "__main__":
+    description = "The Müller-Lyer illusion stimuli are procedurally generated in one of two `illusory' configurations (with inward or outward `fins') or in a `scrambled' configuration. In the latter, the fins are arranged randomly in the canvas, separated from the line segment. In all three conditions, we vary the line length, the position of the line, and the angle of the fins."
     parser = argparse.ArgumentParser(
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter, description=description
     )
 
     add_general_args(parser)

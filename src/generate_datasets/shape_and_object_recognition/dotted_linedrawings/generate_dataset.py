@@ -145,8 +145,9 @@ def generate_all(
 
 
 if __name__ == "__main__":
+    description = "This dataset consists of modification of line drawings (by default, we use line-drawings from Baker et al. (2018). The line drawings are 'dottified'. The user can specify the dots size and the distance between each dot.\nREF: Baker, Nicholas, Hongjing Lu, Gennady Erlikhman, and Philip J. Kellman. 'Deep Convolutional Networks Do Not Classify Based on Global Object Shape'. PLoS Computational Biology 14, no. 12 (2018): 1-43. https://doi.org/10.1371/journal.pcbi.1006613."
     parser = argparse.ArgumentParser(
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+        description=description, formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
     add_general_args(parser)

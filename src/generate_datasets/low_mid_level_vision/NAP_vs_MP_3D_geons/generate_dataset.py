@@ -140,7 +140,8 @@ def generate_all(
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
+    description = "3D Geon stimuli originally used in Kayaert et al. (2003) and obtained from https://geon.usc.edu/~ori. A feature dimension (such as the curvature of a Geon) is altered from a singular value (e.g. straight contour with 0 curvature) to two different values (e.g. slightly curved or very curved). The `reference` condition is the item with the intermediate value; the `MP change` condition consists of the sample with a greater non-singular value (that is, from slight curvature to greater curvature, which corresponds to a MP change), and the `NAP` change condition includes the samples with the singular value (that is, from slight curvature to non curvature, which corresponds to a NAP change).\nREF:Kayaert, Greet, Irving Biederman, and Rufin Vogels. 'Shape Tuning in Macaque Inferior Temporal Cortex'. Journal of Neuroscience 23, no. 7 (1 April 2003): 3016-27. https://doi.org/10.1523/JNEUROSCI.23-07-03016.2003."
+    parser = argparse.ArgumentParser(description=description)
     add_general_args(parser)
     parser.set_defaults(output_folder=DEFAULTS[0]["output_folder"])
 
@@ -157,9 +158,11 @@ if __name__ == "__main__":
         "-sc",
         default=DEFAULTS[0]["stroke_color"],
         help="Specify the color of the shape. The shading will be preserved. Leave it empty to not change the color of the shape. Specify it as a rgb tuple in the format of 255_255_255",
-        type=lambda x: [int(i) for i in x.split("_")] if "_" in x else x
-        if isinstance(x, str)
-        else x,
+        type=lambda x: (
+            [int(i) for i in x.split("_")]
+            if "_" in x
+            else x if isinstance(x, str) else x
+        ),
     )
     parser.add_argument(
         "--shape_folder",
