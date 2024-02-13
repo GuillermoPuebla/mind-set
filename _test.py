@@ -87,7 +87,7 @@ def check_up_config(project_name: str):
 from nbconvert import HTMLExporter
 
 
-def generate_notebook(dataset_structure, save_to):
+def generate_summary(dataset_structure, save_to):
     # Create a new notebook
     nb = nbf.new_notebook()
     generate_headers(nb, dataset_structure)
@@ -177,7 +177,7 @@ def generate_test_dataset_and_notebook_from_toml_file(
     generate_datasets_from_toml_file(name_toml_file)
     dataset_structure = defaultdict(dict)
     build_dataset_structure(save_path / "data", dataset_structure)
-    generate_notebook(dataset_structure, save_path / "notebook.ipynb")
+    generate_summary(dataset_structure, save_path / "summary.ipynb")
 
 
 if __name__ == "__main__":

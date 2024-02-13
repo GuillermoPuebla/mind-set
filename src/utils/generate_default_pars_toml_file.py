@@ -39,7 +39,7 @@ def generate_lite(toml_file, output_toml_file):
     new_lines = modify_toml(
         lines,
         modified_key_starts_with="num_samples",
-        modify_value_fun=lambda h, x: max(int(x) // 100, 50),
+        modify_value_fun=lambda h, x: max(int(x) // 100, 5),
     )
     new_lines = modify_toml(
         new_lines,
@@ -52,7 +52,7 @@ def generate_lite(toml_file, output_toml_file):
 
 def extract_help_text(script_path):
     """Run the script with the -h flag and capture the output."""
-    ".".join(list(Path(script_path).parts)).strip(".py")
+    # ".".join(list(Path(script_path).parts)).strip(".py")
     result = subprocess.run(
         ["python", "-m", ".".join(list(Path(script_path).parts)).strip(".py"), "-h"],
         capture_output=True,
@@ -61,7 +61,7 @@ def extract_help_text(script_path):
     return result.stdout
 
 
-def add_comments_to_toml(toml_str, section_comments):
+def add_comments_to_toml(toml_str, section_comments, descriptions):
     """
     Add comments to the TOML string under the appropriate sections.
     """
@@ -71,24 +71,28 @@ def add_comments_to_toml(toml_str, section_comments):
         if section_start == -1:
             continue  # Skip if the section is not found
 
-        # Find the end of the section or end of file
         section_end = toml_str.find("\n[", section_start + len(section_header))
         section_end = section_end if section_end != -1 else len(toml_str)
 
-        # Get the section content
-        section_content = toml_str[section_start:section_end]
-
-        # Add comments within this section
+        section_content_updated = toml_str[section_start:section_end]
+        if descriptions[section]:
+            section_content_updated = re.sub(
+                f"({re.escape(section_header)})",
+                rf"# {descriptions[section]}\n\1",
+                section_content_updated,
+            )
         for arg, desc in args.items():
-            section_content = re.sub(
+            section_content_updated = re.sub(
                 rf"({arg} = [^\n]+)",
                 rf"# {desc}\n\1",
-                section_content,
+                section_content_updated,
                 flags=re.MULTILINE,
             )
 
         # Replace the original section content with the updated one
-        toml_str = toml_str[:section_start] + section_content + toml_str[section_end:]
+        toml_str = (
+            toml_str[:section_start] + section_content_updated + toml_str[section_end:]
+        )
 
     return toml_str
 
@@ -97,6 +101,17 @@ def parse_help_text(help_text):
     """
     Parse the help text to extract argument names and descriptions.
     """
+    description_pattern = re.compile(
+        r"usage:.*?\n\n(.*?)(?=\n\noptional arguments:)", re.DOTALL
+    )
+    description = ""
+    # Extract the description
+    description_match = description_pattern.search(help_text)
+    if description_match:
+        description = description_match.group(
+            1
+        ).strip()  # Remove leading/trailing whitespace
+    description = " ".join(description.split()).partition("(default:")[0].strip()
     # Regular expression to extract arguments and their help text
     help_text = help_text.split("show this help message and exit")[1]
     pattern = re.compile(
@@ -113,7 +128,11 @@ def parse_help_text(help_text):
 
         args_dict[arg] = clean_desc
 
-    return args_dict
+    return description, args_dict
+
+
+import concurrent.futures
+from multiprocessing import Pool
 
 
 def create_config(save_to):
@@ -122,28 +141,34 @@ def create_config(save_to):
     )
     config = {}
     comments = {}
-    for dataset_path in tqdm(datasets):
-        help_text = extract_help_text(dataset_path)
-        arg_help = parse_help_text(help_text)
+    descriptions = {}
+    datasets_to_process = datasets
+    with Pool(len(datasets_to_process)) as p:
+        all_help_text = p.map(extract_help_text, datasets_to_process)
+
+    for idx, dataset_path in tqdm(enumerate(datasets_to_process)):
+        # help_text = extract_help_text(dataset_path)
+        description, arg_help = parse_help_text(all_help_text[idx])
         dataset_name = "/".join(Path(dataset_path).parent.parts[-2:])
         module_name = ".".join(list(Path(dataset_path).parts)).strip(".py")
 
         module = importlib.import_module(module_name)
-
         if isinstance(module.DEFAULTS, list):
             for i, defaults in enumerate(module.DEFAULTS):
                 section_name = f"{dataset_name}.{i}"
                 config[section_name] = defaults
                 comments[section_name] = arg_help
+                descriptions[section_name] = description
 
         else:
             config[dataset_name] = module.DEFAULTS
             comments[dataset_name] = arg_help
+            descriptions[dataset_name] = description
     # Convert the config to TOML format
     toml_str = toml.dumps(config)
 
     # In the create_config function
-    toml_str_with_comments = add_comments_to_toml(toml_str, comments)
+    toml_str_with_comments = add_comments_to_toml(toml_str, comments, descriptions)
 
     # Write the final TOML file
     with open(save_to, "w") as f:

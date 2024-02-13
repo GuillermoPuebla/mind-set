@@ -16,8 +16,9 @@ The `MindSet: Vision` datasets are designed to facilitate the testing of DNNs ag
 
 ## Datasets
 
-`MindSet: Vision` datasets are divided into three categories: `low_mid_level_vision`, `visual_illusions`, and `shape_and_object_recognition`. Each of this category contains many datasets. You can explore the datasets in Kaggle without downloading them. 
-Every dataset is further structured into subfolders (conditions), which are organized based on the dataset's specific characteristics. At the root of each dataset, there's an `annotation.csv` file. This file lists the paths to individual images (starting from the dataset folder) along with their associated parameters. Such organization enables users to use the datasets either exploting their folder structure (e.g. through PyTorch's  ImageFolder) or by directly referencing the annotation file.
+`MindSet: Vision` datasets are divided into three categories: `low_mid_level_vision`, `visual_illusions`, and `shape_and_object_recognition`. Each of this category contains many datasets. You can explore the datasets in Kaggle without downloading them, or you can download and view the automatically generated [html](tests/small_black_bg/summary.html) containing samples from all datasets. A description of each dataset can be found in our paper (*IN PREPARATION*) or in the comments of the [TOML file](generate_all_datasets.toml), together with all the configurable parameters.  
+
+Every dataset is structured into subfolders (conditions), which are organized based on the dataset's specific characteristics. At the root of each dataset, there's an `annotation.csv` file. This file lists the paths to individual images (starting from the dataset folder) along with their associated parameters. Such organization enables users to use the datasets either exploting their folder structure (e.g. through PyTorch's  ImageFolder) or by directly referencing the annotation file.
 
  In our provided Decoder, Classification and Similarity Judgment methods we always use the `annotation.csv` approach.
 
@@ -34,7 +35,11 @@ Both versions of the `MindSet: Vision` dataset are structured into folders, each
 Similarly, if your research or project requires datasets with more than the provided samples, you can regenerate the datasets with a specific sample size. 
 
 # Generate datasets from scratch
-We provide an intuitive interface to generate each dataset from scratch, allowing users to modify various parameters.
+We provide an intuitive interface to generate each dataset from scratch, allowing users to modify various parameters (in a new conda environment if you want).
+Before proceeding, install all dependencies: 
+```bash
+pip install -r requirements.txt
+```
 There are two ways to generate the datasets: through a TOML file (which allows for batch generation of many datasets in one go), or by running the script for each dataset (as a a module) passing all arguments in the command line. The TOML approach is the reccomended one. 
 
 

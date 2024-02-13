@@ -12,4 +12,4 @@ object_longest_side = 100
 # A folder containing linedrawings. We assume these to be black strokes-on-white canvas simple contour drawings.
 linedrawing_input_folder = "assets/baker_2018_linedrawings/cropped/"
 # The folder containing the data. It will be created if doesn't exist. The default will match the folder structure of the generation script
-output_folder = "data/shape_and_object_recognition/linedrawings"
+output_folder = "examples/data/shape_and_object_recognition/linedrawings"

@@ -5,7 +5,7 @@ architecture_name = "resnet152"
 
 [[eval.datasets]]
 name = "linedrawings"
-annotation_file = "data/shape_and_object_recognition/linedrawings/annotation_w_imagenet_idxs.csv" 
+annotation_file = "examples/data/shape_and_object_recognition/linedrawings/annotation_w_imagenet_idxs.csv" 
 img_path_col_name = "Path"
 label_cols = ["ImageNetClassIdx"]
 filters = {}
